@@ -20,5 +20,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "MazeWear"
-include(":app")
- 
+include(":wear")
+include(":maze")
