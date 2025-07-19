@@ -83,14 +83,6 @@ object DeepGenerator : BasicAverageGenerator() {
                 }
             }
         }
-        // 最后清洗一遍所有的未处理的路
-        for (x in 0 until blueprint.width) {
-            for (y in 0 until blueprint.height) {
-                if (blueprint[x, y] == WALL_PENDING) {
-                    blueprint[x, y] = WALL
-                }
-            }
-        }
     }
 
     private fun select(map: MMap, x: Int, y: Int, direction: Direction, out: Block) {

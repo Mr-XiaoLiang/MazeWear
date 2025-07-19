@@ -2,6 +2,7 @@ package com.lollipop.maze
 
 import com.lollipop.maze.generate.DeepGenerator
 import com.lollipop.maze.generate.MazeGenerator
+import com.lollipop.maze.generate.SpreadGenerator
 
 object Maze {
 
@@ -37,6 +38,8 @@ object Maze {
 
 fun main() {
     MazeTest.print(Maze.generate(21, 21))
+    println("------------------------------")
+    MazeTest.print(Maze.generate(21, 21, SpreadGenerator))
 }
 
 object MazeTest {

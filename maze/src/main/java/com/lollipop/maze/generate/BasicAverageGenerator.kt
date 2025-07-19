@@ -19,6 +19,7 @@ abstract class BasicAverageGenerator : MazeGenerator {
     override fun generate(width: Int, height: Int): MazeMap {
         val blueprint = blueprint(width, height)
         buildByBlueprint(blueprint)
+        fillPendingWall(blueprint)
         val start = findStart(blueprint)
         val end = findEnd(blueprint, start)
         return MazeMap(
@@ -31,6 +32,16 @@ abstract class BasicAverageGenerator : MazeGenerator {
     }
 
     protected abstract fun buildByBlueprint(blueprint: MMap)
+
+    protected fun fillPendingWall(blueprint: MMap) {
+        for (x in 0 until blueprint.width) {
+            for (y in 0 until blueprint.height) {
+                if (blueprint[x, y] == WALL_PENDING) {
+                    blueprint[x, y] = WALL
+                }
+            }
+        }
+    }
 
     /**
      * 创建迷宫蓝图
