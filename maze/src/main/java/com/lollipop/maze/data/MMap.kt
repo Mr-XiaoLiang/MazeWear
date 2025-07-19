@@ -25,4 +25,16 @@ class MMap(val width: Int, val height: Int, val initValue: Int = Maze.EMPTY) {
         map[y][x] = value
     }
 
+    fun road(x: Int, y: Int) {
+        this[x, y] = Maze.ROAD
+    }
+
+    fun wall(x: Int, y: Int) {
+        this[x, y] = Maze.WALL
+    }
+
+    fun empty(x: Int, y: Int) {
+        this[x, y] = Maze.EMPTY
+    }
+
 }
