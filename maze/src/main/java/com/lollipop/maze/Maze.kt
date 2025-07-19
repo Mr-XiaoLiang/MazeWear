@@ -3,6 +3,7 @@ package com.lollipop.maze
 import com.lollipop.maze.generate.DeepGenerator
 import com.lollipop.maze.generate.MazeGenerator
 import com.lollipop.maze.generate.SpreadGenerator
+import java.io.File
 
 object Maze {
 
@@ -37,30 +38,54 @@ object Maze {
 }
 
 fun main() {
-    MazeTest.print(Maze.generate(21, 21))
+    MazeTest.print(Maze.generate(21))
     println("------------------------------")
-    MazeTest.print(Maze.generate(21, 21, SpreadGenerator))
+    MazeTest.print(Maze.generate(21, generator = SpreadGenerator))
 }
 
 object MazeTest {
 
+    class CSV() {
+
+        private val builder = StringBuilder()
+
+        fun add(value: String) {
+            builder.append(value).append(",")
+        }
+
+        fun enter() {
+            builder.append("\r\n")
+        }
+
+        fun build(): String {
+            return builder.toString()
+        }
+
+        fun write(name: String) {
+            val dir = File(System.getProperty("user.home")!!)
+            File(dir, name).writeText(build())
+        }
+
+    }
+
     fun print(mazeMap: MazeMap) {
         val map = mazeMap.map.map
+        val csv = CSV()
         for (x in 0 until mazeMap.width) {
             for (y in 0 until mazeMap.height) {
                 if (x == mazeMap.startX && y == mazeMap.startY) {
-                    print("S")
+                    csv.add("Start")
                 } else if (x == mazeMap.endX && y == mazeMap.endY) {
-                    print("E")
+                    csv.add("End")
                 } else {
-                    print(
+                    csv.add(
                         when (map[x][y]) {
                             Maze.ROAD -> {
-                                "□"
+                                ""
                             }
 
                             Maze.WALL -> {
-                                "■"
+                                "WALL"
                             }
 
                             else -> {
@@ -70,8 +95,9 @@ object MazeTest {
                     )
                 }
             }
-            println()
+            csv.enter()
         }
+        csv.write("maze-${System.currentTimeMillis()}.csv")
     }
 
 }
