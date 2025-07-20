@@ -2,7 +2,9 @@ package com.lollipop.maze.generate
 
 import com.lollipop.maze.Maze
 import com.lollipop.maze.MazeMap
+import com.lollipop.maze.data.MBlock
 import com.lollipop.maze.data.MMap
+import com.lollipop.maze.data.MPoint
 import kotlin.random.Random
 
 abstract class BasicAverageGenerator : MazeGenerator {
@@ -23,10 +25,8 @@ abstract class BasicAverageGenerator : MazeGenerator {
         val start = findStart(blueprint)
         val end = findEnd(blueprint, start)
         return MazeMap(
-            startX = start.x,
-            startY = start.y,
-            endX = end.x,
-            endY = end.y,
+            start = MPoint(x = start.x, y = start.y),
+            end = MPoint(x = end.x, y = end.y),
             map = blueprint
         )
     }
@@ -123,61 +123,6 @@ abstract class BasicAverageGenerator : MazeGenerator {
         return nextDirection
     }
 
-    protected class Block(
-        var x: Int = 0,
-        var y: Int = 0,
-    ) {
-
-        constructor(block: Block) : this(block.x, block.y)
-
-        fun set(x: Int, y: Int) {
-            this.x = x
-            this.y = y
-        }
-
-        fun set(block: Block) {
-            set(block.x, block.y)
-        }
-
-        fun leftWith(target: Block, step: Int = 1) {
-            offsetOf(target = target, offsetX = -step, offsetY = 0)
-        }
-
-        fun rightWith(target: Block, step: Int = 1) {
-            offsetOf(target = target, offsetX = step, offsetY = 0)
-        }
-
-        fun upWith(target: Block, step: Int = 1) {
-            offsetOf(target = target, offsetX = 0, offsetY = -step)
-        }
-
-        fun downWith(target: Block, step: Int = 1) {
-            offsetOf(target = target, offsetX = 0, offsetY = step)
-        }
-
-        fun offsetOf(target: Block, offsetX: Int = 0, offsetY: Int = 0) {
-            this.x = target.x + offsetX
-            this.y = target.y + offsetY
-        }
-
-        fun left(step: Int = 1): Block {
-            return Block(x - step, y)
-        }
-
-        fun right(step: Int = 1): Block {
-            return Block(x + step, y)
-        }
-
-        fun up(step: Int = 1): Block {
-            return Block(x, y - step)
-        }
-
-        fun down(step: Int = 1): Block {
-            return Block(x, y + step)
-        }
-
-    }
-
     protected fun MMap.isRoadPending(x: Int, y: Int): Boolean {
         return this[x, y] == ROAD_PENDING
     }
@@ -186,15 +131,15 @@ abstract class BasicAverageGenerator : MazeGenerator {
         return this[x, y] == WALL_PENDING
     }
 
-    protected fun MMap.isWallPending(block: Block): Boolean {
+    protected fun MMap.isWallPending(block: MBlock): Boolean {
         return isWallPending(block.x, block.y)
     }
 
-    protected fun MMap.isRoadPending(block: Block): Boolean {
+    protected fun MMap.isRoadPending(block: MBlock): Boolean {
         return isRoadPending(block.x, block.y)
     }
 
-    protected fun findStart(map: MMap): Block {
+    protected fun findStart(map: MMap): MBlock {
         val hEdge = Random.nextBoolean()
         if (hEdge) {
             val left = Random.nextBoolean()
@@ -204,7 +149,7 @@ abstract class BasicAverageGenerator : MazeGenerator {
             } else {
                 map.width - 2
             }
-            return Block(x, y)
+            return MBlock(x, y)
         } else {
             val top = Random.nextBoolean()
             val x = Random.nextInt(map.width - 2) + 1
@@ -213,11 +158,11 @@ abstract class BasicAverageGenerator : MazeGenerator {
             } else {
                 map.height - 2
             }
-            return Block(x, y)
+            return MBlock(x, y)
         }
     }
 
-    protected fun findEnd(map: MMap, start: Block): Block {
+    protected fun findEnd(map: MMap, start: MBlock): MBlock {
         var x = -1
         var y = -1
         // 如果起点靠左，那么我们的终点就得靠右
@@ -237,26 +182,26 @@ abstract class BasicAverageGenerator : MazeGenerator {
         if (y < 0) {
             y = Random.nextInt(map.height - 1) + 1
         }
-        return Block(x, y)
+        return MBlock(x, y)
     }
 
-    protected fun findBuildStart(map: MMap, deep: Int = 0): Block {
+    protected fun findBuildStart(map: MMap, deep: Int = 0): MBlock {
         val randomX = Random.nextInt(map.width)
         val randomY = Random.nextInt(map.height)
         if (map[randomX, randomY] == ROAD_PENDING) {
-            return Block(randomX, randomY)
+            return MBlock(randomX, randomY)
         }
         if (map[randomX, randomY - 1] == ROAD_PENDING) {
-            return Block(randomX, randomY - 1)
+            return MBlock(randomX, randomY - 1)
         }
         if (map[randomX, randomY + 1] == ROAD_PENDING) {
-            return Block(randomX, randomY + 1)
+            return MBlock(randomX, randomY + 1)
         }
         if (map[randomX - 1, randomY] == ROAD_PENDING) {
-            return Block(randomX - 1, randomY)
+            return MBlock(randomX - 1, randomY)
         }
         if (map[randomX + 1, randomY] == ROAD_PENDING) {
-            return Block(randomX + 1, randomY)
+            return MBlock(randomX + 1, randomY)
         }
         if (deep > 10) {
             throw RuntimeException("无法找到起始点")
@@ -285,7 +230,7 @@ abstract class BasicAverageGenerator : MazeGenerator {
         }
     }
 
-    protected fun next(x: Int, y: Int, direction: Direction, out: Block) {
+    protected fun next(x: Int, y: Int, direction: Direction, out: MBlock) {
         when (direction) {
             Direction.UP -> {
                 return out.set(x, y - 2)

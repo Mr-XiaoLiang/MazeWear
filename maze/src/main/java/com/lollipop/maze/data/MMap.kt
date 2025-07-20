@@ -25,6 +25,14 @@ class MMap(val width: Int, val height: Int, val initValue: Int = Maze.EMPTY) {
         map[y][x] = value
     }
 
+    fun reset() {
+        for (line in map) {
+            for (i in line.indices) {
+                line[i] = initValue
+            }
+        }
+    }
+
     fun road(x: Int, y: Int) {
         this[x, y] = Maze.ROAD
     }

@@ -1,12 +1,10 @@
 package com.lollipop.maze.data
 
-import android.graphics.Point
-
 class MPath {
 
-    var pointList = mutableListOf<Point>()
+    var pointList = mutableListOf<MPoint>()
 
-    fun add(point: Point) {
+    fun add(point: MPoint) {
         pointList.add(point)
     }
 

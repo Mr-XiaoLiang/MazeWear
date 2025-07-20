@@ -1,6 +1,5 @@
 package com.lollipop.maze.data
 
-import android.graphics.Point
 import com.lollipop.maze.Maze
 import com.lollipop.maze.MazeMap
 import org.json.JSONArray
@@ -62,11 +61,18 @@ object MJson {
                 if (pointJson != null) {
                     val x = pointJson.optInt(X)
                     val y = pointJson.optInt(Y)
-                    path.add(Point(x, y))
+                    path.add(MPoint(x, y))
                 }
             }
         }
-        return ParseOut(MazeMap(startX, startY, endX, endY, map), path)
+        return ParseOut(
+            MazeMap(
+                MPoint(x = startX, y = startY),
+                MPoint(x = endX, y = endY),
+                map
+            ),
+            path
+        )
     }
 
     fun build(mazeMap: MazeMap, path: MPath): JSONObject {
@@ -74,9 +80,9 @@ object MJson {
         val mapBuilder = JsonBuilder()
         for (x in 0 until mazeMap.width) {
             for (y in 0 until mazeMap.height) {
-                if (x == mazeMap.startX && y == mazeMap.startY) {
+                if (x == mazeMap.start.x && y == mazeMap.start.y) {
                     mapBuilder.addStart()
-                } else if (x == mazeMap.endX && y == mazeMap.endY) {
+                } else if (x == mazeMap.end.x && y == mazeMap.end.y) {
                     mapBuilder.addEnd()
                 } else {
                     when (map[x][y]) {

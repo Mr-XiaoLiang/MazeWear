@@ -1,12 +1,11 @@
 package com.lollipop.maze
 
 import com.lollipop.maze.data.MMap
+import com.lollipop.maze.data.MPoint
 
 class MazeMap(
-    val startX: Int,
-    val startY: Int,
-    val endX: Int,
-    val endY: Int,
+    val start: MPoint,
+    val end: MPoint,
     val map: MMap,
 ) {
 

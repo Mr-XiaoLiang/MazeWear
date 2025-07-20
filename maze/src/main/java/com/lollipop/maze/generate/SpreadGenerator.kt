@@ -1,5 +1,6 @@
 package com.lollipop.maze.generate
 
+import com.lollipop.maze.data.MBlock
 import com.lollipop.maze.data.MMap
 import java.util.LinkedList
 import kotlin.random.Random
@@ -64,25 +65,25 @@ object SpreadGenerator : BasicAverageGenerator() {
         }
     }
 
-    private fun MMap.setRoad(block: Block) {
+    private fun MMap.setRoad(block: MBlock) {
         set(block.x, block.y, ROAD)
     }
 
-    private fun MMap.setWall(block: Block) {
+    private fun MMap.setWall(block: MBlock) {
         set(block.x, block.y, WALL)
     }
 
     /**
      * 封死
      */
-    private fun sealed(blueprint: MMap, block: Block) {
+    private fun sealed(blueprint: MMap, block: MBlock) {
         val type = blueprint[block.x, block.y]
         if (type == WALL_PENDING) {
             blueprint.set(x = block.x, y = block.y, value = WALL)
         }
     }
 
-    private fun MMap.spreadEnable(block: Block, spreadX: Int, spreadY: Int): Boolean {
+    private fun MMap.spreadEnable(block: MBlock, spreadX: Int, spreadY: Int): Boolean {
         val blueprint = this
         if (!blueprint.isWallPending(block)) {
             return false
@@ -90,24 +91,24 @@ object SpreadGenerator : BasicAverageGenerator() {
         return blueprint.isRoadPending(block.x + spreadX, block.y + spreadY)
     }
 
-    private fun collectWallPending(role: Block, blueprint: MMap, out: MutableList<Block>) {
+    private fun collectWallPending(role: MBlock, blueprint: MMap, out: MutableList<MBlock>) {
         if (blueprint.isWallPending(role.x, role.y - 1)) {
-            out.add(Block(role.x, role.y - 1))
+            out.add(MBlock(role.x, role.y - 1))
         }
         if (blueprint.isWallPending(role.x, role.y + 1)) {
-            out.add(Block(role.x, role.y + 1))
+            out.add(MBlock(role.x, role.y + 1))
         }
         if (blueprint.isWallPending(role.x - 1, role.y)) {
-            out.add(Block(role.x - 1, role.y))
+            out.add(MBlock(role.x - 1, role.y))
         }
         if (blueprint.isWallPending(role.x + 1, role.y)) {
-            out.add(Block(role.x + 1, role.y))
+            out.add(MBlock(role.x + 1, role.y))
         }
     }
 
     private class PendingDirection(
-        val wallBlock: Block,
-        val pendingBlock: Block,
+        val wallBlock: MBlock,
+        val pendingBlock: MBlock,
     )
 
 }

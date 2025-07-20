@@ -1,5 +1,6 @@
 package com.lollipop.maze.generate
 
+import com.lollipop.maze.data.MBlock
 import com.lollipop.maze.data.MMap
 import java.util.LinkedList
 
@@ -14,8 +15,8 @@ object DeepGenerator : BasicAverageGenerator() {
      */
     override fun buildByBlueprint(blueprint: MMap) {
         val startBlock = findBuildStart(blueprint)
-        val road = LinkedList<Block>()
-        val nextBlock = Block(startBlock)
+        val road = LinkedList<MBlock>()
+        val nextBlock = MBlock(startBlock)
         var roadSignCount = 0
         val signMax = (blueprint.width / 2) * (blueprint.height / 2)
         while (true) {
@@ -42,7 +43,7 @@ object DeepGenerator : BasicAverageGenerator() {
                 // 选中当前点的下一个方向，然后告诉我下一个点
                 select(map = blueprint, x = x, y = y, direction = nextDirection, out = nextBlock)
                 // 记录当前点，作为路径方便回溯
-                road.add(Block(x, y))
+                road.add(MBlock(x, y))
                 // 累加路标计数，方便检查是否存在遗漏
                 roadSignCount++
             }
@@ -85,7 +86,7 @@ object DeepGenerator : BasicAverageGenerator() {
         }
     }
 
-    private fun select(map: MMap, x: Int, y: Int, direction: Direction, out: Block) {
+    private fun select(map: MMap, x: Int, y: Int, direction: Direction, out: MBlock) {
         when (direction) {
             Direction.UP -> {
                 map[x, y - 1] = ROAD
