@@ -73,9 +73,9 @@ object MazeTest {
         val csv = CSV()
         for (x in 0 until mazeMap.width) {
             for (y in 0 until mazeMap.height) {
-                if (x == mazeMap.startX && y == mazeMap.startY) {
+                if (x == mazeMap.start.x && y == mazeMap.start.y) {
                     csv.add("Start")
-                } else if (x == mazeMap.endX && y == mazeMap.endY) {
+                } else if (x == mazeMap.end.x && y == mazeMap.end.y) {
                     csv.add("End")
                 } else {
                     csv.add(
