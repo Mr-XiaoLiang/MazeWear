@@ -11,11 +11,13 @@ import androidx.core.graphics.withSave
 import com.lollipop.maze.data.MBlock
 import com.lollipop.maze.data.MMap
 import com.lollipop.maze.data.MPath
-import com.lollipop.wear.maze.view.draw.ColorPathDrawable
-import com.lollipop.wear.maze.view.draw.ColorTileDrawable
 import com.lollipop.wear.maze.view.draw.PathDrawable
+import com.lollipop.wear.maze.view.draw.SpiritDrawable
 import com.lollipop.wear.maze.view.draw.TileDrawable
 import com.lollipop.wear.maze.view.draw.TileMap
+import com.lollipop.wear.maze.view.draw.color.ColorPathDrawable
+import com.lollipop.wear.maze.view.draw.color.ColorSpiritDrawable
+import com.lollipop.wear.maze.view.draw.color.ColorTileDrawable
 
 class MazePlayView @JvmOverloads constructor(
     context: Context,
@@ -52,6 +54,7 @@ class MazePlayView @JvmOverloads constructor(
 
         var tileDrawable: TileDrawable = ColorTileDrawable()
         var pathDrawable: PathDrawable = ColorPathDrawable()
+        var spiritDrawable: SpiritDrawable = ColorSpiritDrawable()
 
         private fun getMapBufferSize(size: Int): Int {
             return size + MAP_BUFFER
@@ -169,15 +172,19 @@ class MazePlayView @JvmOverloads constructor(
         }
 
         private fun drawSpiriter(canvas: Canvas) {
-            // TODO
+            spiritDrawable.draw(canvas, bounds.exactCenterX(), bounds.exactCenterY(), blockSize)
         }
 
         override fun setAlpha(alpha: Int) {
-            TODO("Not yet implemented")
+            tileDrawable.setAlpha(alpha)
+            pathDrawable.setAlpha(alpha)
+            spiritDrawable.setAlpha(alpha)
         }
 
         override fun setColorFilter(colorFilter: ColorFilter?) {
-            TODO("Not yet implemented")
+            tileDrawable.setColorFilter(colorFilter)
+            pathDrawable.setColorFilter(colorFilter)
+            spiritDrawable.setColorFilter(colorFilter)
         }
     }
 

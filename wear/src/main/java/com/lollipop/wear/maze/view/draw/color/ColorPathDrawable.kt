@@ -1,8 +1,9 @@
-package com.lollipop.wear.maze.view.draw
+package com.lollipop.wear.maze.view.draw.color
 
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
+import com.lollipop.wear.maze.view.draw.PathDrawable
 
 class ColorPathDrawable : ColorBasicDrawable(), PathDrawable {
 
