@@ -3,14 +3,19 @@ package com.lollipop.wear.maze.view
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.ColorFilter
+import android.graphics.Path
 import android.graphics.Rect
 import android.util.AttributeSet
 import android.widget.ImageView
-import com.lollipop.maze.Maze
+import androidx.core.graphics.withSave
 import com.lollipop.maze.data.MBlock
 import com.lollipop.maze.data.MMap
-import com.lollipop.maze.helper.doAsync
-import com.lollipop.maze.helper.onUI
+import com.lollipop.maze.data.MPath
+import com.lollipop.wear.maze.view.draw.ColorPathDrawable
+import com.lollipop.wear.maze.view.draw.ColorTileDrawable
+import com.lollipop.wear.maze.view.draw.PathDrawable
+import com.lollipop.wear.maze.view.draw.TileDrawable
+import com.lollipop.wear.maze.view.draw.TileMap
 
 class MazePlayView @JvmOverloads constructor(
     context: Context,
@@ -20,11 +25,16 @@ class MazePlayView @JvmOverloads constructor(
 
     private class MapDrawable : MazeBasicDrawable() {
 
+        companion object {
+            const val MAP_BUFFER = 2
+        }
+
         private var viewportWidth = 5
         private var viewportHeight = 5
         private var mapWidth = 0
         private var mapHeight = 0
         private var sourceMap: MMap? = null
+        private var pathList: MPath? = null
 
         private var focusBlock = MBlock(x = -1, y = -1)
         private var nextBlock = MBlock(x = -1, y = -1)
@@ -33,14 +43,34 @@ class MazePlayView @JvmOverloads constructor(
 
         private var animationProgress = 0F
 
+        private var drawMap = MMap(viewportWidth + 2, viewportHeight + 2)
+        private var routePath = Path()
+
+        private var drawLeftEdge = 0F
+        private var drawTopEdge = 0F
+
+
+        var tileDrawable: TileDrawable = ColorTileDrawable()
+        var pathDrawable: PathDrawable = ColorPathDrawable()
+
+        private fun getMapBufferSize(size: Int): Int {
+            return size + MAP_BUFFER
+        }
+
         fun setViewportSize(width: Int, height: Int) {
             viewportWidth = width
             viewportHeight = height
+            val bufferWidth = getMapBufferSize(width)
+            val bufferHeight = getMapBufferSize(height)
+            if (drawMap.width != bufferWidth || drawMap.height != bufferHeight) {
+                drawMap = MMap(bufferWidth, bufferHeight)
+            }
             updateViewportMap()
         }
 
-        fun setSource(sourceMap: MMap) {
+        fun setSource(sourceMap: MMap, path: MPath) {
             this.sourceMap = sourceMap
+            this.pathList = path
             mapWidth = sourceMap.width
             mapHeight = sourceMap.height
             tileMap.setSource(sourceMap)
@@ -51,8 +81,14 @@ class MazePlayView @JvmOverloads constructor(
             updateViewportMap()
         }
 
+        fun updateProgress(progress: Float) {
+            animationProgress = progress
+            invalidateSelf()
+        }
+
         fun setNext(x: Int, y: Int) {
             nextBlock.set(x, y)
+            animationProgress = 0F
             updateViewportMap()
         }
 
@@ -65,11 +101,75 @@ class MazePlayView @JvmOverloads constructor(
             if (bounds.isEmpty) {
                 return
             }
-            // TODO
+            updateGrid(mapWidth, mapHeight, bounds.width(), bounds.height())
+            tileMap.getFragment(focusBlock.x, focusBlock.y, drawMap)
+            val halfBlock = blockSize / 2
+
+            drawLeftEdge = (bounds.width() / 2 - halfBlock)
+            drawLeftEdge -= (viewportWidth / 2) * blockSize
+
+            drawTopEdge = (bounds.height() / 2 - halfBlock)
+            drawTopEdge -= (viewportHeight / 2) * blockSize
+
+            val fragmentTop = drawTopEdge.toInt()
+            val fragmentBottom = (fragmentTop + (blockSize * drawMap.height)).toInt()
+            val fragmentLeft = drawLeftEdge.toInt()
+            val fragmentRight = (fragmentLeft + (blockSize * drawMap.width)).toInt()
+
+            routePath.reset()
+
+            var isInFragment = false
+            pathList?.pointList?.forEach { point ->
+                val oldFlag = isInFragment
+                if (!isInFragment) {
+                    if (point.x >= fragmentLeft && point.x <= fragmentRight && point.y >= fragmentTop && point.y <= fragmentBottom) {
+                        isInFragment = true
+                    }
+                }
+                if (isInFragment) {
+                    val pointX = (point.x * blockSize) + halfBlock
+                    val pointY = (point.y * blockSize) + halfBlock
+                    if (!oldFlag) {
+                        routePath.moveTo(pointX, pointY)
+                    } else {
+                        routePath.lineTo(pointX, pointY)
+                    }
+                }
+            }
         }
 
         override fun draw(canvas: Canvas) {
-            TODO("Not yet implemented")
+            sourceMap ?: return
+            val offsetX = (nextBlock.x - focusBlock.x) * animationProgress
+            val offsetY = (nextBlock.y - focusBlock.y) * animationProgress
+            canvas.withSave {
+                canvas.translate(offsetX * -1, offsetY * -1)
+                for (x in 0 until drawMap.width) {
+                    for (y in 0 until drawMap.height) {
+                        val tile = drawMap[x, y]
+                        drawTile(
+                            canvas,
+                            (drawLeftEdge + (x * blockSize)),
+                            (drawTopEdge + (y * blockSize)),
+                            tile
+                        )
+                    }
+                }
+                drawPath(canvas)
+                drawSpiriter(canvas)
+            }
+        }
+
+        private fun drawTile(canvas: Canvas, x: Float, y: Float, tile: Int) {
+            tileDrawable.draw(canvas, x, y, blockSize, tile)
+        }
+
+        private fun drawPath(canvas: Canvas) {
+            pathDrawable.draw(canvas, routePath, blockSize)
+        }
+
+        private fun drawSpiriter(canvas: Canvas) {
+            // TODO
         }
 
         override fun setAlpha(alpha: Int) {
@@ -79,79 +179,6 @@ class MazePlayView @JvmOverloads constructor(
         override fun setColorFilter(colorFilter: ColorFilter?) {
             TODO("Not yet implemented")
         }
-    }
-
-    private class TileMap(
-        private val onMapChanged: () -> Unit
-    ) {
-
-        companion object {
-            const val TILE_EMPTY = 0
-            const val TILE_TOP_ONLY = 0b0001
-            const val TILE_RIGHT_ONLY = 0b0010
-            const val TILE_BOTTOM_ONLY = 0b0100
-            const val TILE_LEFT_ONLY = 0b1000
-            const val TILE_LEFT_TOP = TILE_LEFT_ONLY or TILE_TOP_ONLY
-            const val TILE_LEFT_BOTTOM = TILE_LEFT_ONLY or TILE_BOTTOM_ONLY
-            const val TILE_LEFT_BOTTOM_TOP = TILE_LEFT_ONLY or TILE_BOTTOM_ONLY or TILE_TOP_ONLY
-            const val TILE_LEFT_RIGHT = TILE_LEFT_ONLY or TILE_RIGHT_ONLY
-            const val TILE_LEFT_RIGHT_BOTTOM = TILE_LEFT_ONLY or TILE_RIGHT_ONLY or TILE_BOTTOM_ONLY
-            const val TILE_LEFT_RIGHT_TOP = TILE_LEFT_ONLY or TILE_RIGHT_ONLY or TILE_TOP_ONLY
-
-            const val TILE_RIGHT_TOP = TILE_RIGHT_ONLY or TILE_TOP_ONLY
-            const val TILE_RIGHT_BOTTOM = TILE_RIGHT_ONLY or TILE_BOTTOM_ONLY
-            const val TILE_RIGHT_BOTTOM_TOP = TILE_RIGHT_ONLY or TILE_BOTTOM_ONLY or TILE_TOP_ONLY
-
-            const val TILE_TOP_BOTTOM = TILE_TOP_ONLY or TILE_BOTTOM_ONLY
-
-            const val TILE_LEFT_RIGHT_BOTTOM_TOP =
-                TILE_LEFT_ONLY or TILE_RIGHT_ONLY or TILE_BOTTOM_ONLY or TILE_TOP_ONLY
-        }
-
-        private var tileMap: MMap? = null
-
-        fun setSource(source: MMap) {
-            doAsync {
-                val map = MMap(source.width, source.height)
-                for (x in 0 until source.width) {
-                    for (y in 0 until source.height) {
-                        val left = source.isRoad(x - 1, y)
-                        val top = source.isRoad(x, y - 1)
-                        val right = source.isRoad(x + 1, y)
-                        val bottom = source.isRoad(x, y + 1)
-                        val tile = getTile(left, top, right, bottom)
-                        map[x, y] = tile
-                    }
-                }
-                onUI {
-                    this.tileMap = map
-                    onMapChanged()
-                }
-            }
-
-        }
-
-        private fun MMap.isRoad(x: Int, y: Int): Boolean {
-            return this[x, y] == Maze.ROAD
-        }
-
-        private fun getTile(left: Boolean, top: Boolean, right: Boolean, bottom: Boolean): Int {
-            var tile = 0
-            if (left) {
-                tile = tile or TILE_LEFT_ONLY
-            }
-            if (top) {
-                tile = tile or TILE_TOP_ONLY
-            }
-            if (right) {
-                tile = tile or TILE_RIGHT_ONLY
-            }
-            if (bottom) {
-                tile = tile or TILE_BOTTOM_ONLY
-            }
-            return tile
-        }
-
     }
 
 }
