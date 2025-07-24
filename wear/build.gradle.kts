@@ -8,6 +8,10 @@ android {
     namespace = "com.lollipop.wear.maze"
     compileSdk = 36
 
+    buildFeatures {
+        viewBinding = true
+    }
+
     defaultConfig {
         applicationId = "com.lollipop.wear.maze"
         minSdk = 28
@@ -40,7 +44,15 @@ android {
 }
 
 dependencies {
-    implementation(libs.play.services.wearable)
+    implementation(libs.core.ktx)
+    implementation(libs.appcompat)
+    implementation(libs.wear)
+    implementation(libs.material)
+    implementation(libs.wear.input)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.activity)
+
+
     implementation(platform(libs.compose.bom))
     implementation(libs.ui)
     implementation(libs.ui.graphics)

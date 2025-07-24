@@ -6,25 +6,17 @@ import android.graphics.PointF
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.ViewConfiguration
-import android.widget.ImageView
+import androidx.appcompat.widget.AppCompatImageView
 import com.lollipop.wear.maze.helper.DeviceHelper
-import kotlin.math.max
-import kotlin.math.min
 
 class JoystickView @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet? = null
-) : ImageView(context, attributeSet) {
+) : AppCompatImageView(context, attributeSet) {
 
 
     companion object {
-        const val POSITION_PARENT_LEFT = -1
-        const val POSITION_PARENT_TOP = -2
-        const val POSITION_PARENT_RIGHT = -3
-        const val POSITION_PARENT_BOTTOM = -4
-        const val POSITION_PARENT_CENTER = -5
-
-        private fun getLength(
+        fun getLength(
             x1: Float,
             y1: Float,
             x2: Float,
@@ -221,6 +213,7 @@ class JoystickView @JvmOverloads constructor(
 
     fun setJoystickDisplay(display: JoystickDisplay) {
         this.joystickDisplay = display
+        display.onBindJoystick(this)
     }
 
     interface OnJoystickTouchListener {
@@ -240,130 +233,15 @@ class JoystickView @JvmOverloads constructor(
     /**
      * 禁止触摸的区域
      */
-    sealed class RestrictedZone {
-
-        abstract fun isTouchOnRestricted(
+    fun interface RestrictedZone {
+        fun isTouchOnRestricted(
             viewWidth: Int,
             viewHeight: Int,
             x: Float,
             y: Float
         ): Boolean
-
-        /**
-         * 矩形
-         */
-        class Rect(
-            val left: Int,
-            val top: Int,
-            val right: Int,
-            val bottom: Int
-        ) : RestrictedZone() {
-
-            override fun isTouchOnRestricted(
-                viewWidth: Int,
-                viewHeight: Int,
-                x: Float,
-                y: Float
-            ): Boolean {
-                val l = getRestrictedPosition(viewWidth, viewHeight, left, true)
-                val t = getRestrictedPosition(viewWidth, viewHeight, top, false)
-                val r = getRestrictedPosition(viewWidth, viewHeight, right, true)
-                val b = getRestrictedPosition(viewWidth, viewHeight, bottom, false)
-                return x >= l && x <= r && y >= t && y <= b
-            }
-
-            private fun getRestrictedPosition(
-                viewWidth: Int,
-                viewHeight: Int,
-                value: Int,
-                isHorizontal: Boolean
-            ): Int {
-                when (value) {
-                    POSITION_PARENT_LEFT -> {
-                        return 0
-                    }
-
-                    POSITION_PARENT_TOP -> {
-                        return 0
-                    }
-
-                    POSITION_PARENT_RIGHT -> {
-                        return viewWidth
-                    }
-
-                    POSITION_PARENT_BOTTOM -> {
-                        return viewHeight
-                    }
-
-                    POSITION_PARENT_CENTER -> {
-                        return if (isHorizontal) {
-                            viewWidth / 2
-                        } else {
-                            viewHeight / 2
-                        }
-                    }
-
-                    else -> {
-                        return value
-                    }
-                }
-            }
-
-        }
-
-        /**
-         * 圆，特定的角度
-         */
-        class Circle(
-            val radiusFrom: Int,
-            val radiusTo: Int,
-        ) : RestrictedZone() {
-
-            override fun isTouchOnRestricted(
-                viewWidth: Int,
-                viewHeight: Int,
-                x: Float,
-                y: Float
-            ): Boolean {
-                val centerX = viewWidth * 0.5F
-                val centerY = viewHeight * 0.5F
-                val radius = getLength(centerX, centerY, x, y)
-                return radius >= radiusFrom && radius <= radiusTo
-            }
-
-        }
-
-        /**
-         * 圆环
-         */
-        class Annulus(
-            val width: Int,
-            val offset: Int,
-            val insideMode: Boolean,
-        ) : RestrictedZone() {
-
-            override fun isTouchOnRestricted(
-                viewWidth: Int,
-                viewHeight: Int,
-                x: Float,
-                y: Float
-            ): Boolean {
-                val maxRadius = if (insideMode) {
-                    min(viewWidth, viewHeight) / 2
-                } else {
-                    max(viewWidth, viewHeight) / 2
-                }
-                val radiusTo = maxRadius - offset
-                val radiusFrom = radiusTo - width
-                val centerX = viewWidth * 0.5F
-                val centerY = viewHeight * 0.5F
-                val radius = getLength(centerX, centerY, x, y)
-                return radius >= radiusFrom && radius <= radiusTo
-            }
-
-        }
-
     }
+
 
     private enum class TouchMode {
         /**
@@ -385,6 +263,8 @@ class JoystickView @JvmOverloads constructor(
     }
 
     interface JoystickDisplay {
+
+        fun onBindJoystick(view: JoystickView)
 
         fun onTouchDown(view: JoystickView)
 
