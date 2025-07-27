@@ -5,7 +5,9 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.lollipop.maze.MazeMap
+import com.lollipop.maze.data.MPath
 import com.lollipop.wear.maze.R
+import com.lollipop.wear.maze.controller.LifecycleHelper
 import com.lollipop.wear.maze.controller.MazeController
 import com.lollipop.wear.maze.databinding.ActivityPlayBinding
 import com.lollipop.wear.maze.view.OsdPanelHelper
@@ -42,6 +44,10 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         MazeController(this)
     }
 
+    private val lifecycleHelper by lazy {
+        LifecycleHelper.auto(this)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -64,13 +70,21 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         osdPanelHelper.init()
     }
 
-    override fun onCreating() {
-        TODO("Not yet implemented")
+    override fun onLoading() {
+        lifecycleHelper.post {
+            binding.contentLoadingView.show()
+        }
     }
 
-    override fun onMazeResult(maze: MazeMap) {
-        TODO("Not yet implemented")
+    override fun onMazeResult(maze: MazeMap, path: MPath) {
+        lifecycleHelper.post {
+            onNewMaze(maze, path)
+        }
     }
 
+    private fun onNewMaze(maze: MazeMap, path: MPath) {
+        binding.contentLoadingView.hide()
+        binding.mazePlayView.setSource(maze.map, path)
+    }
 
 }

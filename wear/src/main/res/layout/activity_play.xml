@@ -20,7 +20,9 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/menuPanel"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:visibility="invisible"
+        tools:visibility="visible">
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/osdBackground"
@@ -115,5 +117,11 @@
             app:srcCompat="@drawable/baseline_keyboard_double_arrow_down_24" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/contentLoadingView"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center" />
 
 </FrameLayout>

@@ -12,4 +12,8 @@ class MPath {
         pointList.removeAt(pointList.lastIndex)
     }
 
+    fun clear() {
+        pointList.clear()
+    }
+
 }

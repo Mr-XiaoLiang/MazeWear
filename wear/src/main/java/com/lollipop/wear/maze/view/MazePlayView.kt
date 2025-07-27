@@ -7,6 +7,7 @@ import android.graphics.Path
 import android.graphics.Rect
 import android.util.AttributeSet
 import android.widget.ImageView
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.graphics.withSave
 import com.lollipop.maze.data.MBlock
 import com.lollipop.maze.data.MMap
@@ -22,8 +23,48 @@ import com.lollipop.wear.maze.view.draw.color.ColorTileDrawable
 class MazePlayView @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet? = null
-) : ImageView(context, attributeSet) {
+) : AppCompatImageView(context, attributeSet) {
 
+    private val mapDrawable = MapDrawable()
+
+    init {
+        setImageDrawable(mapDrawable)
+    }
+
+    fun setTileDrawable(tileDrawable: TileDrawable) {
+        mapDrawable.tileDrawable = tileDrawable
+        invalidate()
+    }
+
+    fun setPathDrawable(pathDrawable: PathDrawable) {
+        mapDrawable.pathDrawable = pathDrawable
+        invalidate()
+    }
+
+    fun setSpiritDrawable(spiritDrawable: SpiritDrawable) {
+        mapDrawable.spiritDrawable = spiritDrawable
+        invalidate()
+    }
+
+    fun setViewportSize(width: Int, height: Int) {
+        mapDrawable.setViewportSize(width, height)
+    }
+
+    fun setSource(sourceMap: MMap, path: MPath) {
+        mapDrawable.setSource(sourceMap, path)
+    }
+
+    fun setFocus(x: Int, y: Int) {
+        mapDrawable.setFocus(x, y)
+    }
+
+    fun updateProgress(progress: Float) {
+        mapDrawable.updateProgress(progress)
+    }
+
+    fun setNext(x: Int, y: Int) {
+        mapDrawable.setNext(x, y)
+    }
 
     private class MapDrawable : MazeBasicDrawable() {
 
