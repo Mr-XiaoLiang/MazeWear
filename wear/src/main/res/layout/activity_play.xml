@@ -12,6 +12,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/joystickRingView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0"
+        android:src="@drawable/bg_joystick_ring" />
+
     <com.lollipop.wear.maze.view.JoystickView
         android:id="@+id/joystickView"
         android:layout_width="match_parent"
@@ -64,57 +71,70 @@
             android:layout_width="0px"
             android:layout_height="0px"
             android:scaleType="fitCenter"
-            android:src=""
+            android:src="@drawable/baseline_keyboard_double_arrow_left_24"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toStartOf="@id/centerMenuButton"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent="0.12"
-            app:srcCompat="@drawable/baseline_keyboard_double_arrow_left_24" />
+            app:layout_constraintWidth_percent="0.12" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/topArrowIcon"
             android:layout_width="0px"
             android:layout_height="0px"
             android:scaleType="fitCenter"
-            android:src=""
+            android:src="@drawable/baseline_keyboard_double_arrow_up_24"
             app:layout_constraintBottom_toTopOf="@id/centerMenuButton"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent="0.12"
-            app:srcCompat="@drawable/baseline_keyboard_double_arrow_up_24" />
-
+            app:layout_constraintWidth_percent="0.12" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/rightArrowIcon"
             android:layout_width="0px"
             android:layout_height="0px"
             android:scaleType="fitCenter"
-            android:src=""
+            android:src="@drawable/baseline_keyboard_double_arrow_right_24"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/centerMenuButton"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent="0.12"
-            app:srcCompat="@drawable/baseline_keyboard_double_arrow_right_24" />
+            app:layout_constraintWidth_percent="0.12" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/bottomArrowIcon"
             android:layout_width="0px"
             android:layout_height="0px"
             android:scaleType="fitCenter"
-            android:src=""
+            android:src="@drawable/baseline_keyboard_double_arrow_down_24"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/centerMenuButton"
-            app:layout_constraintWidth_percent="0.12"
-            app:srcCompat="@drawable/baseline_keyboard_double_arrow_down_24" />
+            app:layout_constraintWidth_percent="0.12" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/osdButton"
+            android:layout_width="0px"
+            android:layout_height="0px"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.5" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

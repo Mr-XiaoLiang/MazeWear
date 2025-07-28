@@ -1,5 +1,6 @@
 package com.lollipop.wear.maze.view.joystick
 
+import android.util.Log
 import com.lollipop.wear.maze.view.JoystickView
 import kotlin.math.max
 import kotlin.math.min
@@ -122,6 +123,6 @@ class JoystickRingRestrictedZone(
         val centerX = viewWidth * 0.5F
         val centerY = viewHeight * 0.5F
         val radius = JoystickView.getLength(centerX, centerY, x, y)
-        return radius >= radiusFrom && radius <= radiusTo
+        return !(radius >= radiusFrom && radius <= radiusTo)
     }
 }

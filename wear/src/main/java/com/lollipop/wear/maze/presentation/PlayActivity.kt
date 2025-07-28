@@ -6,7 +6,6 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.lollipop.maze.MazeMap
 import com.lollipop.maze.data.MPath
-import com.lollipop.wear.maze.R
 import com.lollipop.wear.maze.controller.LifecycleHelper
 import com.lollipop.wear.maze.controller.MazeController
 import com.lollipop.wear.maze.databinding.ActivityPlayBinding
@@ -19,15 +18,26 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
     companion object {
 
         private const val KEY_MAZE_WIDTH = "KEY_MAZE_WIDTH"
+        private const val KEY_MAZE_ID = "KEY_MAZE_ID"
 
-        fun start(context: Context, width: Int) {
+        fun newMaze(context: Context, width: Int) {
             val intent = Intent(context, PlayActivity::class.java)
             intent.putExtra(KEY_MAZE_WIDTH, width)
             context.startActivity(intent)
         }
 
+        fun resumeMaze(context: Context, mazeId: Int) {
+            val intent = Intent(context, PlayActivity::class.java)
+            intent.putExtra(KEY_MAZE_ID, mazeId)
+            context.startActivity(intent)
+        }
+
         private fun getMazeWidth(intent: Intent): Int {
             return intent.getIntExtra(KEY_MAZE_WIDTH, 10)
+        }
+
+        private fun getMazeId(intent: Intent): Int {
+            return intent.getIntExtra(KEY_MAZE_ID, -1)
         }
 
     }
@@ -52,6 +62,16 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         initView()
+        loadData()
+    }
+
+    private fun loadData() {
+        val mazeId = getMazeId(intent)
+        if (mazeId >= 0) {
+            mazeController.load(mazeId)
+        } else {
+            mazeController.create(getMazeWidth(intent))
+        }
     }
 
     private fun initView() {
@@ -63,10 +83,14 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
             )
         )
         binding.joystickView.setJoystickDisplay(
-            RotateJoystickDisplay.create(
-                R.drawable.bg_joystick_ring
-            )
+            RotateJoystickDisplay.create(binding.joystickRingView)
         )
+        binding.osdButton.setOnClickListener {
+            osdPanelHelper.toggle()
+        }
+        binding.menuPanel.setOnClickListener {
+            osdPanelHelper.hide()
+        }
         osdPanelHelper.init()
     }
 
@@ -85,6 +109,11 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
     private fun onNewMaze(maze: MazeMap, path: MPath) {
         binding.contentLoadingView.hide()
         binding.mazePlayView.setSource(maze.map, path)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mazeController.destroy()
     }
 
 }

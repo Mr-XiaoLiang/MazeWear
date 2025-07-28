@@ -10,7 +10,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@android:style/Theme.DeviceDefault">
+        android:theme="@style/MazeTheme.Play">
         <uses-library
             android:name="com.google.android.wearable"
             android:required="true" />
@@ -37,6 +37,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".presentation.PlayActivity"
+            android:exported="false"
+            android:taskAffinity="" />
     </application>
 
 </manifest>

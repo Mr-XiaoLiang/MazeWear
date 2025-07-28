@@ -24,6 +24,8 @@ class OsdPanelHelper(
 
     private var animationProgress = 0F
 
+    private var animationToShow = false
+
     private val animationListener = AnimatorDelegate(
         onStart = ::onAnimationStart,
         onEnd = ::onAnimationEnd,
@@ -40,16 +42,27 @@ class OsdPanelHelper(
 
     fun init() {
         view.visibility = View.INVISIBLE
+        animationToShow = false
         onAnimationUpdate(ANIMATION_MIN)
         onAnimationEnd()
     }
 
     fun show() {
+        animationToShow = true
         animationTo(ANIMATION_MAX)
     }
 
     fun hide() {
+        animationToShow = false
         animationTo(ANIMATION_MIN)
+    }
+
+    fun toggle() {
+        if (animationToShow) {
+            hide()
+        } else {
+            show()
+        }
     }
 
     private fun animationTo(target: Float) {
@@ -61,7 +74,7 @@ class OsdPanelHelper(
     }
 
     private fun onAnimationEnd() {
-        if (animationProgress < ANIMATION_MAX_LIMIT) {
+        if (animationProgress < ANIMATION_MAX_LIMIT && !animationToShow) {
             view.isInvisible = true
         }
     }

@@ -1,7 +1,10 @@
 package com.lollipop.wear.maze.controller
 
+import com.lollipop.maze.Maze
 import com.lollipop.maze.MazeMap
 import com.lollipop.maze.data.MPath
+import com.lollipop.maze.helper.doAsync
+import com.lollipop.maze.helper.onUI
 
 class MazeController(
     private val callback: Callback
@@ -14,7 +17,26 @@ class MazeController(
     private var currentPath: MPath? = null
 
     fun create(width: Int) {
+        callback.onLoading()
+        doAsync {
+            val mazeMap = Maze.generate(width)
+            val path = MPath()
+            currentPath = path
+            currentMaze = mazeMap
+            if (!isDestroy) {
+                onUI {
+                    callback.onMazeResult(mazeMap, path)
+                }
+            }
+        }
+    }
+
+    fun load(id: Int) {
         // TODO
+    }
+
+    fun destroy() {
+        isDestroy = true
     }
 
     interface Callback {

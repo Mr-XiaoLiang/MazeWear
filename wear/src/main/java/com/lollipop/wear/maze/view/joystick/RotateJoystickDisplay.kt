@@ -4,6 +4,9 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.Icon
 import android.net.Uri
+import android.util.Log
+import android.view.View
+import androidx.core.view.isVisible
 import com.lollipop.wear.maze.view.JoystickView
 
 sealed class RotateJoystickDisplay : JoystickView.JoystickDisplay {
@@ -29,10 +32,14 @@ sealed class RotateJoystickDisplay : JoystickView.JoystickDisplay {
             return ResourceMode(resourceId)
         }
 
+        fun create(view: View): RotateJoystickDisplay {
+            return ViewMode(view)
+        }
+
         private const val DURATION_ANIMATION = 200L
     }
 
-    private var joystickView: JoystickView? = null
+    private var lastView: View? = null
 
     override fun onBindJoystick(view: JoystickView) {
         view.alpha = 0F
@@ -41,17 +48,7 @@ sealed class RotateJoystickDisplay : JoystickView.JoystickDisplay {
     abstract fun onBindView(view: JoystickView)
 
     override fun onTouchDown(view: JoystickView) {
-        if (joystickView != view) {
-            joystickView?.animate()?.cancel()
-        }
-        joystickView = view
-        val duration = ((1F - view.alpha) * DURATION_ANIMATION).toLong()
-        view.animate().let { animator ->
-            animator.cancel()
-            animator.alpha(1F)
-            animator.setDuration(duration)
-            animator.start()
-        }
+        showView(view)
     }
 
     override fun onTouchMove(
@@ -63,14 +60,36 @@ sealed class RotateJoystickDisplay : JoystickView.JoystickDisplay {
         touchX: Float,
         touchY: Float
     ) {
-        view.rotation = angle + 90
+        rotateView(view, angle)
     }
 
     override fun onTouchUp(view: JoystickView) {
-        if (joystickView != view) {
-            joystickView?.animate()?.cancel()
+        hideView(view)
+    }
+
+    protected fun rotateView(view: View, angle: Float) {
+        view.rotation = angle
+    }
+
+    protected fun showView(view: View) {
+        if (lastView != view) {
+            lastView?.animate()?.cancel()
         }
-        joystickView = view
+        lastView = view
+        val duration = ((1F - view.alpha) * DURATION_ANIMATION).toLong()
+        view.animate().let { animator ->
+            animator.cancel()
+            animator.alpha(1F)
+            animator.setDuration(duration)
+            animator.start()
+        }
+    }
+
+    protected fun hideView(view: View) {
+        if (lastView != view) {
+            lastView?.animate()?.cancel()
+        }
+        lastView = view
         val duration = ((view.alpha) * DURATION_ANIMATION).toLong()
         view.animate().let { animator ->
             animator.cancel()
@@ -83,6 +102,31 @@ sealed class RotateJoystickDisplay : JoystickView.JoystickDisplay {
     class ResourceMode(private val resourceId: Int) : RotateJoystickDisplay() {
         override fun onBindView(view: JoystickView) {
             view.setImageResource(resourceId)
+        }
+    }
+
+    class ViewMode(private val target: View) : RotateJoystickDisplay() {
+        override fun onBindView(view: JoystickView) {
+        }
+
+        override fun onTouchDown(view: JoystickView) {
+            showView(target)
+        }
+
+        override fun onTouchMove(
+            view: JoystickView,
+            angle: Float,
+            radius: Float,
+            centerX: Float,
+            centerY: Float,
+            touchX: Float,
+            touchY: Float
+        ) {
+            rotateView(target, angle)
+        }
+
+        override fun onTouchUp(view: JoystickView) {
+            hideView(target)
         }
     }
 

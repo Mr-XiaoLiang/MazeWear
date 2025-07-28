@@ -82,47 +82,40 @@ class JoystickView @JvmOverloads constructor(
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-//        log("onTouchEvent.${event?.actionMasked}")
         when (event?.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-//                log("onInterceptTouchEvent.ACTION_DOWN")
                 onTouchDown(event)
                 if (needIntercept(event.x, event.y)) {
                     requestTouch()
+                    onTouchMove(event)
                     return true
                 }
             }
 
             MotionEvent.ACTION_MOVE -> {
-//                log("onTouchEvent.ACTION_MOVE")
-                if (needIntercept(event.x, event.y)) {
+                if (touchMode == TouchMode.HOLD) {
                     onTouchMove(event)
                     return true
                 }
             }
 
             MotionEvent.ACTION_POINTER_DOWN -> {
-//                log("onTouchEvent.ACTION_POINTER_DOWN")
                 // 超过一个手指之后，放弃吧
                 cancelTouch()
             }
 
             MotionEvent.ACTION_UP -> {
-//                log("onTouchEvent.ACTION_UP")
                 cancelTouch()
             }
 
             MotionEvent.ACTION_CANCEL -> {
-//                log("onTouchEvent.ACTION_CANCEL")
                 cancelTouch()
             }
         }
         if (touchMode == TouchMode.HOLD) {
-//            log("onTouchEvent.THIS.result = true")
             return true
         }
         val result = super.onTouchEvent(event)
-//        log("onTouchEvent.SUPER.result = $result")
         return result
     }
 
@@ -142,6 +135,7 @@ class JoystickView @JvmOverloads constructor(
     }
 
     private fun onTouchHold() {
+        touchMode = TouchMode.HOLD
         joystickDisplay?.onTouchDown(this)
     }
 
@@ -178,7 +172,7 @@ class JoystickView @JvmOverloads constructor(
 //                log("needIntercept.PENDING")
                 touchMode = TouchMode.HOLD
                 onTouchHold()
-                return false
+                return true
             }
 
             TouchMode.CANCELED -> {
