@@ -39,12 +39,16 @@ class TileMap(
             val map = MMap(source.width, source.height)
             for (x in 0 until source.width) {
                 for (y in 0 until source.height) {
-                    val left = source.isRoad(x - 1, y)
-                    val top = source.isRoad(x, y - 1)
-                    val right = source.isRoad(x + 1, y)
-                    val bottom = source.isRoad(x, y + 1)
-                    val tile = getTile(left, top, right, bottom)
-                    map[x, y] = tile
+                    if (source.isWall(x, y)) {
+                        val left = source.isWall(x - 1, y)
+                        val top = source.isWall(x, y - 1)
+                        val right = source.isWall(x + 1, y)
+                        val bottom = source.isWall(x, y + 1)
+                        val tile = getTile(left, top, right, bottom)
+                        map[x, y] = tile
+                    } else {
+                        map[x, y] = TILE_EMPTY
+                    }
                 }
             }
             onUI {
@@ -68,6 +72,10 @@ class TileMap(
 
     private fun MMap.isRoad(x: Int, y: Int): Boolean {
         return this[x, y] == Maze.ROAD
+    }
+
+    private fun MMap.isWall(x: Int, y: Int): Boolean {
+        return this[x, y] == Maze.WALL
     }
 
     private fun getTile(left: Boolean, top: Boolean, right: Boolean, bottom: Boolean): Int {

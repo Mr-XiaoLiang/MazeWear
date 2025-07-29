@@ -2,14 +2,20 @@ package com.lollipop.wear.maze.presentation
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.lollipop.maze.MazeMap
+import com.lollipop.maze.MazeTest
 import com.lollipop.maze.data.MPath
 import com.lollipop.wear.maze.controller.LifecycleHelper
 import com.lollipop.wear.maze.controller.MazeController
 import com.lollipop.wear.maze.databinding.ActivityPlayBinding
 import com.lollipop.wear.maze.view.OsdPanelHelper
+import com.lollipop.wear.maze.view.draw.color.ColorPathDrawable
+import com.lollipop.wear.maze.view.draw.color.ColorSpiritDrawable
+import com.lollipop.wear.maze.view.draw.color.ColorTileDrawable
 import com.lollipop.wear.maze.view.joystick.JoystickRingRestrictedZone
 import com.lollipop.wear.maze.view.joystick.RotateJoystickDisplay
 
@@ -85,6 +91,11 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         binding.joystickView.setJoystickDisplay(
             RotateJoystickDisplay.create(binding.joystickRingView)
         )
+        binding.mazePlayView.update { action ->
+            action.setTileDrawable(ColorTileDrawable().apply { color = Color.GRAY })
+            action.setPathDrawable(ColorPathDrawable().apply { color = 0x330000FF })
+            action.setSpiritDrawable(ColorSpiritDrawable().apply { color = Color.WHITE })
+        }
         binding.osdButton.setOnClickListener {
             osdPanelHelper.toggle()
         }
@@ -108,7 +119,17 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
 
     private fun onNewMaze(maze: MazeMap, path: MPath) {
         binding.contentLoadingView.hide()
-        binding.mazePlayView.setSource(maze.map, path)
+        if (path.isEmpty()) {
+            path.add(maze.start)
+        }
+        binding.mazePlayView.update { action ->
+            action.setSource(maze.map, path)
+            val startPoint = path.last() ?: maze.start
+            action.setFocus(startPoint.x, startPoint.y)
+            action.setNext(startPoint.x, startPoint.y)
+            action.updateProgress(0F)
+        }
+        Log.i("Maze", MazeTest.print(maze).build())
     }
 
     override fun onDestroy() {

@@ -22,7 +22,7 @@ class ColorSpiritDrawable : ColorBasicDrawable(), SpiritDrawable {
         y: Float,
         blockSize: Float
     ) {
-        canvas.drawCircle(x, y, blockSize * widthWeight, paint)
+        canvas.drawCircle(x, y, blockSize * 0.5F * widthWeight, paint)
     }
 
 }

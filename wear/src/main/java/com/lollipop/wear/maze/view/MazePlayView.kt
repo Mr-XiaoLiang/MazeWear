@@ -6,7 +6,7 @@ import android.graphics.ColorFilter
 import android.graphics.Path
 import android.graphics.Rect
 import android.util.AttributeSet
-import android.widget.ImageView
+import android.util.Log
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.graphics.withSave
 import com.lollipop.maze.data.MBlock
@@ -31,39 +31,46 @@ class MazePlayView @JvmOverloads constructor(
         setImageDrawable(mapDrawable)
     }
 
-    fun setTileDrawable(tileDrawable: TileDrawable) {
+    private fun setTileDrawable(tileDrawable: TileDrawable) {
         mapDrawable.tileDrawable = tileDrawable
         invalidate()
     }
 
-    fun setPathDrawable(pathDrawable: PathDrawable) {
+    private fun setPathDrawable(pathDrawable: PathDrawable) {
         mapDrawable.pathDrawable = pathDrawable
         invalidate()
     }
 
-    fun setSpiritDrawable(spiritDrawable: SpiritDrawable) {
+    private fun setSpiritDrawable(spiritDrawable: SpiritDrawable) {
         mapDrawable.spiritDrawable = spiritDrawable
         invalidate()
     }
 
-    fun setViewportSize(width: Int, height: Int) {
+    private fun setViewportSize(width: Int, height: Int) {
         mapDrawable.setViewportSize(width, height)
     }
 
-    fun setSource(sourceMap: MMap, path: MPath) {
+    private fun setSource(sourceMap: MMap, path: MPath) {
         mapDrawable.setSource(sourceMap, path)
     }
 
-    fun setFocus(x: Int, y: Int) {
+    private fun setFocus(x: Int, y: Int) {
         mapDrawable.setFocus(x, y)
     }
 
-    fun updateProgress(progress: Float) {
+    private fun updateProgress(progress: Float) {
         mapDrawable.updateProgress(progress)
     }
 
-    fun setNext(x: Int, y: Int) {
+    private fun setNext(x: Int, y: Int) {
         mapDrawable.setNext(x, y)
+    }
+
+    fun update(builder: (ActionBuilder) -> Unit) {
+        val actionBuilder = ActionBuilder(this)
+        builder(actionBuilder)
+        actionBuilder.view = null
+        mapDrawable.updateViewportMap()
     }
 
     private class MapDrawable : MazeBasicDrawable() {
@@ -109,7 +116,6 @@ class MazePlayView @JvmOverloads constructor(
             if (drawMap.width != bufferWidth || drawMap.height != bufferHeight) {
                 drawMap = MMap(bufferWidth, bufferHeight)
             }
-            updateViewportMap()
         }
 
         fun setSource(sourceMap: MMap, path: MPath) {
@@ -122,18 +128,15 @@ class MazePlayView @JvmOverloads constructor(
 
         fun setFocus(x: Int, y: Int) {
             focusBlock.set(x, y)
-            updateViewportMap()
         }
 
         fun updateProgress(progress: Float) {
             animationProgress = progress
-            invalidateSelf()
         }
 
         fun setNext(x: Int, y: Int) {
             nextBlock.set(x, y)
             animationProgress = 0F
-            updateViewportMap()
         }
 
         override fun onBoundsChange(bounds: Rect) {
@@ -141,11 +144,11 @@ class MazePlayView @JvmOverloads constructor(
             updateViewportMap()
         }
 
-        private fun updateViewportMap() {
+        fun updateViewportMap() {
             if (bounds.isEmpty) {
                 return
             }
-            updateGrid(mapWidth, mapHeight, bounds.width(), bounds.height())
+            updateGrid(viewportWidth, viewportHeight, bounds.width(), bounds.height())
             tileMap.getFragment(focusBlock.x, focusBlock.y, drawMap)
             val halfBlock = blockSize / 2
 
@@ -180,6 +183,7 @@ class MazePlayView @JvmOverloads constructor(
                     }
                 }
             }
+            invalidateSelf()
         }
 
         override fun draw(canvas: Canvas) {
@@ -226,6 +230,40 @@ class MazePlayView @JvmOverloads constructor(
             tileDrawable.setColorFilter(colorFilter)
             pathDrawable.setColorFilter(colorFilter)
             spiritDrawable.setColorFilter(colorFilter)
+        }
+    }
+
+    class ActionBuilder(internal var view: MazePlayView?) {
+        fun setTileDrawable(tileDrawable: TileDrawable) {
+            view?.setTileDrawable(tileDrawable)
+        }
+
+        fun setPathDrawable(pathDrawable: PathDrawable) {
+            view?.setPathDrawable(pathDrawable)
+        }
+
+        fun setSpiritDrawable(spiritDrawable: SpiritDrawable) {
+            view?.setSpiritDrawable(spiritDrawable)
+        }
+
+        fun setViewportSize(width: Int, height: Int) {
+            view?.setViewportSize(width, height)
+        }
+
+        fun setSource(sourceMap: MMap, path: MPath) {
+            view?.setSource(sourceMap, path)
+        }
+
+        fun setFocus(x: Int, y: Int) {
+            view?.setFocus(x, y)
+        }
+
+        fun updateProgress(progress: Float) {
+            view?.updateProgress(progress)
+        }
+
+        fun setNext(x: Int, y: Int) {
+            view?.setNext(x, y)
         }
     }
 

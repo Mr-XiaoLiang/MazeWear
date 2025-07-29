@@ -8,6 +8,14 @@ class MPath {
         pointList.add(point)
     }
 
+    fun isEmpty(): Boolean{
+        return pointList.isEmpty()
+    }
+
+    fun last(): MPoint? {
+        return pointList.lastOrNull()
+    }
+
     fun back() {
         pointList.removeAt(pointList.lastIndex)
     }

@@ -38,9 +38,15 @@ object Maze {
 }
 
 fun main() {
-    MazeTest.print(Maze.generate(21))
+    println(
+        MazeTest.print(Maze.generate(21))
+            .write("maze-${System.currentTimeMillis()}.csv")
+    )
     println("------------------------------")
-    MazeTest.print(Maze.generate(21, generator = SpreadGenerator))
+    println(
+        MazeTest.print(Maze.generate(21, generator = SpreadGenerator))
+            .write("maze-${System.currentTimeMillis()}.csv")
+    )
 }
 
 object MazeTest {
@@ -49,11 +55,18 @@ object MazeTest {
 
         private val builder = StringBuilder()
 
+        private var isFirst = true
+
         fun add(value: String) {
-            builder.append(value).append(",")
+            if (!isFirst) {
+                builder.append(",")
+            }
+            builder.append(value)
+            isFirst = false
         }
 
         fun enter() {
+            isFirst = true
             builder.append("\r\n")
         }
 
@@ -61,35 +74,44 @@ object MazeTest {
             return builder.toString()
         }
 
-        fun write(name: String) {
+        fun write(name: String): String {
             val dir = File(System.getProperty("user.home")!!)
-            File(dir, name).writeText(build())
+            val file = File(dir, name)
+            file.writeText(build())
+            return file.path
         }
 
     }
 
-    fun print(mazeMap: MazeMap) {
+    fun print(
+        mazeMap: MazeMap,
+        startKey: String = "s",
+        endKey: String = "e",
+        roadKey: String = "r",
+        wallKey: String = "w",
+        unknownKey: String = "?"
+    ): CSV {
         val map = mazeMap.map.map
         val csv = CSV()
         for (x in 0 until mazeMap.width) {
             for (y in 0 until mazeMap.height) {
                 if (x == mazeMap.start.x && y == mazeMap.start.y) {
-                    csv.add("Start")
+                    csv.add(startKey)
                 } else if (x == mazeMap.end.x && y == mazeMap.end.y) {
-                    csv.add("End")
+                    csv.add(endKey)
                 } else {
                     csv.add(
                         when (map[x][y]) {
                             Maze.ROAD -> {
-                                ""
+                                roadKey
                             }
 
                             Maze.WALL -> {
-                                "WALL"
+                                wallKey
                             }
 
                             else -> {
-                                "?"
+                                unknownKey
                             }
                         }
                     )
@@ -97,7 +119,7 @@ object MazeTest {
             }
             csv.enter()
         }
-        csv.write("maze-${System.currentTimeMillis()}.csv")
+        return csv
     }
 
 }
