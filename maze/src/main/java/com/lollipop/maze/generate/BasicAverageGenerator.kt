@@ -22,13 +22,22 @@ abstract class BasicAverageGenerator : MazeGenerator {
         val blueprint = blueprint(width, height)
         buildByBlueprint(blueprint)
         fillPendingWall(blueprint)
-        val start = findStart(blueprint)
-        val end = findEnd(blueprint, start)
+        val start = findRoad(blueprint, ::findStart)
+        val end = findRoad(blueprint) { findEnd(it, start) }
         return MazeMap(
             start = MPoint(x = start.x, y = start.y),
             end = MPoint(x = end.x, y = end.y),
             map = blueprint
         )
+    }
+
+    protected fun findRoad(blueprint: MMap, finder: (MMap) -> MBlock): MBlock {
+        do {
+            val block = finder(blueprint)
+            if (blueprint[block.x, block.y] == ROAD) {
+                return block
+            }
+        } while (true)
     }
 
     protected abstract fun buildByBlueprint(blueprint: MMap)

@@ -9,7 +9,7 @@ class MMap(val width: Int, val height: Int, val initValue: Int = Maze.EMPTY) {
     /**
      * 更喜欢按行来计算，所以列优先
      */
-    val map = Array(height) { IntArray(width) { initValue } }
+    private val map = Array(height) { IntArray(width) { initValue } }
 
     operator fun get(x: Int, y: Int): Int {
         if (x < 0 || x >= width || y < 0 || y >= height) {

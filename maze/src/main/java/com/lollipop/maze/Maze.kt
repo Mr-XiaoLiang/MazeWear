@@ -1,5 +1,6 @@
 package com.lollipop.maze
 
+import com.lollipop.maze.data.MMap
 import com.lollipop.maze.generate.DeepGenerator
 import com.lollipop.maze.generate.MazeGenerator
 import com.lollipop.maze.generate.SpreadGenerator
@@ -91,17 +92,17 @@ object MazeTest {
         wallKey: String = "w",
         unknownKey: String = "?"
     ): CSV {
-        val map = mazeMap.map.map
+        val map = mazeMap.map
         val csv = CSV()
-        for (x in 0 until mazeMap.width) {
-            for (y in 0 until mazeMap.height) {
+        for (y in 0 until mazeMap.height) {
+            for (x in 0 until mazeMap.width) {
                 if (x == mazeMap.start.x && y == mazeMap.start.y) {
                     csv.add(startKey)
                 } else if (x == mazeMap.end.x && y == mazeMap.end.y) {
                     csv.add(endKey)
                 } else {
                     csv.add(
-                        when (map[x][y]) {
+                        when (map[x, y]) {
                             Maze.ROAD -> {
                                 roadKey
                             }
@@ -116,6 +117,36 @@ object MazeTest {
                         }
                     )
                 }
+            }
+            csv.enter()
+        }
+        return csv
+    }
+
+    fun print(
+        map: MMap,
+        roadKey: String = "r",
+        wallKey: String = "w",
+        unknownKey: String = "?"
+    ): CSV {
+        val csv = CSV()
+        for (y in 0 until map.height) {
+            for (x in 0 until map.width) {
+                csv.add(
+                    when (map[x, y]) {
+                        Maze.ROAD -> {
+                            roadKey
+                        }
+
+                        Maze.WALL -> {
+                            wallKey
+                        }
+
+                        else -> {
+                            unknownKey
+                        }
+                    }
+                )
             }
             csv.enter()
         }

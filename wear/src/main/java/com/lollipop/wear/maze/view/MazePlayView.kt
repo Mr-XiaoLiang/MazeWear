@@ -6,7 +6,6 @@ import android.graphics.ColorFilter
 import android.graphics.Path
 import android.graphics.Rect
 import android.util.AttributeSet
-import android.util.Log
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.graphics.withSave
 import com.lollipop.maze.data.MBlock
@@ -77,6 +76,7 @@ class MazePlayView @JvmOverloads constructor(
 
         companion object {
             const val MAP_BUFFER = 2
+            const val MAP_BUFFER_OFFSET = MAP_BUFFER / 2
         }
 
         private var viewportWidth = 5
@@ -194,7 +194,9 @@ class MazePlayView @JvmOverloads constructor(
                 canvas.translate(offsetX * -1, offsetY * -1)
                 for (x in 0 until drawMap.width) {
                     for (y in 0 until drawMap.height) {
-                        val tile = drawMap[x, y]
+                        val tileX = x + MAP_BUFFER_OFFSET
+                        val tileY = y + MAP_BUFFER_OFFSET
+                        val tile = drawMap[tileX, tileY]
                         drawTile(
                             canvas,
                             (drawLeftEdge + (x * blockSize)),

@@ -76,7 +76,7 @@ object MJson {
     }
 
     fun build(mazeMap: MazeMap, path: MPath): JSONObject {
-        val map = mazeMap.map.map
+        val map = mazeMap.map
         val mapBuilder = JsonBuilder()
         for (x in 0 until mazeMap.width) {
             for (y in 0 until mazeMap.height) {
@@ -85,7 +85,7 @@ object MJson {
                 } else if (x == mazeMap.end.x && y == mazeMap.end.y) {
                     mapBuilder.addEnd()
                 } else {
-                    when (map[x][y]) {
+                    when (map[x, y]) {
                         Maze.ROAD -> {
                             mapBuilder.addRoad()
                         }

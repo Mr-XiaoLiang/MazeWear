@@ -129,6 +129,7 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
             action.setNext(startPoint.x, startPoint.y)
             action.updateProgress(0F)
         }
+        Log.i("Maze", "start = [${maze.start.x}, ${maze.start.y}] ")
         Log.i("Maze", MazeTest.print(maze).build())
     }
 

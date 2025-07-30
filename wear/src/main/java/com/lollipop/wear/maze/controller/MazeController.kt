@@ -19,7 +19,12 @@ class MazeController(
     fun create(width: Int) {
         callback.onLoading()
         doAsync {
-            val mazeMap = Maze.generate(width)
+            val mazeSize = if (width % 2 == 0) {
+                width + 1
+            } else {
+                width
+            }
+            val mazeMap = Maze.generate(mazeSize)
             val path = MPath()
             currentPath = path
             currentMaze = mazeMap
