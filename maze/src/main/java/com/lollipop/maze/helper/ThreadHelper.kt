@@ -14,6 +14,17 @@ object ThreadHelper {
         mainHandler.post(runnable)
     }
 
+    fun postDelayMain(runnable: Runnable, delay: Long) {
+        mainHandler.postDelayed(runnable, delay)
+    }
+
+    fun safedTask(
+        onError: (Throwable) -> Unit = { it.printStackTrace() },
+        block: () -> Unit
+    ): SafedRunnable {
+        return SafedRunnable(onError, block)
+    }
+
     class SafedRunnable(
         val onError: (Throwable) -> Unit = { it.printStackTrace() },
         val runnable: Runnable
@@ -25,6 +36,23 @@ object ThreadHelper {
                 onError(e)
             }
         }
+
+        fun async() {
+            ThreadHelper.postThreadPool(this)
+        }
+
+        fun postDelay(delay: Long) {
+            ThreadHelper.postDelayMain(this, delay)
+        }
+
+        fun post() {
+            ThreadHelper.postMain(this)
+        }
+
+        fun remove() {
+            ThreadHelper.mainHandler.removeCallbacks(this)
+        }
+
     }
 
 }

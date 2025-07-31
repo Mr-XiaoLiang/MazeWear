@@ -12,6 +12,7 @@ import com.lollipop.maze.data.MPath
 import com.lollipop.wear.maze.controller.LifecycleHelper
 import com.lollipop.wear.maze.controller.MazeController
 import com.lollipop.wear.maze.databinding.ActivityPlayBinding
+import com.lollipop.wear.maze.helper.JoystickDelegate
 import com.lollipop.wear.maze.view.OsdPanelHelper
 import com.lollipop.wear.maze.view.draw.color.ColorPathDrawable
 import com.lollipop.wear.maze.view.draw.color.ColorSpiritDrawable
@@ -64,6 +65,8 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         LifecycleHelper.auto(this)
     }
 
+    private val joystickDelegate = JoystickDelegate(::onJoystickTouch)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -91,6 +94,7 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         binding.joystickView.setJoystickDisplay(
             RotateJoystickDisplay.create(binding.joystickRingView)
         )
+        binding.joystickView.setJoystickTouchListener(joystickDelegate)
         binding.mazePlayView.update { action ->
             action.setTileDrawable(ColorTileDrawable().apply { color = Color.GRAY })
             action.setPathDrawable(ColorPathDrawable().apply { color = 0x330000FF })
@@ -115,6 +119,11 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         lifecycleHelper.post {
             onNewMaze(maze, path)
         }
+    }
+
+    private fun onJoystickTouch(direction: JoystickDelegate.Direction) {
+        // tODO
+        Log.i("Maze", "direction = $direction")
     }
 
     private fun onNewMaze(maze: MazeMap, path: MPath) {
