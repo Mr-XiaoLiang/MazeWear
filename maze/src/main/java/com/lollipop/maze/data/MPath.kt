@@ -4,11 +4,16 @@ class MPath {
 
     var pointList = mutableListOf<MPoint>()
 
-    fun add(point: MPoint) {
+    val size: Int
+        get() {
+            return pointList.size
+        }
+
+    fun put(point: MPoint) {
         pointList.add(point)
     }
 
-    fun isEmpty(): Boolean{
+    fun isEmpty(): Boolean {
         return pointList.isEmpty()
     }
 
@@ -16,7 +21,17 @@ class MPath {
         return pointList.lastOrNull()
     }
 
+    fun secondLast(): MPoint? {
+        if (size > 1) {
+            return pointList.getOrNull(pointList.lastIndex - 1)
+        }
+        return null
+    }
+
     fun back() {
+        if (pointList.isEmpty()) {
+            return
+        }
         pointList.removeAt(pointList.lastIndex)
     }
 

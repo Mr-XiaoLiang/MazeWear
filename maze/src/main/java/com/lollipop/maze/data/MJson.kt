@@ -61,7 +61,7 @@ object MJson {
                 if (pointJson != null) {
                     val x = pointJson.optInt(X)
                     val y = pointJson.optInt(Y)
-                    path.add(MPoint(x, y))
+                    path.put(MPoint(x, y))
                 }
             }
         }

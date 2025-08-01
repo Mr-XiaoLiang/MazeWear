@@ -34,6 +34,7 @@ sealed class LifecycleHelper {
         private set
 
     protected fun onResume() {
+        handler.onResume()
         updateState(true)
     }
 
@@ -83,6 +84,14 @@ sealed class LifecycleHelper {
             }
         }
 
+        fun onUI(task: Runnable, instant: Boolean = instantOnly) {
+            if (handler.isUiThread()) {
+                task.run()
+            } else {
+                post(task, instant)
+            }
+        }
+
     }
 
     class Auto : LifecycleHelper() {
@@ -122,7 +131,21 @@ sealed class LifecycleHelper {
 
     }
 
-    internal class MessageHandler(private val uiHandler: Handler) {
+    internal class MessageHandler(
+        private val uiHandler: Handler
+    ) {
+
+        var uiThread: Thread? = null
+            private set
+
+        fun onResume() {
+            uiThread = Thread.currentThread()
+        }
+
+        fun isUiThread(): Boolean {
+            return uiThread === Thread.currentThread()
+        }
+
         fun run(task: Runnable) {
             uiHandler.post(task)
         }

@@ -4,17 +4,18 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.lollipop.maze.MazeMap
 import com.lollipop.maze.MazeTest
 import com.lollipop.maze.data.MBlock
 import com.lollipop.maze.data.MPath
+import com.lollipop.maze.data.MPoint
 import com.lollipop.play.core.controller.LifecycleHelper
 import com.lollipop.play.core.controller.MazeController
 import com.lollipop.play.core.controller.TimeDelegate
 import com.lollipop.play.core.helper.JoystickDelegate
 import com.lollipop.play.core.helper.JoystickDirection
+import com.lollipop.play.core.helper.registerLog
 import com.lollipop.play.core.view.OsdPanelHelper
 import com.lollipop.play.core.view.draw.color.ColorPathDrawable
 import com.lollipop.play.core.view.draw.color.ColorSpiritDrawable
@@ -51,6 +52,8 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         }
 
     }
+
+    private val log = registerLog()
 
     private val binding by lazy {
         ActivityPlayBinding.inflate(layoutInflater)
@@ -115,9 +118,15 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         osdPanelHelper.init()
     }
 
-    override fun onLoading() {
+    override fun onLoadingStart() {
         lifecycleHelper.post {
             binding.contentLoadingView.show()
+        }
+    }
+
+    override fun onLoadingEnd() {
+        lifecycleHelper.post {
+            binding.contentLoadingView.hide()
         }
     }
 
@@ -127,9 +136,19 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         }
     }
 
+    override fun onPointChange(
+        fromPoint: MPoint,
+        toPoint: MPoint
+    ) {
+        log("onPointChange: [${fromPoint.x}, ${fromPoint.y}] ==> [${toPoint.x}, ${toPoint.y}] ")
+        lifecycleHelper.post {
+            onMove(fromPoint, toPoint)
+        }
+    }
+
     private fun onJoystickTouch(direction: JoystickDirection) {
-        // tODO
-        Log.i("Maze", "direction = $direction")
+        log("direction = $direction")
+        mazeController.manipulate(direction)
     }
 
     private fun onNewMaze(maze: MazeMap, path: MPath, focus: MBlock) {
@@ -140,8 +159,15 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
             action.setNext(focus.x, focus.y)
             action.updateProgress(0F)
         }
-        Log.i("Maze", "start = [${maze.start.x}, ${maze.start.y}] ")
-        Log.i("Maze", MazeTest.print(maze).build())
+        log("start = [${maze.start.x}, ${maze.start.y}] ")
+        log(MazeTest.print(maze).build())
+    }
+
+    private fun onMove(
+        fromPoint: MPoint,
+        toPoint: MPoint
+    ) {
+
     }
 
     override fun onDestroy() {
