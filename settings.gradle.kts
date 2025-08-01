@@ -22,3 +22,4 @@ dependencyResolutionManagement {
 rootProject.name = "MazeWear"
 include(":wear")
 include(":maze")
+include(":playCore")

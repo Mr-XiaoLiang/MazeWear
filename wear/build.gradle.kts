@@ -63,5 +63,5 @@ dependencies {
     implementation(libs.activity.compose)
     implementation(libs.core.splashscreen)
 
-    implementation(project(":maze"))
+    implementation(project(":playCore"))
 }

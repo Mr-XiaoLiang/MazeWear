@@ -1,3 +1,3 @@
 package com.lollipop.maze.data
 
-class MPoint(val x: Int, val y: Int)
+open class MPoint(open val x: Int, open val y: Int)

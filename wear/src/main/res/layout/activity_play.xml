@@ -7,7 +7,7 @@
     android:background="@android:color/black"
     android:orientation="vertical">
 
-    <com.lollipop.wear.maze.view.MazePlayView
+    <com.lollipop.play.core.view.MazePlayView
         android:id="@+id/mazePlayView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
@@ -19,7 +19,7 @@
         android:alpha="0"
         android:src="@drawable/bg_joystick_ring" />
 
-    <com.lollipop.wear.maze.view.JoystickView
+    <com.lollipop.play.core.view.JoystickView
         android:id="@+id/joystickView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
@@ -44,6 +44,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:textColor="@android:color/white"
+            android:textSize="11sp"
+            android:textStyle="bold"
             tools:text="00:00" />
 
         <FrameLayout
@@ -58,7 +60,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_percent="0.5">
 
-            <com.lollipop.wear.maze.view.MazeOverviewView
+            <com.lollipop.play.core.view.MazeOverviewView
                 android:id="@+id/overviewView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -124,7 +126,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ImageView
+        <View
             android:id="@+id/osdButton"
             android:layout_width="0px"
             android:layout_height="0px"

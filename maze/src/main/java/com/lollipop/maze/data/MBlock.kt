@@ -1,11 +1,11 @@
 package com.lollipop.maze.data
 
 class MBlock(
-    var x: Int = 0,
-    var y: Int = 0,
-) {
+    override var x: Int = 0,
+    override var y: Int = 0,
+) : MPoint(x, y) {
 
-    constructor(block: MBlock) : this(block.x, block.y)
+    constructor(block: MPoint) : this(block.x, block.y)
 
     fun set(x: Int, y: Int) {
         this.x = x
@@ -14,6 +14,14 @@ class MBlock(
 
     fun set(block: MBlock) {
         set(block.x, block.y)
+    }
+
+    fun set(point: MPoint) {
+        set(point.x, point.y)
+    }
+
+    fun toPoint(): MPoint {
+        return this
     }
 
     fun leftWith(target: MBlock, step: Int = 1) {

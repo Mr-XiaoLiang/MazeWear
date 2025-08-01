@@ -8,17 +8,20 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.lollipop.maze.MazeMap
 import com.lollipop.maze.MazeTest
+import com.lollipop.maze.data.MBlock
 import com.lollipop.maze.data.MPath
-import com.lollipop.wear.maze.controller.LifecycleHelper
-import com.lollipop.wear.maze.controller.MazeController
+import com.lollipop.play.core.controller.LifecycleHelper
+import com.lollipop.play.core.controller.MazeController
+import com.lollipop.play.core.controller.TimeDelegate
+import com.lollipop.play.core.helper.JoystickDelegate
+import com.lollipop.play.core.helper.JoystickDirection
+import com.lollipop.play.core.view.OsdPanelHelper
+import com.lollipop.play.core.view.draw.color.ColorPathDrawable
+import com.lollipop.play.core.view.draw.color.ColorSpiritDrawable
+import com.lollipop.play.core.view.draw.color.ColorTileDrawable
+import com.lollipop.play.core.view.joystick.JoystickRingRestrictedZone
+import com.lollipop.play.core.view.joystick.RotateJoystickDisplay
 import com.lollipop.wear.maze.databinding.ActivityPlayBinding
-import com.lollipop.wear.maze.helper.JoystickDelegate
-import com.lollipop.wear.maze.view.OsdPanelHelper
-import com.lollipop.wear.maze.view.draw.color.ColorPathDrawable
-import com.lollipop.wear.maze.view.draw.color.ColorSpiritDrawable
-import com.lollipop.wear.maze.view.draw.color.ColorTileDrawable
-import com.lollipop.wear.maze.view.joystick.JoystickRingRestrictedZone
-import com.lollipop.wear.maze.view.joystick.RotateJoystickDisplay
 
 class PlayActivity : AppCompatActivity(), MazeController.Callback {
 
@@ -57,12 +60,12 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         OsdPanelHelper(binding.menuPanel)
     }
 
-    private val mazeController by lazy {
-        MazeController(this)
-    }
-
     private val lifecycleHelper by lazy {
         LifecycleHelper.auto(this)
+    }
+
+    private val mazeController by lazy {
+        MazeController(lifecycleHelper, this)
     }
 
     private val joystickDelegate = JoystickDelegate(::onJoystickTouch)
@@ -94,7 +97,7 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         binding.joystickView.setJoystickDisplay(
             RotateJoystickDisplay.create(binding.joystickRingView)
         )
-        binding.joystickView.setJoystickTouchListener(joystickDelegate)
+        joystickDelegate.bind(binding.joystickView)
         binding.mazePlayView.update { action ->
             action.setTileDrawable(ColorTileDrawable().apply { color = Color.GRAY })
             action.setPathDrawable(ColorPathDrawable().apply { color = 0x330000FF })
@@ -106,6 +109,9 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         binding.menuPanel.setOnClickListener {
             osdPanelHelper.hide()
         }
+        TimeDelegate.auto(this) {
+            binding.timeView.text = it
+        }
         osdPanelHelper.init()
     }
 
@@ -115,27 +121,23 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         }
     }
 
-    override fun onMazeResult(maze: MazeMap, path: MPath) {
+    override fun onMazeResult(maze: MazeMap, path: MPath, focus: MBlock) {
         lifecycleHelper.post {
-            onNewMaze(maze, path)
+            onNewMaze(maze, path, focus)
         }
     }
 
-    private fun onJoystickTouch(direction: JoystickDelegate.Direction) {
+    private fun onJoystickTouch(direction: JoystickDirection) {
         // tODO
         Log.i("Maze", "direction = $direction")
     }
 
-    private fun onNewMaze(maze: MazeMap, path: MPath) {
+    private fun onNewMaze(maze: MazeMap, path: MPath, focus: MBlock) {
         binding.contentLoadingView.hide()
-        if (path.isEmpty()) {
-            path.add(maze.start)
-        }
         binding.mazePlayView.update { action ->
             action.setSource(maze.map, path)
-            val startPoint = path.last() ?: maze.start
-            action.setFocus(startPoint.x, startPoint.y)
-            action.setNext(startPoint.x, startPoint.y)
+            action.setFocus(focus.x, focus.y)
+            action.setNext(focus.x, focus.y)
             action.updateProgress(0F)
         }
         Log.i("Maze", "start = [${maze.start.x}, ${maze.start.y}] ")
