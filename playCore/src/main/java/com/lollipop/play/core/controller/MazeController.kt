@@ -8,6 +8,7 @@ import com.lollipop.maze.data.MPath
 import com.lollipop.maze.data.MPoint
 import com.lollipop.maze.helper.doAsync
 import com.lollipop.play.core.helper.JoystickDirection
+import com.lollipop.play.core.helper.registerLog
 
 class MazeController(
     lifecycleHelper: LifecycleHelper,
@@ -25,6 +26,8 @@ class MazeController(
     private val previousBlock = MBlock()
 
     private val signpost = Signpost()
+
+    private val log = registerLog()
 
     val focus: MPoint
         get() {
@@ -67,9 +70,7 @@ class MazeController(
     private fun onMazeChanged(newMaze: MazeMap, newPath: MPath) {
         currentMaze = newMaze
         currentPath = newPath
-        if (newPath.isEmpty()) {
-            newPath.put(newMaze.start)
-        }
+        fixPath()
         val lastPoint = newPath.last() ?: newMaze.start
         focusBlock.set(lastPoint)
         if (!isDestroy) {
@@ -89,9 +90,7 @@ class MazeController(
                 // 如果下一个等于上一个，那么等于做了回退。需要执行回退逻辑
                 path.back()
                 // 回退之后如果是空的，那么又加回来
-                if (path.isEmpty()) {
-                    path.put(maze.start)
-                }
+                fixPath()
                 // 当前的焦点，是最后一个
                 focusBlock.set(path.last() ?: maze.start)
                 previousBlock.set(path.secondLast() ?: focus)
@@ -100,9 +99,30 @@ class MazeController(
                 previousBlock.set(focus)
                 focusBlock.set(next)
                 path.put(next)
+                log("manipulate: move to $next")
             }
             postUI {
-                callback.onPointChange(previousBlock.snapshot(), focusBlock.snapshot())
+                callback.onPointChange(previous, focus)
+            }
+        }
+    }
+
+    fun onResume() {
+        val maze = currentMaze ?: return
+        val path = currentPath ?: return
+        fixPath()
+        focusBlock.set(path.last() ?: maze.start)
+        previousBlock.set(focus)
+        postUI {
+            callback.onPointChange(previous, focus)
+        }
+    }
+
+    private fun fixPath() {
+        val path = currentPath ?: return
+        if (path.isEmpty()) {
+            currentMaze?.start?.let {
+                path.put(it)
             }
         }
     }
@@ -125,6 +145,8 @@ class MazeController(
 
     private class Signpost {
 
+        private val log = registerLog()
+
         var left = false
             private set
         var right = false
@@ -137,11 +159,13 @@ class MazeController(
         private val current = MBlock()
 
         fun fetch(map: MazeMap, point: APoint) {
+            log("fetch: $point")
             current.set(point)
             left = map[point.x - 1, point.y] == Maze.ROAD
             right = map[point.x + 1, point.y] == Maze.ROAD
             up = map[point.x, point.y - 1] == Maze.ROAD
             down = map[point.x, point.y + 1] == Maze.ROAD
+            log("fetch: left = $left, right = $right, up = $up, down = $down")
         }
 
         fun isDirectionEnable(direction: JoystickDirection): Boolean {

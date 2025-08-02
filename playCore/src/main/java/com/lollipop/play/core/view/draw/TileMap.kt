@@ -11,10 +11,11 @@ class TileMap(
 
     companion object {
         const val TILE_EMPTY = 0
-        const val TILE_TOP_ONLY = 0b0001
-        const val TILE_RIGHT_ONLY = 0b0010
-        const val TILE_BOTTOM_ONLY = 0b0100
-        const val TILE_LEFT_ONLY = 0b1000
+        const val TILE = 0b00001
+        const val TILE_TOP_ONLY = 0b00010 or TILE
+        const val TILE_RIGHT_ONLY = 0b00100 or TILE
+        const val TILE_BOTTOM_ONLY = 0b01000 or TILE
+        const val TILE_LEFT_ONLY = 0b10000 or TILE
         const val TILE_LEFT_TOP = TILE_LEFT_ONLY or TILE_TOP_ONLY
         const val TILE_LEFT_BOTTOM = TILE_LEFT_ONLY or TILE_BOTTOM_ONLY
         const val TILE_LEFT_BOTTOM_TOP = TILE_LEFT_ONLY or TILE_BOTTOM_ONLY or TILE_TOP_ONLY
@@ -79,7 +80,7 @@ class TileMap(
     }
 
     private fun getTile(left: Boolean, top: Boolean, right: Boolean, bottom: Boolean): Int {
-        var tile = 0
+        var tile = TILE
         if (left) {
             tile = tile or TILE_LEFT_ONLY
         }

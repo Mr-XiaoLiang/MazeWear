@@ -11,6 +11,8 @@ import androidx.core.graphics.withSave
 import com.lollipop.maze.data.MBlock
 import com.lollipop.maze.data.MMap
 import com.lollipop.maze.data.MPath
+import com.lollipop.maze.data.MPoint
+import com.lollipop.play.core.helper.registerLog
 import com.lollipop.play.core.view.draw.PathDrawable
 import com.lollipop.play.core.view.draw.SpiritDrawable
 import com.lollipop.play.core.view.draw.TileDrawable
@@ -61,8 +63,12 @@ class MazePlayView @JvmOverloads constructor(
         mapDrawable.updateProgress(progress)
     }
 
-    private fun setNext(x: Int, y: Int): Boolean {
-        return mapDrawable.setNext(x, y)
+    private fun setFrom(x: Int, y: Int): Boolean {
+        return mapDrawable.setFrom(x, y)
+    }
+
+    private fun setExtremePoint(start: MPoint?, end: MPoint?) {
+        mapDrawable.setExtremePoint(start, end)
     }
 
     fun update(builder: (ActionBuilder) -> Unit) {
@@ -72,9 +78,9 @@ class MazePlayView @JvmOverloads constructor(
         if (actionBuilder.isUpdateSource || actionBuilder.isUpdatePointer) {
             // 如果修改了地图或者坐标点，那么需要重新计算
             mapDrawable.updateViewportMap()
-        } else if (actionBuilder.isUpdateDrawable || actionBuilder.isUpdateProgress) {
+        } else if (actionBuilder.isUpdateDrawable || actionBuilder.isUpdateProgress || actionBuilder.isUpdateExtreme) {
             // 如果只是改了绘制或者移动偏移，那么是不需要整体重新计算的
-            postInvalidate()
+            mapDrawable.invalidateSelf()
         }
     }
 
@@ -93,7 +99,7 @@ class MazePlayView @JvmOverloads constructor(
         private var pathList: MPath? = null
 
         private var focusBlock = MBlock(x = -1, y = -1)
-        private var nextBlock = MBlock(x = -1, y = -1)
+        private var fromBlock = MBlock(x = -1, y = -1)
 
         private var tileMap = TileMap(::updateViewportMap)
 
@@ -105,6 +111,8 @@ class MazePlayView @JvmOverloads constructor(
         private var drawLeftEdge = 0F
         private var drawTopEdge = 0F
 
+        private var startPoint: MPoint? = null
+        private var endPoint: MPoint? = null
 
         var tileDrawable: TileDrawable = ColorTileDrawable()
         var pathDrawable: PathDrawable = ColorPathDrawable()
@@ -112,6 +120,11 @@ class MazePlayView @JvmOverloads constructor(
 
         private fun getMapBufferSize(size: Int): Int {
             return size + MAP_BUFFER
+        }
+
+        fun setExtremePoint(start: MPoint?, end: MPoint?) {
+            this.startPoint = start
+            this.endPoint = end
         }
 
         fun setViewportSize(width: Int, height: Int) {
@@ -144,11 +157,11 @@ class MazePlayView @JvmOverloads constructor(
             animationProgress = progress
         }
 
-        fun setNext(x: Int, y: Int): Boolean {
-            if (nextBlock.x == x && nextBlock.y == y) {
+        fun setFrom(x: Int, y: Int): Boolean {
+            if (fromBlock.x == x && fromBlock.y == y) {
                 return false
             }
-            nextBlock.set(x, y)
+            fromBlock.set(x, y)
             return true
         }
 
@@ -171,40 +184,32 @@ class MazePlayView @JvmOverloads constructor(
             drawTopEdge = (bounds.height() / 2 - halfBlock)
             drawTopEdge -= (viewportHeight / 2) * blockSize
 
-            val fragmentTop = drawTopEdge.toInt()
-            val fragmentBottom = (fragmentTop + (blockSize * drawMap.height)).toInt()
-            val fragmentLeft = drawLeftEdge.toInt()
-            val fragmentRight = (fragmentLeft + (blockSize * drawMap.width)).toInt()
-
             routePath.reset()
 
-            var isInFragment = false
+            var isFirst = true
             pathList?.pointList?.forEach { point ->
-                val oldFlag = isInFragment
-                if (!isInFragment) {
-                    if (point.x >= fragmentLeft && point.x <= fragmentRight && point.y >= fragmentTop && point.y <= fragmentBottom) {
-                        isInFragment = true
-                    }
-                }
-                if (isInFragment) {
-                    val pointX = (point.x * blockSize) + halfBlock
-                    val pointY = (point.y * blockSize) + halfBlock
-                    if (!oldFlag) {
-                        routePath.moveTo(pointX, pointY)
-                    } else {
-                        routePath.lineTo(pointX, pointY)
-                    }
+                val pointX = (point.x * blockSize) + halfBlock
+                val pointY = (point.y * blockSize) + halfBlock
+                if (isFirst) {
+                    routePath.moveTo(pointX, pointY)
+                    isFirst = false
+                } else {
+                    routePath.lineTo(pointX, pointY)
                 }
             }
             invalidateSelf()
         }
 
+        private val log = registerLog()
+
         override fun draw(canvas: Canvas) {
             sourceMap ?: return
-            val offsetX = (nextBlock.x - focusBlock.x) * animationProgress
-            val offsetY = (nextBlock.y - focusBlock.y) * animationProgress
+            val p = (1 - animationProgress)
+            val offsetX = (fromBlock.x - focusBlock.x) * p
+            val offsetY = (fromBlock.y - focusBlock.y) * p
+//            log("draw progess = $p, offsetX = $offsetX, offsetY = $offsetY")
             canvas.withSave {
-                canvas.translate(offsetX * -1, offsetY * -1)
+                canvas.translate(offsetX, offsetY)
                 for (x in 0 until drawMap.width) {
                     for (y in 0 until drawMap.height) {
                         val tileX = x + MAP_BUFFER_OFFSET
@@ -219,6 +224,8 @@ class MazePlayView @JvmOverloads constructor(
                     }
                 }
                 drawPath(canvas)
+                drawStart(canvas)
+                drawEnd(canvas)
                 drawSpiriter(canvas)
             }
         }
@@ -228,11 +235,49 @@ class MazePlayView @JvmOverloads constructor(
         }
 
         private fun drawPath(canvas: Canvas) {
-            pathDrawable.draw(canvas, routePath, blockSize)
+            canvas.withSave {
+                val x = (focusBlock.x - (viewportWidth / 2)) * blockSize
+                val y = (focusBlock.y - (viewportHeight / 2)) * blockSize
+                canvas.translate(x * -1, y * -1)
+                pathDrawable.draw(canvas, routePath, blockSize)
+            }
         }
 
         private fun drawSpiriter(canvas: Canvas) {
             spiritDrawable.draw(canvas, bounds.exactCenterX(), bounds.exactCenterY(), blockSize)
+        }
+
+        private fun drawStart(canvas: Canvas) {
+            val point = startPoint ?: return
+            drawExtremePoint(canvas, point, true)
+        }
+
+        private fun drawEnd(canvas: Canvas) {
+            val point = endPoint ?: return
+            drawExtremePoint(canvas, point, false)
+        }
+
+        private fun drawExtremePoint(canvas: Canvas, point: MPoint, isStart: Boolean) {
+            if (point.x < 0 || point.y < 0) {
+                return
+            }
+            val px = point.x
+            val drawBlockRadiusX = viewportWidth / 2
+            if (px < (focusBlock.x - drawBlockRadiusX) || px > (focusBlock.x + drawBlockRadiusX)) {
+                return
+            }
+            val py = point.y
+            val drawBlockRadiusY = viewportHeight / 2
+            if (py < (focusBlock.y - drawBlockRadiusY) || py > (focusBlock.y + drawBlockRadiusY)) {
+                return
+            }
+            val blockOffsetX = ((px - focusBlock.x) * blockSize) + bounds.exactCenterX()
+            val blockOffsetY = ((py - focusBlock.y) * blockSize) + bounds.exactCenterY()
+            if (isStart) {
+                spiritDrawable.drawStart(canvas, blockOffsetX, blockOffsetY, blockSize)
+            } else {
+                spiritDrawable.drawEnd(canvas, blockOffsetX, blockOffsetY, blockSize)
+            }
         }
 
         override fun setAlpha(alpha: Int) {
@@ -260,6 +305,9 @@ class MazePlayView @JvmOverloads constructor(
             private set
 
         var isUpdateProgress = false
+            private set
+
+        var isUpdateExtreme = false
             private set
 
         fun setTileDrawable(tileDrawable: TileDrawable) {
@@ -299,11 +347,16 @@ class MazePlayView @JvmOverloads constructor(
             view?.updateProgress(progress)
         }
 
-        fun setNext(x: Int, y: Int) {
-            val result = view?.setNext(x, y) ?: false
+        fun setFrom(x: Int, y: Int) {
+            val result = view?.setFrom(x, y) ?: false
             if (result) {
                 isUpdatePointer = true
             }
+        }
+
+        fun setExtremePoint(start: MPoint?, end: MPoint?) {
+            isUpdateExtreme = true
+            view?.setExtremePoint(start, end)
         }
     }
 

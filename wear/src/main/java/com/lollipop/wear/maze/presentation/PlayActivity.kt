@@ -12,6 +12,7 @@ import com.lollipop.maze.data.MPath
 import com.lollipop.maze.data.MPoint
 import com.lollipop.play.core.controller.LifecycleHelper
 import com.lollipop.play.core.controller.MazeController
+import com.lollipop.play.core.controller.MazeMoveAnimator
 import com.lollipop.play.core.controller.TimeDelegate
 import com.lollipop.play.core.helper.JoystickDelegate
 import com.lollipop.play.core.helper.JoystickDirection
@@ -73,11 +74,20 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
 
     private val joystickDelegate = JoystickDelegate(::onJoystickTouch)
 
+    private val mazeMoveAnimator by lazy {
+        MazeMoveAnimator(lifecycleHelper, ::updateMoveAnimation)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         initView()
         loadData()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mazeController.onResume()
     }
 
     private fun loadData() {
@@ -103,8 +113,11 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         joystickDelegate.bind(binding.joystickView)
         binding.mazePlayView.update { action ->
             action.setTileDrawable(ColorTileDrawable().apply { color = Color.GRAY })
-            action.setPathDrawable(ColorPathDrawable().apply { color = 0x330000FF })
-            action.setSpiritDrawable(ColorSpiritDrawable().apply { color = Color.WHITE })
+            action.setPathDrawable(ColorPathDrawable().apply { color = 0x33FFFFFF })
+            action.setSpiritDrawable(ColorSpiritDrawable().apply {
+                color = Color.WHITE
+                setEndColor(Color.GREEN)
+            })
         }
         binding.osdButton.setOnClickListener {
             osdPanelHelper.toggle()
@@ -156,18 +169,32 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         binding.mazePlayView.update { action ->
             action.setSource(maze.map, path)
             action.setFocus(focus.x, focus.y)
-            action.setNext(focus.x, focus.y)
+            action.setFrom(focus.x, focus.y)
             action.updateProgress(0F)
+            action.setExtremePoint(null, maze.end)
         }
         log("start = [${maze.start.x}, ${maze.start.y}] ")
-        log(MazeTest.print(maze).build())
+        log("map \n" + MazeTest.print(maze).build())
     }
 
     private fun onMove(
         fromPoint: MPoint,
         toPoint: MPoint
     ) {
+        mazeMoveAnimator.onPointChange(fromPoint, toPoint)
+    }
 
+    private fun updateMoveAnimation(
+        fromPoint: MPoint,
+        toPoint: MPoint,
+        progress: Float
+    ) {
+        binding.mazePlayView.update { action ->
+//            log("updateMoveAnimation: from = $fromPoint, to = $toPoint, progress = $progress")
+            action.setFocus(toPoint.x, toPoint.y)
+            action.setFrom(fromPoint.x, fromPoint.y)
+            action.updateProgress(progress)
+        }
     }
 
     override fun onDestroy() {

@@ -10,4 +10,13 @@ abstract class APoint {
 
 }
 
-class MPoint(override val x: Int, override val y: Int) : APoint()
+class MPoint(override val x: Int, override val y: Int) : APoint() {
+
+    private val contextValue: String by lazy {
+        "MPoint($x, $y)"
+    }
+
+    override fun toString(): String {
+        return contextValue
+    }
+}

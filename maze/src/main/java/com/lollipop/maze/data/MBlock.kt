@@ -5,7 +5,7 @@ class MBlock(
     override var y: Int = 0,
 ) : APoint() {
 
-    constructor(block: MPoint) : this(block.x, block.y)
+    constructor(block: APoint) : this(block.x, block.y)
 
     private var snapshotPoint: MPoint? = null
 
@@ -85,6 +85,10 @@ class MBlock(
 
     fun downPoint(step: Int = 1): MPoint {
         return MPoint(x, y + step)
+    }
+
+    override fun toString(): String {
+        return snapshot().toString()
     }
 
 }
