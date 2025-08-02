@@ -40,6 +40,12 @@ class OsdPanelHelper(
         }
     }
 
+    private var onShowCallback: () -> Unit = {}
+
+    fun onShow(callback: () -> Unit) {
+        onShowCallback = callback
+    }
+
     fun init() {
         view.visibility = View.INVISIBLE
         animationToShow = false
@@ -49,6 +55,7 @@ class OsdPanelHelper(
 
     fun show() {
         animationToShow = true
+        onShowCallback()
         animationTo(ANIMATION_MAX)
     }
 

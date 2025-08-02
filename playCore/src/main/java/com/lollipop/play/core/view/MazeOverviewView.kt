@@ -7,26 +7,38 @@ import android.graphics.ColorFilter
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Rect
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import android.util.AttributeSet
-import android.widget.ImageView
+import androidx.appcompat.widget.AppCompatImageView
 import com.lollipop.maze.Maze
 import com.lollipop.maze.MazeMap
 import com.lollipop.maze.data.MMap
 import com.lollipop.maze.data.MPath
 import com.lollipop.maze.data.MPoint
+import com.lollipop.play.core.helper.registerLog
 import kotlin.math.max
 
 class MazeOverviewView @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet? = null
-) : ImageView(context, attributeSet) {
+) : AppCompatImageView(context, attributeSet) {
+
+    private var isDisplayMap = false
 
     private val pathDrawable = OverviewLineDrawable()
     private val mapDrawable = OverviewMapDrawable()
 
-    fun test() {
-        val layerDrawable = LayerDrawable(arrayOf())
+    private val pathOnlyDrawable: Drawable by lazy {
+        pathDrawable
+    }
+
+    private val mapPathDrawable: Drawable by lazy {
+        LayerDrawable(arrayOf(mapDrawable, pathDrawable))
+    }
+
+    init {
+        bindDrawable()
     }
 
     fun setMap(map: MazeMap, path: MPath) {
@@ -50,6 +62,24 @@ class MazeOverviewView @JvmOverloads constructor(
 
     fun setReverseDisplayMap(reverseDisplay: Boolean) {
         mapDrawable.setReverseDisplay(reverseDisplay)
+    }
+
+    fun setDisplayMap(display: Boolean) {
+        isDisplayMap = display
+        bindDrawable()
+    }
+
+    private fun bindDrawable() {
+        if (isDisplayMap) {
+            setImageDrawable(mapPathDrawable)
+        } else {
+            setImageDrawable(pathOnlyDrawable)
+        }
+    }
+
+    fun updatePath() {
+        mapDrawable.updatePath()
+        pathDrawable.updatePath()
     }
 
     private class OverviewMapDrawable : MazeBasicDrawable() {
@@ -92,7 +122,7 @@ class MazeOverviewView @JvmOverloads constructor(
             updatePath()
         }
 
-        private fun updatePath() {
+        fun updatePath() {
             if (bounds.isEmpty) {
                 return
             }
@@ -114,6 +144,7 @@ class MazeOverviewView @JvmOverloads constructor(
                     }
                 }
             }
+            invalidateSelf()
         }
 
         override fun draw(canvas: Canvas) {
@@ -137,6 +168,8 @@ class MazeOverviewView @JvmOverloads constructor(
         private val paint = Paint().apply {
             isAntiAlias = true
             isDither = true
+            strokeCap = Paint.Cap.ROUND
+            strokeJoin = Paint.Join.ROUND
         }
 
         private var mapWidth = 0
@@ -159,6 +192,8 @@ class MazeOverviewView @JvmOverloads constructor(
 
         private val routePath = Path()
 
+        private val log = registerLog()
+
         fun setMin(lineWidthMin: Float, extremeRadiusMin: Float) {
             this.lineWidthMin = lineWidthMin
             this.extremeRadiusMin = extremeRadiusMin
@@ -171,6 +206,7 @@ class MazeOverviewView @JvmOverloads constructor(
             this.mPath = path
             this.startPoint = startPoint
             this.endPoint = endPoint
+            updateSize()
             updatePath()
         }
 
@@ -191,13 +227,17 @@ class MazeOverviewView @JvmOverloads constructor(
             if (bounds.isEmpty) {
                 return
             }
+            if (mapWidth < 1 || mapHeight < 1) {
+                return
+            }
             updateGrid(mapWidth, mapHeight, bounds.width(), bounds.height())
             lineWidth = max(lineWidthMin, (blockSize / 3))
-            extremeRadius = max(extremeRadiusMin, blockSize)
+            extremeRadius = max(extremeRadiusMin, blockSize * 0.5F)
+            log("updateSize: blockSize = $blockSize, lineWidth = $lineWidth, extremeRadius = $extremeRadius")
             invalidateSelf()
         }
 
-        private fun updatePath() {
+        fun updatePath() {
             if (bounds.isEmpty) {
                 return
             }
@@ -220,7 +260,7 @@ class MazeOverviewView @JvmOverloads constructor(
                 endX = -1F
                 endY = -1F
             }
-
+            log("updatePath: pointList.size = ${mPath.pointList.size}, blockSize = ${blockSize}")
             routePath.reset()
             val pointList = mPath.pointList
             for (i in pointList.indices) {
@@ -249,6 +289,7 @@ class MazeOverviewView @JvmOverloads constructor(
         }
 
         private fun drawPoint(canvas: Canvas) {
+            log("drawPoint: startX = $startX, startY = $startY, endX = $endX, endY = $endY, width = ${bounds.width()}, height = ${bounds.height()}, extremeRadius = $extremeRadius")
             if (startX >= 0 && startY >= 0) {
                 paint.style = Paint.Style.FILL
                 paint.color = extremeStartColor

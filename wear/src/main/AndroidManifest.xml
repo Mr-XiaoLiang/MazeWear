@@ -3,7 +3,7 @@
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-    <uses-feature android:name="android.hardware.type.watch" />
+<!--    <uses-feature android:name="android.hardware.type.watch" />-->
 
     <application
         android:allowBackup="true"
@@ -13,7 +13,7 @@
         android:theme="@style/MazeTheme.Play">
         <uses-library
             android:name="com.google.android.wearable"
-            android:required="true" />
+            android:required="false" />
         <uses-library
             android:name="wear-sdk"
             android:required="false" />

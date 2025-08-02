@@ -1,149 +1,165 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/black"
-    android:orientation="vertical">
+    android:background="@android:color/black">
 
-    <com.lollipop.play.core.view.MazePlayView
-        android:id="@+id/mazePlayView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    <FrameLayout
+        android:layout_width="0px"
+        android:layout_height="0px"
+        android:background="@android:color/black"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/joystickRingView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:alpha="0"
-        android:src="@drawable/bg_joystick_ring" />
+        <com.lollipop.play.core.view.MazePlayView
+            android:id="@+id/mazePlayView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
-    <com.lollipop.play.core.view.JoystickView
-        android:id="@+id/joystickView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/menuPanel"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="invisible"
-        tools:visibility="visible">
+        <com.lollipop.play.core.view.MazeFogView
+            android:id="@+id/mazeFogView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
         <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/osdBackground"
+            android:id="@+id/joystickRingView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#88000000"
-            android:src="@drawable/bg_play_osd_zone"
-            app:tint="@android:color/darker_gray" />
+            android:alpha="0"
+            android:src="@drawable/bg_joystick_ring" />
 
-        <androidx.wear.widget.CurvedTextView
-            android:id="@+id/timeView"
+        <com.lollipop.play.core.view.JoystickView
+            android:id="@+id/joystickView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/menuPanel"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:textColor="@android:color/white"
-            android:textSize="11sp"
-            android:textStyle="bold"
-            tools:text="00:00" />
+            android:visibility="invisible"
+            tools:visibility="visible">
 
-        <FrameLayout
-            android:id="@+id/centerMenuButton"
-            android:layout_width="0px"
-            android:layout_height="0px"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent="0.5">
-
-            <com.lollipop.play.core.view.MazeOverviewView
-                android:id="@+id/overviewView"
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/osdBackground"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@android:color/black" />
+                android:background="#88000000"
+                android:src="@drawable/bg_play_osd_zone"
+                app:tint="@android:color/darker_gray" />
 
-        </FrameLayout>
+            <androidx.wear.widget.CurvedTextView
+                android:id="@+id/timeView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textColor="@android:color/white"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                tools:text="00:00" />
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/leftArrowIcon"
-            android:layout_width="0px"
-            android:layout_height="0px"
-            android:scaleType="fitCenter"
-            android:src="@drawable/baseline_keyboard_double_arrow_left_24"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintEnd_toStartOf="@id/centerMenuButton"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent="0.12" />
+            <FrameLayout
+                android:id="@+id/centerMenuButton"
+                android:layout_width="0px"
+                android:layout_height="0px"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_percent="0.5">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/topArrowIcon"
-            android:layout_width="0px"
-            android:layout_height="0px"
-            android:scaleType="fitCenter"
-            android:src="@drawable/baseline_keyboard_double_arrow_up_24"
-            app:layout_constraintBottom_toTopOf="@id/centerMenuButton"
-            app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent="0.12" />
+                <com.lollipop.play.core.view.MazeOverviewView
+                    android:id="@+id/overviewView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@android:color/black" />
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/rightArrowIcon"
-            android:layout_width="0px"
-            android:layout_height="0px"
-            android:scaleType="fitCenter"
-            android:src="@drawable/baseline_keyboard_double_arrow_right_24"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/centerMenuButton"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent="0.12" />
+            </FrameLayout>
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/bottomArrowIcon"
-            android:layout_width="0px"
-            android:layout_height="0px"
-            android:scaleType="fitCenter"
-            android:src="@drawable/baseline_keyboard_double_arrow_down_24"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/centerMenuButton"
-            app:layout_constraintWidth_percent="0.12" />
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/leftArrowIcon"
+                android:layout_width="0px"
+                android:layout_height="0px"
+                android:scaleType="fitCenter"
+                android:src="@drawable/baseline_keyboard_double_arrow_left_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toStartOf="@id/centerMenuButton"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_percent="0.12" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/topArrowIcon"
+                android:layout_width="0px"
+                android:layout_height="0px"
+                android:scaleType="fitCenter"
+                android:src="@drawable/baseline_keyboard_double_arrow_up_24"
+                app:layout_constraintBottom_toTopOf="@id/centerMenuButton"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_percent="0.12" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/rightArrowIcon"
+                android:layout_width="0px"
+                android:layout_height="0px"
+                android:scaleType="fitCenter"
+                android:src="@drawable/baseline_keyboard_double_arrow_right_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/centerMenuButton"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_percent="0.12" />
 
-        <View
-            android:id="@+id/osdButton"
-            android:layout_width="0px"
-            android:layout_height="0px"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintWidth_percent="0.5" />
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/bottomArrowIcon"
+                android:layout_width="0px"
+                android:layout_height="0px"
+                android:scaleType="fitCenter"
+                android:src="@drawable/baseline_keyboard_double_arrow_down_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/centerMenuButton"
+                app:layout_constraintWidth_percent="0.12" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <com.google.android.material.progressindicator.CircularProgressIndicator
-        android:id="@+id/contentLoadingView"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_gravity="center" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-</FrameLayout>
+            <View
+                android:id="@+id/osdButton"
+                android:layout_width="0px"
+                android:layout_height="0px"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_percent="0.3" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/contentLoadingView"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center" />
+
+    </FrameLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

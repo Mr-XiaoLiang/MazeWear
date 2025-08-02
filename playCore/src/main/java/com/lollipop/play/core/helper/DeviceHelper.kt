@@ -1,6 +1,8 @@
 package com.lollipop.play.core.helper
 
 import android.content.Context
+import android.content.res.Resources
+import android.util.TypedValue
 import kotlin.math.acos
 import kotlin.math.sqrt
 
@@ -9,6 +11,30 @@ val Context.isScreenRound: Boolean
     get() {
         return resources.configuration.isScreenRound
     }
+
+fun Int.dp2px(context: Context): Int {
+    return dp2px(context.resources)
+}
+
+fun Int.dp2px(resources: Resources): Int {
+    return TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP,
+        this.toFloat(),
+        resources.displayMetrics
+    ).toInt()
+}
+
+fun Float.dp2px(context: Context): Float {
+    return dp2px(context.resources)
+}
+
+fun Float.dp2px(resources: Resources): Float {
+    return TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP,
+        this,
+        resources.displayMetrics
+    )
+}
 
 object DeviceHelper {
     fun arcDimenToAngle(radius: Float, arcDimen: Float): Float {

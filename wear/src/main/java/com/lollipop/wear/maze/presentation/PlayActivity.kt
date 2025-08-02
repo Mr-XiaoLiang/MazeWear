@@ -16,6 +16,7 @@ import com.lollipop.play.core.controller.MazeMoveAnimator
 import com.lollipop.play.core.controller.TimeDelegate
 import com.lollipop.play.core.helper.JoystickDelegate
 import com.lollipop.play.core.helper.JoystickDirection
+import com.lollipop.play.core.helper.dp2px
 import com.lollipop.play.core.helper.registerLog
 import com.lollipop.play.core.view.OsdPanelHelper
 import com.lollipop.play.core.view.draw.color.ColorPathDrawable
@@ -119,6 +120,13 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
                 setEndColor(Color.GREEN)
             })
         }
+        binding.overviewView.setMin(1F.dp2px(this), 3F.dp2px(this))
+        binding.overviewView.setColor(
+            lineColor = Color.WHITE,
+            extremeStartColor = Color.RED,
+            extremeEndColor = Color.GREEN,
+            mapColor = Color.GRAY
+        )
         binding.osdButton.setOnClickListener {
             osdPanelHelper.toggle()
         }
@@ -127,6 +135,9 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         }
         TimeDelegate.auto(this) {
             binding.timeView.text = it
+        }
+        osdPanelHelper.onShow {
+            binding.overviewView.updatePath()
         }
         osdPanelHelper.init()
     }
@@ -173,6 +184,7 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
             action.updateProgress(0F)
             action.setExtremePoint(null, maze.end)
         }
+        binding.overviewView.setMap(maze, path)
         log("start = [${maze.start.x}, ${maze.start.y}] ")
         log("map \n" + MazeTest.print(maze).build())
     }
