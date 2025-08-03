@@ -51,6 +51,15 @@ class MLog(
         logPrint(Level.Error, error)
     }
 
+    fun <T> tryDo(message: String, block: () -> T): T? {
+        try {
+            return block()
+        } catch (e: Throwable) {
+            e(message, e)
+        }
+        return null
+    }
+
     private fun log(level: Level, message: String) {
         logPrint(level, "${logTag}: $message")
     }
