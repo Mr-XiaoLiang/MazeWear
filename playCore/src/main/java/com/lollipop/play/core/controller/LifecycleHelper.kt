@@ -2,24 +2,20 @@ package com.lollipop.play.core.controller
 
 import android.os.Handler
 import android.os.Looper
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.Runnable
 import java.util.LinkedList
 
-sealed class LifecycleHelper {
+sealed class LifecycleHelper : BasicLifecycleDelegate() {
 
     companion object {
 
-        fun auto(owner: LifecycleOwner): LifecycleHelper {
-            return Auto().apply {
-                bind(owner.lifecycle)
-            }
+        fun auto(owner: LifecycleOwner): AutoMode {
+            return AutoMode(owner)
         }
 
-        fun manual(): Manual {
-            return Manual()
+        fun manual(): ManualMode {
+            return ManualMode()
         }
     }
 
@@ -30,16 +26,11 @@ sealed class LifecycleHelper {
     }
     private val queueList = LinkedList<Queue>()
 
-    var isActive = false
-        private set
-
-    protected fun onResume() {
+    override fun onResumeInvoke() {
         handler.onResume()
-        updateState(true)
     }
 
-    protected fun onPause() {
-        updateState(false)
+    override fun onPauseInvoke() {
     }
 
     fun post(task: Runnable) {
@@ -53,8 +44,7 @@ sealed class LifecycleHelper {
         return queue
     }
 
-    private fun updateState(isActive: Boolean) {
-        this.isActive = isActive
+    override fun onStateChanged(isActive: Boolean) {
         queueList.forEach { it.updateState(isActive) }
     }
 
@@ -94,43 +84,6 @@ sealed class LifecycleHelper {
 
     }
 
-    class Auto : LifecycleHelper() {
-
-        private val lifecycleEventObserver = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_RESUME -> {
-                    onResume()
-                }
-
-                Lifecycle.Event.ON_PAUSE -> {
-                    onPause()
-                }
-
-                else -> {}
-            }
-        }
-
-        fun bind(lifecycle: Lifecycle) {
-            lifecycle.addObserver(lifecycleEventObserver)
-            if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                onResume()
-            }
-        }
-
-    }
-
-    class Manual : LifecycleHelper() {
-
-        fun resume() {
-            onResume()
-        }
-
-        fun pause() {
-            onPause()
-        }
-
-    }
-
     internal class MessageHandler(
         private val uiHandler: Handler
     ) {
@@ -150,5 +103,18 @@ sealed class LifecycleHelper {
             uiHandler.post(task)
         }
     }
+
+    class AutoMode(source: LifecycleOwner) : LifecycleHelper() {
+
+        val controller: LifecycleController = controllerByAuto(source)
+
+    }
+
+    class ManualMode : LifecycleHelper() {
+
+        val controller: LifecycleController = controllerByManual()
+
+    }
+
 
 }
