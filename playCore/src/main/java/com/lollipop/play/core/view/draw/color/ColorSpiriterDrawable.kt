@@ -56,7 +56,6 @@ class ColorSpiritDrawable : ColorBasicDrawable(), SpiritDrawable {
         blockSize: Float
     ) {
         drawPoint(canvas, x, y, blockSize, startPaint ?: paint)
-        log("drawStart")
     }
 
     override fun drawEnd(
@@ -66,7 +65,6 @@ class ColorSpiritDrawable : ColorBasicDrawable(), SpiritDrawable {
         blockSize: Float
     ) {
         drawPoint(canvas, x, y, blockSize, endPaint ?: paint)
-        log("drawEnd")
     }
 
     private fun drawPoint(canvas: Canvas, x: Float, y: Float, blockSize: Float, p: Paint) {

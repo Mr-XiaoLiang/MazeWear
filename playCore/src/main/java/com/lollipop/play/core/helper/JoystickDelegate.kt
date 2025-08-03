@@ -1,6 +1,7 @@
 package com.lollipop.play.core.helper
 
 import com.lollipop.maze.helper.ThreadHelper
+import com.lollipop.play.core.MazePlayConfig
 import com.lollipop.play.core.view.JoystickView
 
 class JoystickDelegate(
@@ -56,7 +57,7 @@ class JoystickDelegate(
     }
 
     private fun postTouchTask() {
-        touchTask.postDelay(200)
+        touchTask.postDelay(MazePlayConfig.moveJoystickDuration)
     }
 
     private fun onKeepTouch() {

@@ -28,6 +28,8 @@ class MazePlayView @JvmOverloads constructor(
 
     private val mapDrawable = MapDrawable()
 
+    private val log = registerLog()
+
     init {
         setImageDrawable(mapDrawable)
     }
@@ -204,12 +206,11 @@ class MazePlayView @JvmOverloads constructor(
 
         override fun draw(canvas: Canvas) {
             sourceMap ?: return
-            val p = (1 - animationProgress)
+            val p = (1 - animationProgress) * blockSize
             val offsetX = (fromBlock.x - focusBlock.x) * p
             val offsetY = (fromBlock.y - focusBlock.y) * p
-//            log("draw progess = $p, offsetX = $offsetX, offsetY = $offsetY")
             canvas.withSave {
-                canvas.translate(offsetX, offsetY)
+                canvas.translate(offsetX * -1, offsetY * -1)
                 for (x in 0 until drawMap.width) {
                     for (y in 0 until drawMap.height) {
                         val tileX = x + MAP_BUFFER_OFFSET
@@ -226,8 +227,8 @@ class MazePlayView @JvmOverloads constructor(
                 drawPath(canvas)
                 drawStart(canvas)
                 drawEnd(canvas)
-                drawSpiriter(canvas)
             }
+            drawSpiriter(canvas)
         }
 
         private fun drawTile(canvas: Canvas, x: Float, y: Float, tile: Int) {

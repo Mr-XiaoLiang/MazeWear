@@ -164,14 +164,12 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         fromPoint: MPoint,
         toPoint: MPoint
     ) {
-        log("onPointChange: [${fromPoint.x}, ${fromPoint.y}] ==> [${toPoint.x}, ${toPoint.y}] ")
         lifecycleHelper.post {
             onMove(fromPoint, toPoint)
         }
     }
 
     private fun onJoystickTouch(direction: JoystickDirection) {
-        log("direction = $direction")
         mazeController.manipulate(direction)
     }
 
@@ -202,7 +200,6 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         progress: Float
     ) {
         binding.mazePlayView.update { action ->
-//            log("updateMoveAnimation: from = $fromPoint, to = $toPoint, progress = $progress")
             action.setFocus(toPoint.x, toPoint.y)
             action.setFrom(fromPoint.x, fromPoint.y)
             action.updateProgress(progress)

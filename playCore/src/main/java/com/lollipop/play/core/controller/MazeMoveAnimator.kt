@@ -2,6 +2,7 @@ package com.lollipop.play.core.controller
 
 import android.animation.ValueAnimator
 import com.lollipop.maze.data.MPoint
+import com.lollipop.play.core.MazePlayConfig
 
 class MazeMoveAnimator(
     lifecycleHelper: LifecycleHelper,
@@ -40,7 +41,7 @@ class MazeMoveAnimator(
             postUpdate()
         } else if (isChanged) {
             valueAnimator.cancel()
-            valueAnimator.setDuration(1000L)
+            valueAnimator.setDuration(MazePlayConfig.moveAnimationDuration)
             valueAnimator.setFloatValues(0F, 1F)
             valueAnimator.start()
         }

@@ -86,14 +86,16 @@ class MazeController(
         signpost.fetch(maze, focusBlock)
         if (signpost.isDirectionEnable(direction)) {
             val next = signpost.getPoint(direction)
-            if (next.isSame(previousBlock)) {
+            val secondLast = path.secondLast()
+            if (next.isSame(secondLast)) {
                 // 如果下一个等于上一个，那么等于做了回退。需要执行回退逻辑
                 path.back()
                 // 回退之后如果是空的，那么又加回来
                 fixPath()
                 // 当前的焦点，是最后一个
+                val snapshot = focusBlock.snapshot()
                 focusBlock.set(path.last() ?: maze.start)
-                previousBlock.set(path.secondLast() ?: focus)
+                previousBlock.set(snapshot)
             } else {
                 // 否则就是前进
                 previousBlock.set(focus)

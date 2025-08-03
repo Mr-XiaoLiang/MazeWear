@@ -4,7 +4,10 @@ abstract class APoint {
     abstract val x: Int
     abstract val y: Int
 
-    fun isSame(point: APoint): Boolean {
+    fun isSame(point: APoint?): Boolean {
+        if (point == null) {
+            return false
+        }
         return x == point.x && y == point.y
     }
 
