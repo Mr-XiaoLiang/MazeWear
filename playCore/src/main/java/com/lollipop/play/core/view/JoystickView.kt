@@ -10,7 +10,7 @@ import androidx.appcompat.widget.AppCompatImageView
 import com.lollipop.play.core.helper.DeviceHelper
 import kotlin.math.sqrt
 
-class JoystickView @JvmOverloads constructor(
+open class JoystickView @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet? = null
 ) : AppCompatImageView(context, attributeSet) {

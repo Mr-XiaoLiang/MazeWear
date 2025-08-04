@@ -2,8 +2,11 @@ package com.lollipop.play.core.helper
 
 import android.content.Context
 import android.content.res.Resources
+import android.graphics.PointF
 import android.util.TypedValue
 import kotlin.math.acos
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 
@@ -88,6 +91,28 @@ object DeviceHelper {
             degrees
         }
         return directedDegrees
+    }
+
+    /**
+     * 根据圆心、半径和角度计算点坐标
+     * @param centerX 圆心X坐标
+     * @param centerY 圆心Y坐标
+     * @param radius 半径
+     * @param angle 角度（0度在3点钟位置，顺时针增加）
+     * @return 计算得到的点坐标
+     */
+    fun calculatePointByAngle(
+        centerX: Float,
+        centerY: Float,
+        radius: Float,
+        angle: Float
+    ): PointF {
+        // 计算点坐标
+        // 在标准坐标系中，0度在3点钟位置
+        val adjustedRadians = Math.toRadians((angle).toDouble())
+        val x = centerX + radius * cos(adjustedRadians).toFloat()
+        val y = centerY + radius * sin(adjustedRadians).toFloat()
+        return PointF(x, y)
     }
 
 }
