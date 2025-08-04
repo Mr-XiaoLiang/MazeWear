@@ -7,6 +7,7 @@ import com.lollipop.maze.data.MBlock
 import com.lollipop.maze.data.MPath
 import com.lollipop.maze.data.MPoint
 import com.lollipop.maze.helper.doAsync
+import com.lollipop.play.core.data.DataManager
 import com.lollipop.play.core.helper.JoystickDirection
 import com.lollipop.play.core.helper.registerLog
 
@@ -17,9 +18,11 @@ class MazeController(
 
     private var isDestroy = false
 
-    private var currentMaze: MazeMap? = null
+    var currentMaze: MazeMap? = null
+        private set
 
-    private var currentPath: MPath? = null
+    var currentPath: MPath? = null
+        private set
 
     private val focusBlock = MBlock()
 
@@ -28,6 +31,9 @@ class MazeController(
     private val signpost = Signpost()
 
     private val log = registerLog()
+
+    var isComplete: Boolean = false
+        private set
 
     val focus: MPoint
         get() {
@@ -63,13 +69,29 @@ class MazeController(
     }
 
     fun load(id: Int) {
-        // TODO
-        // onMazeChanged()
+        val cache = DataManager.findById(id)
+        if (cache != null) {
+            isComplete = cache.isComplete
+            onMazeChanged(cache.maze, cache.path)
+        } else {
+            callback.onMazeCacheNotFound()
+        }
+    }
+
+    fun load(path: String) {
+        val cache = DataManager.findByFile(path)
+        if (cache != null) {
+            isComplete = cache.isComplete
+            onMazeChanged(cache.maze, cache.path)
+        } else {
+            callback.onMazeCacheNotFound()
+        }
     }
 
     private fun onMazeChanged(newMaze: MazeMap, newPath: MPath) {
         currentMaze = newMaze
         currentPath = newPath
+
         fixPath()
         val lastPoint = newPath.last() ?: newMaze.start
         focusBlock.set(lastPoint)
@@ -106,6 +128,7 @@ class MazeController(
             postUI {
                 callback.onPointChange(previous, focus)
             }
+            checkComplete()
         }
     }
 
@@ -118,6 +141,24 @@ class MazeController(
         postUI {
             callback.onPointChange(previous, focus)
         }
+    }
+
+    private fun checkComplete() {
+        if (isComplete) {
+            return
+        }
+        val mazeMap = currentMaze ?: return
+        val end = mazeMap.end
+        if (focusBlock.isSame(end)) {
+            isComplete = true
+            postUI {
+                callback.onComplete()
+            }
+        }
+    }
+
+    fun resetComplete() {
+        isComplete = false
     }
 
     private fun fixPath() {
@@ -141,7 +182,11 @@ class MazeController(
 
         fun onMazeResult(maze: MazeMap, path: MPath, focus: MBlock)
 
+        fun onMazeCacheNotFound()
+
         fun onPointChange(fromPoint: MPoint, toPoint: MPoint)
+
+        fun onComplete()
 
     }
 

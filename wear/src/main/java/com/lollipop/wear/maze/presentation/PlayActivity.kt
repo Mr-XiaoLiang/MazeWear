@@ -14,6 +14,7 @@ import com.lollipop.play.core.controller.LifecycleHelper
 import com.lollipop.play.core.controller.MazeController
 import com.lollipop.play.core.controller.MazeMoveAnimator
 import com.lollipop.play.core.controller.TimeDelegate
+import com.lollipop.play.core.data.DataManager
 import com.lollipop.play.core.helper.JoystickDelegate
 import com.lollipop.play.core.helper.JoystickDirection
 import com.lollipop.play.core.helper.dp2px
@@ -31,7 +32,7 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
     companion object {
 
         private const val KEY_MAZE_WIDTH = "KEY_MAZE_WIDTH"
-        private const val KEY_MAZE_ID = "KEY_MAZE_ID"
+        private const val KEY_MAZE_CACHE = "KEY_MAZE_CACHE"
 
         fun newMaze(context: Context, width: Int) {
             val intent = Intent(context, PlayActivity::class.java)
@@ -39,9 +40,9 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
             context.startActivity(intent)
         }
 
-        fun resumeMaze(context: Context, mazeId: Int) {
+        fun resumeMaze(context: Context, mazeCache: String) {
             val intent = Intent(context, PlayActivity::class.java)
-            intent.putExtra(KEY_MAZE_ID, mazeId)
+            intent.putExtra(KEY_MAZE_CACHE, mazeCache)
             context.startActivity(intent)
         }
 
@@ -49,8 +50,8 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
             return intent.getIntExtra(KEY_MAZE_WIDTH, 10)
         }
 
-        private fun getMazeId(intent: Intent): Int {
-            return intent.getIntExtra(KEY_MAZE_ID, -1)
+        private fun getMazeCache(intent: Intent): String {
+            return intent.getStringExtra(KEY_MAZE_CACHE) ?: ""
         }
 
     }
@@ -79,10 +80,13 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         MazeMoveAnimator(lifecycleHelper, ::updateMoveAnimation)
     }
 
+    private var mazeCachePath: String = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         initView()
+
         loadData()
     }
 
@@ -92,9 +96,9 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
     }
 
     private fun loadData() {
-        val mazeId = getMazeId(intent)
-        if (mazeId >= 0) {
-            mazeController.load(mazeId)
+        mazeCachePath = getMazeCache(intent)
+        if (mazeCachePath.isNotEmpty()) {
+            mazeController.load(mazeCachePath)
         } else {
             mazeController.create(getMazeWidth(intent))
         }
@@ -160,6 +164,10 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         }
     }
 
+    override fun onMazeCacheNotFound() {
+        TODO("Not yet implemented")
+    }
+
     override fun onPointChange(
         fromPoint: MPoint,
         toPoint: MPoint
@@ -167,6 +175,10 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         lifecycleHelper.post {
             onMove(fromPoint, toPoint)
         }
+    }
+
+    override fun onComplete() {
+        TODO("Not yet implemented")
     }
 
     private fun onJoystickTouch(direction: JoystickDirection) {
@@ -204,6 +216,27 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
             action.setFrom(fromPoint.x, fromPoint.y)
             action.updateProgress(progress)
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        val currentMaze = mazeController.currentMaze
+        val currentPath = mazeController.currentPath
+        if (currentMaze != null && currentPath != null) {
+            // 保存路径，下一次更新的时候，可以再次更新
+            mazeCachePath = DataManager.update(
+                context = this,
+                filePath = mazeCachePath,
+                mazeMap = currentMaze,
+                path = currentPath,
+                isComplete = mazeController.isComplete,
+                onEnd = ::onSaveEnd
+            ).path
+        }
+    }
+
+    private fun onSaveEnd() {
+        // TODO
     }
 
     override fun onDestroy() {

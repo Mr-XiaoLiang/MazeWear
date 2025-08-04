@@ -101,7 +101,7 @@ object DataManager {
         path: MPath,
         isComplete: Boolean,
         onEnd: () -> Unit
-    ) {
+    ): File {
         val oldCache = findByFile(filePath)
         val mazeHistory = if (oldCache != null) {
             val info = MazeHistory(
@@ -127,6 +127,7 @@ object DataManager {
         mazeHistoryList.add(0, mazeHistory)
         notifyChanged(mazeHistory.id)
         writeToFile(mazeHistory, onEnd)
+        return mazeHistory.cacheFile
     }
 
     private fun writeToFile(
