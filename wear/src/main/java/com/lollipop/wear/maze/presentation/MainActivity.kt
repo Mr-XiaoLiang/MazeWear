@@ -5,6 +5,7 @@
 
 package com.lollipop.wear.maze.presentation
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -28,11 +29,8 @@ import com.lollipop.wear.maze.presentation.theme.MazeWearTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
-
         super.onCreate(savedInstanceState)
-
-        setTheme(android.R.style.Theme_DeviceDefault)
-
+        setTheme(R.style.MazeTheme_Play)
         setContent {
             WearApp("Android")
         }
@@ -58,7 +56,8 @@ class MainActivity : ComponentActivity() {
     fun Greeting(greetingName: String) {
         Button(
             onClick = {
-                PlayActivity.newMaze(this@MainActivity, 10)
+//                PlayActivity.newMaze(this@MainActivity, 10)
+                startActivity(Intent(this@MainActivity, MazeSizeActivity::class.java))
             },
             modifier = Modifier.fillMaxWidth(),
             content = {

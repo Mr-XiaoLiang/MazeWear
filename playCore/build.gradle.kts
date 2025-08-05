@@ -7,6 +7,10 @@ android {
     namespace = "com.lollipop.play.core"
     compileSdk = 36
 
+    buildFeatures {
+        viewBinding = true
+    }
+
     defaultConfig {
         minSdk = 23
         consumerProguardFiles("consumer-rules.pro")

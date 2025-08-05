@@ -22,7 +22,7 @@ class ThumbBezelView @JvmOverloads constructor(
 
     companion object {
         private const val DEFAULT_SCALES_NUMBER = 12
-        private const val DEFAULT_BEZEL_WIDTH_WEIGHT = 0.15F
+        private const val DEFAULT_BEZEL_WIDTH_WEIGHT = 0.1F
     }
 
     private val bezelDrawable = BezelDrawable()
@@ -102,6 +102,7 @@ class ThumbBezelView @JvmOverloads constructor(
         ) {
             if (isFirstDrag) {
                 currentScale = getScaleIndex(angle)
+                isFirstDrag = false
             } else {
                 val scaleMax = scaleNumber - 1
                 val scaleIndex = getScaleIndex(angle)
@@ -135,7 +136,7 @@ class ThumbBezelView @JvmOverloads constructor(
     ) : JoystickDisplay {
 
         private var displayAngle = 0F
-        private var touchDownAngle = 0F
+        private var lastAngle = 0F
         private var isFirstDrag = true
 
         override fun onBindJoystick(view: JoystickView) {
@@ -155,12 +156,19 @@ class ThumbBezelView @JvmOverloads constructor(
             touchY: Float
         ) {
             if (isFirstDrag) {
-                touchDownAngle = angle
+                lastAngle = angle
                 isFirstDrag = false
             }
-            val angleOffset = angle - touchDownAngle
+            val angleOffset = angle - lastAngle
             displayAngle += angleOffset
-            drawable.angle = displayAngle
+            lastAngle = angle
+            if (displayAngle > 360F) {
+                displayAngle -= 360F
+            }
+            if (displayAngle < 0F) {
+                displayAngle += 360F
+            }
+            drawable.angle = displayAngle * -1
         }
 
         override fun onTouchUp(view: JoystickView) {
