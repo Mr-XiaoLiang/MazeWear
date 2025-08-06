@@ -5,19 +5,16 @@ import kotlin.math.max
 import kotlin.math.min
 
 class JoystickRectRestrictedZone(
-    val left: Int,
-    val top: Int,
-    val right: Int,
-    val bottom: Int
+    var left: Edge,
+    var top: Edge,
+    var right: Edge,
+    var bottom: Edge
 ) : JoystickView.RestrictedZone {
 
     companion object {
-        const val POSITION_PARENT_LEFT = -1
-        const val POSITION_PARENT_TOP = -2
-        const val POSITION_PARENT_RIGHT = -3
-        const val POSITION_PARENT_BOTTOM = -4
-        const val POSITION_PARENT_CENTER = -5
-
+        val START_EDGE = Edge.Relative(0F)
+        val END_EDGE = Edge.Relative(1F)
+        val PARENT_CENTER = Edge.Relative(0.5F)
     }
 
     override fun isTouchOnRestricted(
@@ -36,39 +33,33 @@ class JoystickRectRestrictedZone(
     private fun getRestrictedPosition(
         viewWidth: Int,
         viewHeight: Int,
-        value: Int,
+        value: Edge,
         isHorizontal: Boolean
     ): Int {
         when (value) {
-            POSITION_PARENT_LEFT -> {
-                return 0
+            is Edge.Absolute -> {
+                return value.edge
             }
 
-            POSITION_PARENT_TOP -> {
-                return 0
-            }
-
-            POSITION_PARENT_RIGHT -> {
-                return viewWidth
-            }
-
-            POSITION_PARENT_BOTTOM -> {
-                return viewHeight
-            }
-
-            POSITION_PARENT_CENTER -> {
+            is Edge.Relative -> {
+                val weight = value.edge
                 return if (isHorizontal) {
-                    viewWidth / 2
+                    (weight * viewWidth).toInt()
                 } else {
-                    viewHeight / 2
+                    (weight * viewHeight).toInt()
                 }
-            }
-
-            else -> {
-                return value
             }
         }
     }
+
+    sealed class Edge {
+
+        class Absolute(val edge: Int) : Edge()
+
+        class Relative(val edge: Float) : Edge()
+
+    }
+
 }
 
 
@@ -101,8 +92,8 @@ class JoystickCircleRestrictedZone(
  * @param insideMode 内侧模式，当设置为true时，表示以短边为直径，否则为长边为直径
  */
 class JoystickRingRestrictedZone(
-    val outerEdgeWeight: Float,
-    val innerEdgeWeight: Float,
+    var outerEdgeWeight: Float,
+    var innerEdgeWeight: Float,
     val insideMode: Boolean,
 ) : JoystickView.RestrictedZone {
 

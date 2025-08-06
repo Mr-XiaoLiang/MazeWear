@@ -8,6 +8,7 @@ import android.view.MotionEvent
 import android.view.ViewConfiguration
 import androidx.appcompat.widget.AppCompatImageView
 import com.lollipop.play.core.helper.DeviceHelper
+import kotlin.math.abs
 import kotlin.math.sqrt
 
 open class JoystickView @JvmOverloads constructor(
@@ -86,17 +87,18 @@ open class JoystickView @JvmOverloads constructor(
         when (event?.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 onTouchDown(event)
-                if (needIntercept(event.x, event.y)) {
-                    requestTouch()
-                    onTouchMove(event)
-                    return true
+                val x1 = event.x
+                val y1 = event.y
+                if (needIntercept(x1, y1)) {
+                    onTouchMove(x1, y1)
                 }
             }
 
             MotionEvent.ACTION_MOVE -> {
-                if (touchMode == TouchMode.HOLD) {
-                    onTouchMove(event)
-                    return true
+                val x1 = event.x
+                val y1 = event.y
+                if (needIntercept(x1, y1)) {
+                    onTouchMove(x1, y1)
                 }
             }
 
@@ -113,16 +115,14 @@ open class JoystickView @JvmOverloads constructor(
                 cancelTouch()
             }
         }
-        if (touchMode == TouchMode.HOLD) {
+        if (touchMode == TouchMode.HOLD || touchMode == TouchMode.PENDING) {
             return true
         }
         val result = super.onTouchEvent(event)
         return result
     }
 
-    private fun onTouchMove(event: MotionEvent) {
-        val touchX = event.x
-        val touchY = event.y
+    private fun onTouchMove(touchX: Float, touchY: Float) {
         val radius = getTouchPointRadius(touchX, touchY)
         val angle = getTouchPointAngle(touchX, touchY)
         onTouchMove(
@@ -137,6 +137,7 @@ open class JoystickView @JvmOverloads constructor(
 
     private fun onTouchHold() {
         touchMode = TouchMode.HOLD
+        requestTouch()
         joystickDisplay?.onTouchDown(this)
     }
 
@@ -171,8 +172,16 @@ open class JoystickView @JvmOverloads constructor(
                     }
                 }
 //                log("needIntercept.PENDING")
-                touchMode = TouchMode.HOLD
-                onTouchHold()
+                touchMode = TouchMode.PENDING
+                return true
+            }
+
+            TouchMode.PENDING -> {
+                val downX = touchDownPoint.x
+                val downY = touchDownPoint.y
+                if (abs(downX - x) >= touchSlop || abs(downY - y) >= touchSlop) {
+                    onTouchHold()
+                }
                 return true
             }
 
@@ -249,6 +258,11 @@ open class JoystickView @JvmOverloads constructor(
          * 不适合拦截，因此放弃处理
          */
         CANCELED,
+
+        /**
+         * 拦截手势，表示自己在处理了
+         */
+        PENDING,
 
         /**
          * 拦截手势，表示自己在处理了

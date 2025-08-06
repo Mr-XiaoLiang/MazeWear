@@ -12,6 +12,8 @@ import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import androidx.core.graphics.withRotation
 import com.lollipop.play.core.helper.DeviceHelper
+import com.lollipop.play.core.view.joystick.JoystickRectRestrictedZone
+import com.lollipop.play.core.view.joystick.JoystickRingRestrictedZone
 import kotlin.math.max
 import kotlin.math.min
 
@@ -22,8 +24,22 @@ class ThumbBezelView @JvmOverloads constructor(
 
     companion object {
         private const val DEFAULT_SCALES_NUMBER = 12
-        private const val DEFAULT_BEZEL_WIDTH_WEIGHT = 0.1F
+        private const val DEFAULT_BEZEL_WIDTH_WEIGHT = 0.07F
+        private fun getRingRestrictedEdge(keepWeight: Float): Float {
+            return 1F - keepWeight
+        }
     }
+
+    private val ringRestrictedZone = JoystickRingRestrictedZone(
+        1F, 0F, true
+    )
+
+    private val leftEdgeRestrictedZone = JoystickRectRestrictedZone(
+        left = JoystickRectRestrictedZone.START_EDGE,
+        top = JoystickRectRestrictedZone.START_EDGE,
+        bottom = JoystickRectRestrictedZone.END_EDGE,
+        right = JoystickRectRestrictedZone.START_EDGE
+    )
 
     private val bezelDrawable = BezelDrawable()
 
@@ -46,12 +62,19 @@ class ThumbBezelView @JvmOverloads constructor(
             bezelDrawable.stripeNumber = value
         }
 
+    var joystickWeight: Float = 3F
+        set(value) {
+            field = value
+            updateRingRestricted()
+        }
+
     var bezelWidthWeight: Float
         get() {
             return bezelDrawable.bezelWidthWeight
         }
         set(value) {
             bezelDrawable.bezelWidthWeight = value
+            updateRingRestricted()
             invalidate()
         }
 
@@ -75,6 +98,18 @@ class ThumbBezelView @JvmOverloads constructor(
         setImageDrawable(bezelDrawable)
         setJoystickDisplay(ThumbBezelDisplay(bezelDrawable))
         setJoystickTouchListener(thumbTouchDelegate)
+        addRestrictedZone(ringRestrictedZone)
+        addRestrictedZone(leftEdgeRestrictedZone)
+        updateRingRestricted()
+    }
+
+    private fun updateRingRestricted() {
+        ringRestrictedZone.innerEdgeWeight = getRingRestrictedEdge(
+            bezelWidthWeight * joystickWeight
+        )
+        leftEdgeRestrictedZone.right = JoystickRectRestrictedZone.Edge.Relative(
+            bezelWidthWeight * joystickWeight * 0.5F
+        )
     }
 
     fun setThumbCallback(callback: OnThumbCallback) {

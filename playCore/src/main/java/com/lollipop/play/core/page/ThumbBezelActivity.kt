@@ -15,7 +15,7 @@ import com.lollipop.play.core.view.ThumbBezelView.ThumbState
 
 abstract class ThumbBezelActivity : AppCompatActivity() {
 
-    private val bezelBinding by lazy {
+    protected val bezelBinding by lazy {
         ActivityThumbBezelBinding.inflate(layoutInflater)
     }
 
