@@ -10,9 +10,6 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/MazeTheme.Play">
-        <activity
-            android:name=".presentation.MazeSizeActivity"
-            android:exported="false" />
 
         <uses-library
             android:name="com.google.android.wearable"

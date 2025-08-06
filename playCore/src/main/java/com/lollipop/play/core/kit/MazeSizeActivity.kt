@@ -1,18 +1,17 @@
-package com.lollipop.wear.maze.presentation
+package com.lollipop.play.core.kit
 
+import com.lollipop.play.core.R
 import com.lollipop.play.core.data.PreferencesHelper
 import com.lollipop.play.core.data.mazeSettings
 import com.lollipop.play.core.page.AdjustNumberActivity
-import com.lollipop.wear.maze.R
-
 
 class MazeSizeActivity : AdjustNumberActivity() {
 
-    override val maxNumber: Int = PreferencesHelper.MAZE_WIDTH_MAX
-    override val minNumber: Int = PreferencesHelper.MAZE_WIDTH_MIN
+    override val maxNumber: Int = PreferencesHelper.Companion.MAZE_WIDTH_MAX
+    override val minNumber: Int = PreferencesHelper.Companion.MAZE_WIDTH_MIN
     override val offsetStep: Int = 2
 
-    val settings by mazeSettings()
+    private val settings by mazeSettings()
 
     override fun hintText(): String {
         return getString(R.string.hint_maze_width)

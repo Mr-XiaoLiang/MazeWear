@@ -21,6 +21,6 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textSize="16sp"
-        tools:text="地图边长" />
+        tools:text="@string/hint_maze_width" />
 
 </LinearLayout>

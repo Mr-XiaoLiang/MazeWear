@@ -23,6 +23,7 @@ import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
+import com.lollipop.play.core.kit.MazeSizeActivity
 import com.lollipop.wear.maze.R
 import com.lollipop.wear.maze.presentation.theme.MazeWearTheme
 

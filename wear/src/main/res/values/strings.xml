@@ -5,6 +5,4 @@
     values-round/strings.xml for round devices.
     -->
     <string name="hello_world">From the Square world,\nHello, %1$s!</string>
-
-    <string name="hint_maze_width">迷宫宽度</string>
 </resources>
