@@ -57,8 +57,8 @@ class MainActivity : ComponentActivity() {
     fun Greeting(greetingName: String) {
         Button(
             onClick = {
-//                PlayActivity.newMaze(this@MainActivity, 10)
-                startActivity(Intent(this@MainActivity, MazeSizeActivity::class.java))
+                PlayActivity.newMaze(this@MainActivity, 10)
+//                startActivity(Intent(this@MainActivity, MazeSizeActivity::class.java))
             },
             modifier = Modifier.fillMaxWidth(),
             content = {

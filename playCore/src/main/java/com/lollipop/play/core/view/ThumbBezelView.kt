@@ -126,14 +126,15 @@ class ThumbBezelView @JvmOverloads constructor(
 
         var onThumbCallback: OnThumbCallback? = null
 
-        override fun onTouch(
+        override fun onMove(
             view: JoystickView,
             angle: Float,
             radius: Float,
             centerX: Float,
             centerY: Float,
             touchX: Float,
-            touchY: Float
+            touchY: Float,
+            isTouchMode: Boolean
         ) {
             if (isFirstDrag) {
                 currentScale = getScaleIndex(angle)
@@ -181,14 +182,15 @@ class ThumbBezelView @JvmOverloads constructor(
             isFirstDrag = true
         }
 
-        override fun onTouchMove(
+        override fun onMove(
             view: JoystickView,
             angle: Float,
             radius: Float,
             centerX: Float,
             centerY: Float,
             touchX: Float,
-            touchY: Float
+            touchY: Float,
+            isTouchMode: Boolean
         ) {
             if (isFirstDrag) {
                 lastAngle = angle

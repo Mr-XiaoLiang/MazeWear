@@ -49,14 +49,15 @@ sealed class RotateJoystickDisplay : JoystickView.JoystickDisplay {
         showView(view)
     }
 
-    override fun onTouchMove(
+    override fun onMove(
         view: JoystickView,
         angle: Float,
         radius: Float,
         centerX: Float,
         centerY: Float,
         touchX: Float,
-        touchY: Float
+        touchY: Float,
+        isTouchMode: Boolean
     ) {
         rotateView(view, angle)
     }
@@ -103,7 +104,11 @@ sealed class RotateJoystickDisplay : JoystickView.JoystickDisplay {
         }
     }
 
-    class ViewMode(private val target: View) : RotateJoystickDisplay() {
+    class ViewMode(private val target: View) : RotateJoystickDisplay(),
+        GenericMotionJoystickDisplayHelper.Callback {
+
+        private val motionDisplayHelper = GenericMotionJoystickDisplayHelper(this)
+
         override fun onBindView(view: JoystickView) {
         }
 
@@ -111,19 +116,35 @@ sealed class RotateJoystickDisplay : JoystickView.JoystickDisplay {
             showView(target)
         }
 
-        override fun onTouchMove(
+        override fun onMove(
             view: JoystickView,
             angle: Float,
             radius: Float,
             centerX: Float,
             centerY: Float,
             touchX: Float,
-            touchY: Float
+            touchY: Float,
+            isTouchMode: Boolean
         ) {
+            if (!isTouchMode) {
+                motionDisplayHelper.onGamepadEvent()
+            }
             rotateView(target, angle)
         }
 
         override fun onTouchUp(view: JoystickView) {
+            hideView(target)
+        }
+
+        override fun postDelayed(task: Runnable, delay: Long) {
+            target.postDelayed(task, delay)
+        }
+
+        override fun onShowDisplay() {
+            showView(target)
+        }
+
+        override fun onHideDisplay() {
             hideView(target)
         }
     }

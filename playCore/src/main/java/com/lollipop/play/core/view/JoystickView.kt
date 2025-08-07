@@ -4,10 +4,12 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.PointF
 import android.util.AttributeSet
+import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.ViewConfiguration
 import androidx.appcompat.widget.AppCompatImageView
 import com.lollipop.play.core.helper.DeviceHelper
+import com.lollipop.play.core.helper.registerLog
 import kotlin.math.abs
 import kotlin.math.sqrt
 
@@ -15,7 +17,6 @@ open class JoystickView @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet? = null
 ) : AppCompatImageView(context, attributeSet) {
-
 
     companion object {
         fun getLength(
@@ -37,6 +38,8 @@ open class JoystickView @JvmOverloads constructor(
     private var touchSlop = 0
     private val touchDownPoint = PointF()
     private var touchMode = TouchMode.NONE
+
+    private val log = registerLog()
 
     fun addRestrictedZone(zone: RestrictedZone) {
         restrictedZoneList.add(zone)
@@ -64,13 +67,9 @@ open class JoystickView @JvmOverloads constructor(
         touchMode = TouchMode.NONE
     }
 
-//    private fun log(value: String) {
-//        Log.d("ArcTouchLayout", value)
-//    }
-
     private fun cancelTouch() {
 //        log("cancelTouch, requestDisallowInterceptTouchEvent = false")
-        if (touchMode == TouchMode.HOLD) {
+        if (touchMode == TouchMode.HOLD || touchMode == TouchMode.PENDING) {
             onTouchUp()
         }
         touchMode = TouchMode.CANCELED
@@ -78,8 +77,20 @@ open class JoystickView @JvmOverloads constructor(
     }
 
     private fun requestTouch() {
-//        log("requestTouch, requestDisallowInterceptTouchEvent = true")
         parent?.requestDisallowInterceptTouchEvent(true)
+    }
+
+    override fun onGenericMotionEvent(event: MotionEvent?): Boolean {
+        event ?: return super.onGenericMotionEvent(event)
+        if (event.isFromSource(InputDevice.SOURCE_CLASS_JOYSTICK)) {
+            if (event.action == MotionEvent.ACTION_MOVE) {
+                val x = event.getAxisValue(MotionEvent.AXIS_X)
+                val y = event.getAxisValue(MotionEvent.AXIS_Y)
+                onGenericMotionMove(x, y)
+                return true
+            }
+        }
+        return super.onGenericMotionEvent(event)
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -89,9 +100,7 @@ open class JoystickView @JvmOverloads constructor(
                 onTouchDown(event)
                 val x1 = event.x
                 val y1 = event.y
-                if (needIntercept(x1, y1)) {
-                    onTouchMove(x1, y1)
-                }
+                needIntercept(x1, y1)
             }
 
             MotionEvent.ACTION_MOVE -> {
@@ -125,13 +134,32 @@ open class JoystickView @JvmOverloads constructor(
     private fun onTouchMove(touchX: Float, touchY: Float) {
         val radius = getTouchPointRadius(touchX, touchY)
         val angle = getTouchPointAngle(touchX, touchY)
-        onTouchMove(
+        onJoystickMove(
             angle,
             radius,
             touchCircleCenter.x,
             touchCircleCenter.y,
             touchX,
-            touchY
+            touchY,
+            true
+        )
+    }
+
+    private fun onGenericMotionMove(touchX: Float, touchY: Float) {
+        val radius = getLength(touchX, touchY, 0F, 0F)
+        val angle = DeviceHelper.calculateCentralAngle(
+            0F, 0F, // 圆心
+            0F, -1F, // 锚点是View12点钟的点
+            touchX, touchY
+        )
+        onJoystickMove(
+            angle,
+            radius,
+            0F,
+            0F,
+            touchX,
+            touchY,
+            false
         )
     }
 
@@ -141,16 +169,35 @@ open class JoystickView @JvmOverloads constructor(
         joystickDisplay?.onTouchDown(this)
     }
 
-    private fun onTouchMove(
+    private fun onJoystickMove(
         angle: Float,
         radius: Float,
         centerX: Float,
         centerY: Float,
         touchX: Float,
-        touchY: Float
+        touchY: Float,
+        isTouchMode: Boolean
     ) {
-        joystickTouchListener?.onTouch(this, angle, radius, centerX, centerY, touchX, touchY)
-        joystickDisplay?.onTouchMove(this, angle, radius, centerX, centerY, touchX, touchY)
+        joystickTouchListener?.onMove(
+            this,
+            angle,
+            radius,
+            centerX,
+            centerY,
+            touchX,
+            touchY,
+            isTouchMode
+        )
+        joystickDisplay?.onMove(
+            this,
+            angle,
+            radius,
+            centerX,
+            centerY,
+            touchX,
+            touchY,
+            isTouchMode
+        )
     }
 
     private fun onTouchUp() {
@@ -221,14 +268,15 @@ open class JoystickView @JvmOverloads constructor(
     }
 
     interface OnJoystickTouchListener {
-        fun onTouch(
+        fun onMove(
             view: JoystickView,
             angle: Float,
             radius: Float,
             centerX: Float,
             centerY: Float,
             touchX: Float,
-            touchY: Float
+            touchY: Float,
+            isTouchMode: Boolean
         )
 
         fun onTouchUp(view: JoystickView)
@@ -277,14 +325,15 @@ open class JoystickView @JvmOverloads constructor(
 
         fun onTouchDown(view: JoystickView)
 
-        fun onTouchMove(
+        fun onMove(
             view: JoystickView,
             angle: Float,
             radius: Float,
             centerX: Float,
             centerY: Float,
             touchX: Float,
-            touchY: Float
+            touchY: Float,
+            isTouchMode: Boolean
         )
 
         fun onTouchUp(view: JoystickView)

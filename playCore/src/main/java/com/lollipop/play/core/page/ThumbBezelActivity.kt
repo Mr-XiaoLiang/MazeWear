@@ -5,10 +5,12 @@ import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import android.view.MotionEvent
 import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.lollipop.play.core.databinding.ActivityThumbBezelBinding
+import com.lollipop.play.core.helper.registerLog
 import com.lollipop.play.core.view.ThumbBezelView
 import com.lollipop.play.core.view.ThumbBezelView.ThumbState
 
@@ -23,12 +25,22 @@ abstract class ThumbBezelActivity : AppCompatActivity() {
 
     protected abstract fun onThumbMove(state: ThumbState)
 
+    private val log = registerLog()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(bezelBinding.root)
         bezelBinding.contentGroup.addView(getContentView())
         bezelBinding.thumbBezelView.setThumbCallback(::onThumbMoveCallback)
+    }
+
+    override fun onGenericMotionEvent(event: MotionEvent?): Boolean {
+        event ?: return super.onGenericMotionEvent(event)
+        if (bezelBinding.thumbBezelView.onGenericMotionEvent(event)) {
+            return true
+        }
+        return super.onGenericMotionEvent(event)
     }
 
     protected fun buildBezel(block: (ThumbBezelView) -> Unit) {
