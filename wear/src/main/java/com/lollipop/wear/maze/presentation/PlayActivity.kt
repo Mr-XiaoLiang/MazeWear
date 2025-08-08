@@ -4,9 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.view.KeyEvent
 import android.view.MotionEvent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import com.lollipop.maze.MazeMap
 import com.lollipop.maze.MazeTest
 import com.lollipop.maze.data.MBlock
@@ -133,13 +133,15 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
                 setEndColor(Color.GREEN)
             })
         }
-        binding.overviewView.setMin(1F.dp2px(this), 3F.dp2px(this))
-        binding.overviewView.setColor(
+        setMapViewStyle(
+            lineWidthMin = 1F.dp2px(this),
+            extremeRadiusMin = 3F.dp2px(this),
             lineColor = Color.WHITE,
             extremeStartColor = Color.RED,
             extremeEndColor = Color.GREEN,
             mapColor = Color.GRAY
         )
+        binding.settlementMapView
         binding.osdButton.setOnClickListener {
             osdPanelHelper.toggle()
         }
@@ -152,7 +154,35 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         osdPanelHelper.onShow {
             binding.overviewView.updatePath()
         }
+        binding.victoryContinueButton.setOnClickListener {
+            binding.victoryPanel.isVisible = false
+        }
+        binding.victoryPanel.setOnClickListener { }
         osdPanelHelper.init()
+    }
+
+    private fun setMapViewStyle(
+        lineWidthMin: Float,
+        extremeRadiusMin: Float,
+        lineColor: Int,
+        extremeStartColor: Int,
+        extremeEndColor: Int,
+        mapColor: Int
+    ) {
+        binding.overviewView.setMin(lineWidthMin, extremeRadiusMin)
+        binding.overviewView.setColor(
+            lineColor = lineColor,
+            extremeStartColor = extremeStartColor,
+            extremeEndColor = extremeEndColor,
+            mapColor = mapColor
+        )
+        binding.settlementMapView.setMin(lineWidthMin, extremeRadiusMin)
+        binding.settlementMapView.setColor(
+            lineColor = lineColor,
+            extremeStartColor = extremeStartColor,
+            extremeEndColor = extremeEndColor,
+            mapColor = mapColor
+        )
     }
 
     override fun onLoadingStart() {
@@ -187,7 +217,8 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
     }
 
     override fun onComplete() {
-        TODO("Not yet implemented")
+        binding.victoryPanel.isVisible = true
+        binding.settlementMapView.updatePath()
     }
 
     private fun onJoystickTouch(direction: JoystickDirection) {
@@ -204,6 +235,7 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
             action.setExtremePoint(null, maze.end)
         }
         binding.overviewView.setMap(maze, path)
+        binding.settlementMapView.setMap(maze, path)
         log("start = [${maze.start.x}, ${maze.start.y}] ")
         log("map \n" + MazeTest.print(maze).build())
     }
@@ -245,7 +277,6 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
     }
 
     private fun onSaveEnd() {
-        // TODO
     }
 
     override fun onDestroy() {

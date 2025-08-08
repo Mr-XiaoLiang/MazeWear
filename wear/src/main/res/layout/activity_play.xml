@@ -63,6 +63,16 @@
                 android:textStyle="bold"
                 tools:text="00:00" />
 
+            <androidx.wear.widget.CurvedTextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:rotation="180"
+                android:text="@string/hint_parse"
+                android:textColor="@android:color/white"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                app:clockwise="false" />
+
             <FrameLayout
                 android:id="@+id/centerMenuButton"
                 android:layout_width="0px"
@@ -160,6 +170,64 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="center" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/victoryPanel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#000"
+            android:visibility="invisible">
+
+            <com.lollipop.play.core.view.MazeOverviewView
+                android:id="@+id/settlementMapView"
+                android:layout_width="0px"
+                android:layout_height="0px"
+                android:background="@android:color/black"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.43"
+                app:layout_constraintWidth_percent="0.5" />
+
+            <TextView
+                android:id="@+id/victoryContinueButton"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:background="#188F99"
+                android:gravity="center"
+                android:paddingVertical="10dp"
+                android:text="@string/button_continue"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                app:icon="@android:drawable/stat_sys_upload_done"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:layout_width="0px"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/hint_victory"
+                android:textSize="11sp"
+                app:layout_constraintBottom_toTopOf="@id/victoryContinueButton"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintWidth_percent="0.6" />
+
+            <androidx.wear.widget.CurvedTextView
+                android:id="@+id/victoryView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="5dp"
+                android:textColor="@android:color/white"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                tools:text="@string/title_victory" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

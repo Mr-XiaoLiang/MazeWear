@@ -5,4 +5,8 @@
     values-round/strings.xml for round devices.
     -->
     <string name="hello_world">From the Square world,\nHello, %1$s!</string>
+    <string name="button_continue">继续</string>
+    <string name="title_victory">胜利</string>
+    <string name="hint_victory">可以继续或返回</string>
+    <string name="hint_parse">暂停中</string>
 </resources>

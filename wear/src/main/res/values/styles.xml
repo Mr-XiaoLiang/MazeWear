@@ -8,7 +8,7 @@
 
     </style>
 
-    <style name="MazeTheme.Play" parent="Theme.AppCompat.NoActionBar">
+    <style name="MazeTheme.Play" parent="Theme.Material3.Dark.NoActionBar">
         <item name="android:windowSwipeToDismiss">true</item>
 
     </style>
