@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <attr name="activeColor" format="color" />
+    <attr name="inactiveColor" format="color" />
+    <attr name="circularMaxRadius" format="dimension" />
+
+    <declare-styleable name="HorizontalPageIndicator">
+        <attr name="activeColor" />
+        <attr name="inactiveColor" />
+        <attr name="indicatorInterval" format="dimension" />
+        <attr name="indicatorRadius" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="CircularTextView">
+        <attr name="circularMaxRadius" />
+    </declare-styleable>
+
+    <declare-styleable name="CircularImageView">
+        <attr name="circularMaxRadius" />
+    </declare-styleable>
+
+    <declare-styleable name="CircularOutlineLinearGroup">
+        <attr name="circularMaxRadius" />
+        <attr name="gapMaxRadius" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="RectProgressView">
+        <attr name="rectProgress" format="float" />
+        <attr name="rectMode" format="enum">
+            <enum name="horizontal" value="0" />
+            <enum name="vertical" value="1" />
+            <enum name="horizontalReversal" value="2" />
+            <enum name="verticalReversal" value="3" />
+        </attr>
+    </declare-styleable>
+</resources>
