@@ -25,7 +25,7 @@ class MazeHistory(
     private var timeLong = 0L
 
     val level: String by lazy {
-        "${maze.width} x ${maze.height}}"
+        "${maze.width}x${maze.height}}"
     }
 
     val pathLength: Int

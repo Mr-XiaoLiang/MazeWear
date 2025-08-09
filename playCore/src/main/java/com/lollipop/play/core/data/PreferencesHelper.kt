@@ -17,13 +17,18 @@ class PreferencesHelper(
         private const val KEY_PREFERENCES = "Maze"
 
         fun with(context: Context): Lazy<PreferencesHelper> = lazy {
-            PreferencesHelper(
+            create(context)
+        }
+
+        fun create(context: Context): PreferencesHelper {
+            return PreferencesHelper(
                 context.applicationContext.getSharedPreferences(
                     KEY_PREFERENCES,
                     Context.MODE_PRIVATE
                 )
             )
         }
+
     }
 
     var mazeWidth by intValue(def = MAZE_WIDTH_MIN, min = MAZE_WIDTH_MIN, max = MAZE_WIDTH_MAX)

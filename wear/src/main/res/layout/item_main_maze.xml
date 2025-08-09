@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="12dp"
+    android:paddingVertical="6dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_item_main_maze"
+        android:paddingHorizontal="6dp"
+        android:paddingVertical="6dp">
+
+        <com.lollipop.play.core.view.MazeOverviewView
+            android:id="@+id/overviewView"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:background="#3f00" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/sizeIcon"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/baseline_resize_24"
+            app:layout_constraintBottom_toBottomOf="@id/sizeView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/sizeView"
+            app:tint="@android:color/white" />
+
+        <TextView
+            android:id="@+id/sizeView"
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="6dp"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toStartOf="@id/overviewView"
+            app:layout_constraintStart_toEndOf="@id/sizeIcon"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="51x51" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/stepIcon"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/baseline_footprint_24"
+            app:layout_constraintBottom_toBottomOf="@id/stepView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/stepView"
+            app:tint="@android:color/white" />
+
+        <TextView
+            android:id="@+id/stepView"
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="@id/sizeView"
+            app:layout_constraintStart_toEndOf="@id/stepIcon"
+            app:layout_constraintTop_toBottomOf="@id/sizeView"
+            tools:text="123" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/timeIcon"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/baseline_nest_clock_farsight_analog_24"
+            app:layout_constraintBottom_toBottomOf="@id/timeView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/timeView"
+            app:tint="@android:color/white" />
+
+        <TextView
+            android:id="@+id/timeView"
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginEnd="6dp"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/timeIcon"
+            app:layout_constraintTop_toBottomOf="@id/stepView"
+            tools:text="2025-08-09 12:36" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>

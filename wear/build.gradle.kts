@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.wear.input)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.activity)
+    implementation(libs.androidx.recyclerview)
 
 
     implementation(platform(libs.compose.bom))

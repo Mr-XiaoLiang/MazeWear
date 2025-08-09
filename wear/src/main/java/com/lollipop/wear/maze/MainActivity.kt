@@ -10,12 +10,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.lollipop.play.core.data.DataManager
 import com.lollipop.wear.maze.R
 import com.lollipop.wear.maze.databinding.ActivityMainBinding
-import com.lollipop.wear.maze.presentation.main.ConfigFragment
-import com.lollipop.wear.maze.presentation.main.HistoryFragment
-import com.lollipop.wear.maze.presentation.main.HomeFragment
-import com.lollipop.wear.maze.presentation.main.MainBaseFragment
+import com.lollipop.wear.maze.main.ConfigFragment
+import com.lollipop.wear.maze.main.HistoryFragment
+import com.lollipop.wear.maze.main.HomeFragment
+import com.lollipop.wear.maze.main.MainBaseFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,6 +34,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         initView()
         select(Subpage.Home, false)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        DataManager.load(this) {
+            // TODO 也不需要做什么吧
+        }
     }
 
     private fun initView() {

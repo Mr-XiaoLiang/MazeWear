@@ -94,6 +94,29 @@ object DataManager {
         return mazeHistoryList.firstOrNull { it.cachePath == path }
     }
 
+    fun copyListAll(outList: MutableList<MazeHistory>) {
+        outList.clear()
+        outList.addAll(mazeHistoryList)
+    }
+
+    fun copyListComplete(outList: MutableList<MazeHistory>) {
+        outList.clear()
+        for (history in mazeHistoryList) {
+            if (history.isComplete) {
+                outList.add(history)
+            }
+        }
+    }
+
+    fun copyListUnfinished(outList: MutableList<MazeHistory>) {
+        outList.clear()
+        for (history in mazeHistoryList) {
+            if (!history.isComplete) {
+                outList.add(history)
+            }
+        }
+    }
+
     fun update(
         context: Context,
         filePath: String,

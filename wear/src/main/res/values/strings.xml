@@ -9,4 +9,8 @@
     <string name="title_victory">胜利</string>
     <string name="hint_victory">可以继续或返回</string>
     <string name="hint_parse">暂停中</string>
+    <string name="title_history">历史</string>
+    <string name="title_config">配置</string>
+    <string name="title_new_game">新游戏</string>
+    <string name="label_unfinished">未完成的地图</string>
 </resources>
