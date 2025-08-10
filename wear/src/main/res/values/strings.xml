@@ -13,4 +13,8 @@
     <string name="title_config">配置</string>
     <string name="title_new_game">新游戏</string>
     <string name="label_unfinished">未完成的地图</string>
+
+    <string name="label_map_size">地图大小</string>
+    <string name="label_theme">主题</string>
+    <string name="label_about">关于</string>
 </resources>

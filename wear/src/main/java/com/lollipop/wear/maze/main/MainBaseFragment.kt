@@ -45,7 +45,7 @@ abstract class MainBaseFragment : Fragment() {
             return helper
         }
         val newHelper = PreferencesHelper.create(context)
-        settings = helper
+        settings = newHelper
         return newHelper
     }
 
