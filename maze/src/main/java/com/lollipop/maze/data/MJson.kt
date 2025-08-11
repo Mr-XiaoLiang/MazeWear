@@ -111,7 +111,7 @@ object MJson {
         }
 
         val config = JSONObject()
-        config.put(MAP, mapBuilder)
+        config.put(MAP, mapBuilder.json)
         config.put(PATH, pathBuilder)
         config.put(WIDTH, mazeMap.width)
         config.put(HEIGHT, mazeMap.height)
@@ -120,7 +120,7 @@ object MJson {
 
     private class JsonBuilder() {
 
-        private val json = JSONArray()
+        val json = JSONArray()
         private var currentLine: JSONArray? = null
 
         private fun getLine(): JSONArray {

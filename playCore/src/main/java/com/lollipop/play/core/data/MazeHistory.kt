@@ -22,10 +22,8 @@ class MazeHistory(
         }
     }
 
-    private var timeLong = 0L
-
     val level: String by lazy {
-        "${maze.width}x${maze.height}}"
+        "${maze.width}x${maze.height}"
     }
 
     val pathLength: Int
@@ -38,7 +36,7 @@ class MazeHistory(
     }
 
     val timeDisplay: String by lazy {
-        timeFormat.format(Date(timeLong))
+        timeFormat.format(Date(lastTime))
     }
 
 }

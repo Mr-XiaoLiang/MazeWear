@@ -22,6 +22,8 @@ class DataObserver(
 
     init {
         DataManager.register(changeListener)
+        // 初始化的时候，尝试通知一下
+        changeListener.onDataLoaded()
     }
 
     private fun newInfo(pending: Pending) {
@@ -38,6 +40,10 @@ class DataObserver(
     }
 
     override fun onPauseInvoke() {
+    }
+
+    fun releasePending() {
+        pendingChangedInfo.clear()
     }
 
     fun destroy() {

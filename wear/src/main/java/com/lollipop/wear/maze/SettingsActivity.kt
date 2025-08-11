@@ -1,4 +1,4 @@
-package com.lollipop.wear.maze.presentation
+package com.lollipop.wear.maze
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

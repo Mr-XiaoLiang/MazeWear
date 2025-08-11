@@ -1,4 +1,4 @@
-package com.lollipop.wear.maze.presentation
+package com.lollipop.wear.maze
 
 import android.content.Context
 import android.content.Intent
@@ -17,7 +17,6 @@ import com.lollipop.play.core.controller.MazeController
 import com.lollipop.play.core.controller.MazeMoveAnimator
 import com.lollipop.play.core.controller.TimeDelegate
 import com.lollipop.play.core.data.DataManager
-import com.lollipop.play.core.data.PreferencesHelper
 import com.lollipop.play.core.helper.JoystickDelegate
 import com.lollipop.play.core.helper.JoystickDirection
 import com.lollipop.play.core.helper.dp2px

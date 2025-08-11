@@ -1,9 +1,4 @@
-/* While this template provides a good starting point for using Wear Compose, you can always
- * take a look at https://github.com/android/wear-os-samples/tree/main/ComposeStarter to find the
- * most up to date changes to the libraries and their usages.
- */
-
-package com.lollipop.wear.maze.presentation
+package com.lollipop.wear.maze
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -11,7 +6,6 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.lollipop.play.core.data.DataManager
-import com.lollipop.wear.maze.R
 import com.lollipop.wear.maze.databinding.ActivityMainBinding
 import com.lollipop.wear.maze.main.ConfigFragment
 import com.lollipop.wear.maze.main.HistoryFragment

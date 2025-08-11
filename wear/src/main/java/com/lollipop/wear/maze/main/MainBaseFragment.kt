@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.lollipop.play.core.controller.TimeDelegate
 import com.lollipop.play.core.data.MazeHistory
 import com.lollipop.play.core.data.PreferencesHelper
+import com.lollipop.play.core.helper.registerLog
 import com.lollipop.wear.maze.base.WearListHelper
 import com.lollipop.wear.maze.databinding.FragmentMainSubpageBinding
 import com.lollipop.wear.maze.databinding.ItemMainMazeBinding
@@ -22,6 +23,8 @@ abstract class MainBaseFragment : Fragment() {
     private val timeDelegate = TimeDelegate.auto(this) { time ->
         updateTime(time)
     }
+
+    protected val log = registerLog()
 
     private var binding: FragmentMainSubpageBinding? = null
 

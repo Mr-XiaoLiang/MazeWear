@@ -40,6 +40,7 @@ class HistoryFragment : MainBaseFragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun onDataChanged() {
+        dataObserver.releasePending()
         DataManager.copyListComplete(mazeList)
         mazeHistoryAdapter.notifyDataSetChanged()
     }

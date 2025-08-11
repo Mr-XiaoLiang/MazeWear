@@ -7,11 +7,11 @@ import com.lollipop.play.core.data.DataManager
 import com.lollipop.play.core.data.DataObserver
 import com.lollipop.play.core.data.MazeHistory
 import com.lollipop.play.core.data.mazeSettings
+import com.lollipop.wear.maze.PlayActivity
 import com.lollipop.wear.maze.R
 import com.lollipop.wear.maze.base.WearListHelper
 import com.lollipop.wear.maze.databinding.FragmentMainSubpageBinding
 import com.lollipop.wear.maze.databinding.ItemMainHomeNewBinding
-import com.lollipop.wear.maze.presentation.PlayActivity
 
 class HomeFragment : MainBaseFragment() {
 
@@ -51,7 +51,9 @@ class HomeFragment : MainBaseFragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun onDataChanged() {
+        dataObserver.releasePending()
         DataManager.copyListUnfinished(mazeList)
+        log("onDataChanged: ${mazeList.size}")
         mazeHistoryAdapter.notifyDataSetChanged()
     }
 
