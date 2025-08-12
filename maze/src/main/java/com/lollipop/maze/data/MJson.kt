@@ -37,8 +37,12 @@ object MJson {
             for (x in 0 until width) {
                 val key = line.optString(x)
                 when (key) {
-                    WALL -> map.wall(x, y)
-                    ROAD -> map.road(x, y)
+                    WALL -> {
+                        map.wall(x, y)
+                    }
+                    ROAD -> {
+                        map.road(x, y)
+                    }
                     START -> {
                         map.road(x, y)
                         startX = x
@@ -66,20 +70,20 @@ object MJson {
             }
         }
         return ParseOut(
-            MazeMap(
-                MPoint(x = startX, y = startY),
-                MPoint(x = endX, y = endY),
-                map
+            mazeMap = MazeMap(
+                start = MPoint(x = startX, y = startY),
+                end = MPoint(x = endX, y = endY),
+                map = map
             ),
-            path
+            path = path
         )
     }
 
     fun build(mazeMap: MazeMap, path: MPath): JSONObject {
         val map = mazeMap.map
         val mapBuilder = JsonBuilder()
-        for (x in 0 until mazeMap.width) {
-            for (y in 0 until mazeMap.height) {
+        for (y in 0 until mazeMap.height) {
+            for (x in 0 until mazeMap.width) {
                 if (x == mazeMap.start.x && y == mazeMap.start.y) {
                     mapBuilder.addStart()
                 } else if (x == mazeMap.end.x && y == mazeMap.end.y) {

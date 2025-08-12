@@ -65,7 +65,9 @@ class HomeFragment : MainBaseFragment() {
     }
 
     private fun onMazeHistoryClick(position: Int, mazeHistory: MazeHistory) {
-        // TODO
+        activity?.let {
+            PlayActivity.resumeMaze(it, mazeHistory.cachePath)
+        }
     }
 
     override fun onDestroy() {

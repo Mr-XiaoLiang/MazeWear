@@ -26,6 +26,9 @@ abstract class BasicLifecycleDelegate {
         }
         val newController = Auto(source, this)
         lifecycleController = newController
+        if (source.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+            newController.delegate?.onResume()
+        }
         return newController
     }
 

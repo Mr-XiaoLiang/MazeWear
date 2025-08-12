@@ -8,6 +8,7 @@ import com.lollipop.maze.data.MPath
 import com.lollipop.maze.data.MPoint
 import com.lollipop.maze.helper.doAsync
 import com.lollipop.play.core.data.DataManager
+import com.lollipop.play.core.data.MazeHistory
 import com.lollipop.play.core.helper.JoystickDirection
 import com.lollipop.play.core.helper.registerLog
 
@@ -52,8 +53,7 @@ class MazeController(
     }
 
     fun create(width: Int) {
-        callback.onLoadingStart()
-        doAsync {
+        doAsyncLoad {
             val mazeSize = if (width % 2 == 0) {
                 width + 1
             } else {
@@ -62,29 +62,42 @@ class MazeController(
             val mazeMap = Maze.generate(mazeSize)
             val path = MPath()
             onMazeChanged(mazeMap, path)
-            postUI {
-                callback.onLoadingEnd()
-            }
         }
     }
 
     fun load(id: Int) {
-        val cache = DataManager.findById(id)
-        if (cache != null) {
-            isComplete = cache.isComplete
-            onMazeChanged(cache.maze, cache.path)
-        } else {
-            callback.onMazeCacheNotFound()
+        loadHistory {
+            DataManager.findById(id)
         }
     }
 
     fun load(path: String) {
-        val cache = DataManager.findByFile(path)
-        if (cache != null) {
-            isComplete = cache.isComplete
-            onMazeChanged(cache.maze, cache.path)
-        } else {
-            callback.onMazeCacheNotFound()
+        loadHistory {
+            DataManager.findByFile(path)
+        }
+    }
+
+    private fun loadHistory(block: () -> MazeHistory?) {
+        doAsyncLoad {
+            val cache = block()
+            if (cache != null) {
+                isComplete = cache.isComplete
+                onMazeChanged(cache.maze, cache.path)
+            } else {
+                postUI {
+                    callback.onMazeCacheNotFound()
+                }
+            }
+        }
+    }
+
+    private fun doAsyncLoad(block: () -> Unit) {
+        callback.onLoadingStart()
+        doAsync {
+            block()
+            postUI {
+                callback.onLoadingEnd()
+            }
         }
     }
 
@@ -162,7 +175,15 @@ class MazeController(
     }
 
     private fun fixPath() {
-        val path = currentPath ?: return
+        val path = currentPath
+        if (path == null) {
+            val newPath = MPath()
+            currentPath = newPath
+            currentMaze?.start?.let {
+                newPath.put(it)
+            }
+            return
+        }
         if (path.isEmpty()) {
             currentMaze?.start?.let {
                 path.put(it)
