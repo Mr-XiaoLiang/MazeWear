@@ -6,6 +6,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.lollipop.play.core.data.DataManager
+import com.lollipop.play.core.helper.registerLog
 import com.lollipop.wear.maze.databinding.ActivityMainBinding
 import com.lollipop.wear.maze.main.ConfigFragment
 import com.lollipop.wear.maze.main.HistoryFragment
@@ -21,6 +22,8 @@ class MainActivity : AppCompatActivity() {
         SubpageAdapter(this)
     }
 
+    private val log = registerLog()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -32,7 +35,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        log("onResume")
         DataManager.load(this) {
+            log("DataManager load end")
             // TODO 也不需要做什么吧
         }
     }

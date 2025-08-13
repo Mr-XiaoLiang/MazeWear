@@ -74,6 +74,16 @@ abstract class MainBaseFragment : Fragment() {
 
     abstract fun onViewCreated(binding: FragmentMainSubpageBinding)
 
+    override fun onResume() {
+        super.onResume()
+        log("onResume")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        log("onPause")
+    }
+
     protected fun initRecyclerView(
         binding: FragmentMainSubpageBinding,
         vararg adapter: RecyclerView.Adapter<*>

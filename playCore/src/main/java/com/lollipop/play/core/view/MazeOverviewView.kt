@@ -233,7 +233,6 @@ class MazeOverviewView @JvmOverloads constructor(
             updateGrid(mapWidth, mapHeight, bounds.width(), bounds.height())
             lineWidth = max(lineWidthMin, (blockSize / 3))
             extremeRadius = max(extremeRadiusMin, blockSize * 0.5F)
-            log("updateSize: blockSize = $blockSize, lineWidth = $lineWidth, extremeRadius = $extremeRadius")
             invalidateSelf()
         }
 
@@ -260,7 +259,6 @@ class MazeOverviewView @JvmOverloads constructor(
                 endX = -1F
                 endY = -1F
             }
-            log("updatePath: pointList.size = ${mPath.pointList.size}, blockSize = ${blockSize}")
             routePath.reset()
             val pointList = mPath.pointList
             for (i in pointList.indices) {
@@ -289,7 +287,6 @@ class MazeOverviewView @JvmOverloads constructor(
         }
 
         private fun drawPoint(canvas: Canvas) {
-            log("drawPoint: startX = $startX, startY = $startY, endX = $endX, endY = $endY, width = ${bounds.width()}, height = ${bounds.height()}, extremeRadius = $extremeRadius")
             if (startX >= 0 && startY >= 0) {
                 paint.style = Paint.Style.FILL
                 paint.color = extremeStartColor

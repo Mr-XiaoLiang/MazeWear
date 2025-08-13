@@ -147,9 +147,9 @@ object DataManager {
                 path = path
             )
         }
-        mazeHistoryList.add(0, mazeHistory)
-        notifyChanged(mazeHistory.id)
-        writeToFile(mazeHistory, onEnd)
+        writeToFile(mazeHistory) {
+            load(context, onEnd)
+        }
         return mazeHistory.cacheFile
     }
 
