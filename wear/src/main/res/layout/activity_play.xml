@@ -148,6 +148,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/osdActionPanel"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -176,7 +177,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#000"
-            android:visibility="invisible">
+            android:visibility="visible">
 
             <com.lollipop.play.core.view.MazeOverviewView
                 android:id="@+id/settlementMapView"
@@ -207,6 +208,7 @@
                 app:layout_constraintStart_toStartOf="parent" />
 
             <TextView
+                android:id="@+id/victoryHintView"
                 android:layout_width="0px"
                 android:layout_height="wrap_content"
                 android:gravity="center"
@@ -227,7 +229,57 @@
                 android:textStyle="bold"
                 tools:text="@string/title_victory" />
 
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/victoryBackButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:padding="12dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/baseline_arrow_back_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toStartOf="@id/settlementMapView"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_percent="0.12"
+                app:tint="@android:color/white" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.wear.widget.BoxInsetLayout
+            android:id="@+id/errorPanel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/black"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/errorMessageView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:padding="10dp"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                app:layout_boxedEdges="all"
+                tools:text="地图加载失败，请选择重新开局，或者加载其他地图。" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/errorBackButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="bottom|center_horizontal"
+                    android:gravity="center"
+                    android:paddingVertical="12dp"
+                    android:src="@drawable/baseline_arrow_back_24"
+                    app:tint="@android:color/white" />
+            </FrameLayout>
+
+        </androidx.wear.widget.BoxInsetLayout>
 
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

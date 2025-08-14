@@ -38,7 +38,6 @@ class MainActivity : AppCompatActivity() {
         log("onResume")
         DataManager.load(this) {
             log("DataManager load end")
-            // TODO 也不需要做什么吧
         }
     }
 

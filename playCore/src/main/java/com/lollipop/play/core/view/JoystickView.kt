@@ -80,19 +80,6 @@ open class JoystickView @JvmOverloads constructor(
         parent?.requestDisallowInterceptTouchEvent(true)
     }
 
-    override fun onGenericMotionEvent(event: MotionEvent?): Boolean {
-        event ?: return super.onGenericMotionEvent(event)
-        if (event.isFromSource(InputDevice.SOURCE_CLASS_JOYSTICK)) {
-            if (event.action == MotionEvent.ACTION_MOVE) {
-                val x = event.getAxisValue(MotionEvent.AXIS_X)
-                val y = event.getAxisValue(MotionEvent.AXIS_Y)
-                onGenericMotionMove(x, y)
-                return true
-            }
-        }
-        return super.onGenericMotionEvent(event)
-    }
-
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         when (event?.actionMasked) {
@@ -141,25 +128,6 @@ open class JoystickView @JvmOverloads constructor(
             touchCircleCenter.y,
             touchX,
             touchY,
-            true
-        )
-    }
-
-    private fun onGenericMotionMove(touchX: Float, touchY: Float) {
-        val radius = getLength(touchX, touchY, 0F, 0F)
-        val angle = DeviceHelper.calculateCentralAngle(
-            0F, 0F, // 圆心
-            0F, -1F, // 锚点是View12点钟的点
-            touchX, touchY
-        )
-        onJoystickMove(
-            angle,
-            radius,
-            0F,
-            0F,
-            touchX,
-            touchY,
-            false
         )
     }
 
@@ -176,7 +144,6 @@ open class JoystickView @JvmOverloads constructor(
         centerY: Float,
         touchX: Float,
         touchY: Float,
-        isTouchMode: Boolean
     ) {
         joystickTouchListener?.onMove(
             this,
@@ -186,7 +153,6 @@ open class JoystickView @JvmOverloads constructor(
             centerY,
             touchX,
             touchY,
-            isTouchMode
         )
         joystickDisplay?.onMove(
             this,
@@ -196,7 +162,6 @@ open class JoystickView @JvmOverloads constructor(
             centerY,
             touchX,
             touchY,
-            isTouchMode
         )
     }
 
@@ -276,7 +241,6 @@ open class JoystickView @JvmOverloads constructor(
             centerY: Float,
             touchX: Float,
             touchY: Float,
-            isTouchMode: Boolean
         )
 
         fun onTouchUp(view: JoystickView)
@@ -333,7 +297,6 @@ open class JoystickView @JvmOverloads constructor(
             centerY: Float,
             touchX: Float,
             touchY: Float,
-            isTouchMode: Boolean
         )
 
         fun onTouchUp(view: JoystickView)

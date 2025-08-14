@@ -33,6 +33,9 @@ class MazeController(
 
     private val log = registerLog()
 
+    var isRetry: Boolean = false
+        private set
+
     var isComplete: Boolean = false
         private set
 

@@ -57,7 +57,6 @@ sealed class RotateJoystickDisplay : JoystickView.JoystickDisplay {
         centerY: Float,
         touchX: Float,
         touchY: Float,
-        isTouchMode: Boolean
     ) {
         rotateView(view, angle)
     }
@@ -104,10 +103,9 @@ sealed class RotateJoystickDisplay : JoystickView.JoystickDisplay {
         }
     }
 
-    class ViewMode(private val target: View) : RotateJoystickDisplay(),
-        GenericMotionJoystickDisplayHelper.Callback {
-
-        private val motionDisplayHelper = GenericMotionJoystickDisplayHelper(this)
+    class ViewMode(
+        private val target: View
+    ) : RotateJoystickDisplay() {
 
         override fun onBindView(view: JoystickView) {
         }
@@ -124,11 +122,7 @@ sealed class RotateJoystickDisplay : JoystickView.JoystickDisplay {
             centerY: Float,
             touchX: Float,
             touchY: Float,
-            isTouchMode: Boolean
         ) {
-            if (!isTouchMode) {
-                motionDisplayHelper.onGamepadEvent()
-            }
             rotateView(target, angle)
         }
 
@@ -136,42 +130,35 @@ sealed class RotateJoystickDisplay : JoystickView.JoystickDisplay {
             hideView(target)
         }
 
-        override fun postDelayed(task: Runnable, delay: Long) {
-            target.postDelayed(task, delay)
-        }
-
-        override fun onShowDisplay() {
-            showView(target)
-        }
-
-        override fun onHideDisplay() {
-            hideView(target)
-        }
     }
 
-    class DrawableMode(private val drawable: Drawable) :
-        RotateJoystickDisplay() {
+    class DrawableMode(
+        private val drawable: Drawable
+    ) : RotateJoystickDisplay() {
         override fun onBindView(view: JoystickView) {
             view.setImageDrawable(drawable)
         }
     }
 
-    class BitmapMode(private val bitmap: Bitmap) :
-        RotateJoystickDisplay() {
+    class BitmapMode(
+        private val bitmap: Bitmap
+    ) : RotateJoystickDisplay() {
         override fun onBindView(view: JoystickView) {
             view.setImageBitmap(bitmap)
         }
     }
 
-    class IconMode(private val icon: Icon) :
-        RotateJoystickDisplay() {
+    class IconMode(
+        private val icon: Icon
+    ) : RotateJoystickDisplay() {
         override fun onBindView(view: JoystickView) {
             view.setImageIcon(icon)
         }
     }
 
-    class UriMode(private val uri: Uri) :
-        RotateJoystickDisplay() {
+    class UriMode(
+        private val uri: Uri
+    ) : RotateJoystickDisplay() {
         override fun onBindView(view: JoystickView) {
             view.setImageURI(uri)
         }

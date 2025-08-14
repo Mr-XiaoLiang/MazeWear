@@ -134,7 +134,6 @@ class ThumbBezelView @JvmOverloads constructor(
             centerY: Float,
             touchX: Float,
             touchY: Float,
-            isTouchMode: Boolean
         ) {
             if (isFirstDrag) {
                 currentScale = getScaleIndex(angle)
@@ -190,7 +189,6 @@ class ThumbBezelView @JvmOverloads constructor(
             centerY: Float,
             touchX: Float,
             touchY: Float,
-            isTouchMode: Boolean
         ) {
             if (isFirstDrag) {
                 lastAngle = angle

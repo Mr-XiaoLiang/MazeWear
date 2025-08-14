@@ -8,11 +8,15 @@
     <string name="button_continue">继续</string>
     <string name="title_victory">胜利</string>
     <string name="hint_victory">可以继续或返回</string>
+    <string name="hint_victory_retry">是否更新并覆盖路径记录？</string>
+    <string name="button_coverage">覆盖记录</string>
     <string name="hint_parse">暂停中</string>
     <string name="title_history">历史</string>
     <string name="title_config">配置</string>
     <string name="title_new_game">新游戏</string>
     <string name="label_unfinished">未完成的地图</string>
+
+    <string name="msg_maze_not_found">地图加载失败，请选择重新开局，或者加载其他地图。</string>
 
     <string name="label_map_size">地图大小</string>
     <string name="label_theme">主题</string>

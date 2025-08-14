@@ -3,14 +3,10 @@ package com.lollipop.play.core.helper
 import com.lollipop.maze.helper.ThreadHelper
 import com.lollipop.play.core.MazePlayConfig
 import com.lollipop.play.core.view.JoystickView
-import kotlin.math.abs
 
 class JoystickDelegate(
     private val callback: (JoystickDirection) -> Unit
 ) : JoystickView.OnJoystickTouchListener {
-
-    private var lastMoveTime = 0L
-    private var delayTime = 0L
 
     private var currentDirection: JoystickDirection? = null
 
@@ -24,10 +20,6 @@ class JoystickDelegate(
         view.setJoystickTouchListener(this)
     }
 
-    private fun now(): Long {
-        return System.currentTimeMillis()
-    }
-
     override fun onMove(
         view: JoystickView,
         angle: Float,
@@ -35,15 +27,8 @@ class JoystickDelegate(
         centerX: Float,
         centerY: Float,
         touchX: Float,
-        touchY: Float,
-        isTouchMode: Boolean
+        touchY: Float
     ) {
-        if (!isTouchMode) {
-            if (abs(touchX) < 0.5 && abs(touchY) < 0.5) {
-                return
-            }
-        }
-        lastMoveTime = now()
         val direction = angleToDirection(angle)
         currentDirection = direction
         if (!isTouching) {
@@ -72,17 +57,12 @@ class JoystickDelegate(
     }
 
     private fun postTouchTask() {
-        val delay = MazePlayConfig.moveJoystickDuration
-        delayTime = delay
-        touchTask.postDelay(delay)
+        touchTask.postDelay(MazePlayConfig.moveJoystickDuration)
     }
 
     private fun onKeepTouch() {
-        val now = now()
-        if (now - lastMoveTime < delayTime) {
+        if (isTouching) {
             postTouchTask()
-        } else {
-            isTouching = false
         }
         val direction = currentDirection
         if (direction != null) {
