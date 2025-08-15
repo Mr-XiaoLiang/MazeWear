@@ -22,7 +22,7 @@ class MazeController(
     var currentMaze: MazeMap? = null
         private set
 
-    var currentPath: MPath? = null
+    var currentPath: MPath = MPath()
         private set
 
     private val focusBlock = MBlock()
@@ -168,7 +168,7 @@ class MazeController(
         if (focusBlock.isSame(end)) {
             isComplete = true
             postUI {
-                callback.onComplete()
+                callback.onComplete(mazeMap, currentPath)
             }
         }
     }
@@ -210,7 +210,7 @@ class MazeController(
 
         fun onPointChange(fromPoint: MPoint, toPoint: MPoint)
 
-        fun onComplete()
+        fun onComplete(maze: MazeMap, path: MPath)
 
     }
 

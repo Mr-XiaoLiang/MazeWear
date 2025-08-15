@@ -2,13 +2,9 @@ package com.lollipop.wear.maze
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
-import android.view.MotionEvent
-import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isInvisible
-import androidx.core.view.isVisible
 import com.lollipop.maze.MazeMap
 import com.lollipop.maze.MazeTest
 import com.lollipop.maze.data.MBlock
@@ -16,22 +12,18 @@ import com.lollipop.maze.data.MPath
 import com.lollipop.maze.data.MPoint
 import com.lollipop.play.core.controller.LifecycleHelper
 import com.lollipop.play.core.controller.MazeController
-import com.lollipop.play.core.controller.MazeMoveAnimator
-import com.lollipop.play.core.controller.TimeDelegate
 import com.lollipop.play.core.data.DataManager
-import com.lollipop.play.core.helper.JoystickDelegate
 import com.lollipop.play.core.helper.JoystickDirection
-import com.lollipop.play.core.helper.dp2px
 import com.lollipop.play.core.helper.registerLog
-import com.lollipop.play.core.view.OsdPanelHelper
-import com.lollipop.play.core.view.draw.color.ColorPathDrawable
-import com.lollipop.play.core.view.draw.color.ColorSpiritDrawable
-import com.lollipop.play.core.view.draw.color.ColorTileDrawable
-import com.lollipop.play.core.view.joystick.JoystickRingRestrictedZone
-import com.lollipop.play.core.view.joystick.RotateJoystickDisplay
 import com.lollipop.wear.maze.databinding.ActivityPlayBinding
+import com.lollipop.wear.maze.play.PlayLayer
+import com.lollipop.wear.maze.play.layer.PlayingLayer
+import com.lollipop.wear.maze.play.layer.VictoryLayer
+import com.lollipop.wear.maze.play.state.PlayPageState
 
-class PlayActivity : AppCompatActivity(), MazeController.Callback {
+class PlayActivity : AppCompatActivity(), MazeController.Callback,
+    PlayingLayer.Callback,
+    VictoryLayer.Callback {
 
     companion object {
 
@@ -66,10 +58,6 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         ActivityPlayBinding.inflate(layoutInflater)
     }
 
-    private val osdPanelHelper by lazy {
-        OsdPanelHelper(binding.menuPanel)
-    }
-
     private val lifecycleHelper by lazy {
         LifecycleHelper.auto(this)
     }
@@ -78,34 +66,32 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         MazeController(lifecycleHelper, this)
     }
 
-    private val joystickDelegate = JoystickDelegate(::onJoystickTouch)
-
-    private val mazeMoveAnimator by lazy {
-        MazeMoveAnimator(lifecycleHelper, ::updateMoveAnimation)
-    }
-
     private var mazeCachePath: String = ""
 
-    private var pageState: PageState = PageState.Init
+    private val stateController by lazy {
+        StateController(binding.layerContainer)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        initView()
-
+        postState(PlayPageState.Init)
         loadData()
+    }
+
+    private fun postState(state: PlayPageState) {
+        stateController.postState(state)
     }
 
     override fun onResume() {
         super.onResume()
+        stateController.onResume()
         mazeController.onResume()
     }
 
-    override fun onGenericMotionEvent(event: MotionEvent?): Boolean {
-        if (binding.joystickView.onGenericMotionEvent(event)) {
-            return true
-        }
-        return super.onGenericMotionEvent(event)
+    override fun onPause() {
+        super.onPause()
+        stateController.onPause()
     }
 
     private fun loadData() {
@@ -117,231 +103,8 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         }
     }
 
-    private fun initView() {
-        binding.joystickView.addRestrictedZone(
-            JoystickRingRestrictedZone(
-                1F,
-                0.5F,
-                insideMode = true
-            )
-        )
-        binding.joystickView.setJoystickDisplay(
-            RotateJoystickDisplay.create(binding.joystickRingView)
-        )
-        joystickDelegate.bind(binding.joystickView)
-        binding.mazePlayView.update { action ->
-            action.setTileDrawable(ColorTileDrawable().apply { color = Color.GRAY })
-            action.setPathDrawable(ColorPathDrawable().apply { color = 0x33FFFFFF })
-            action.setSpiritDrawable(ColorSpiritDrawable().apply {
-                color = Color.WHITE
-                setEndColor(Color.GREEN)
-            })
-        }
-        setMapViewStyle(
-            lineWidthMin = 1F.dp2px(this),
-            extremeRadiusMin = 3F.dp2px(this),
-            lineColor = Color.WHITE,
-            extremeStartColor = Color.RED,
-            extremeEndColor = Color.GREEN,
-            mapColor = Color.GRAY
-        )
-        binding.settlementMapView
-        binding.osdButton.setOnClickListener {
-            osdPanelHelper.toggle()
-        }
-        binding.menuPanel.setOnClickListener {
-            osdPanelHelper.hide()
-        }
-        TimeDelegate.auto(this) {
-            binding.timeView.text = it
-        }
-        osdPanelHelper.onShow {
-            binding.overviewView.updatePath()
-        }
-        binding.victoryBackButton.setOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
-        }
-        binding.errorBackButton.setOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
-        }
-        binding.victoryContinueButton.setOnClickListener {
-            binding.victoryPanel.isVisible = false
-        }
-        binding.victoryPanel.setOnClickListener { }
-        osdPanelHelper.init()
-
-        updatePageState(PageState.Init)
-    }
-
-    private fun updatePageState(state: PageState) {
-        pageState = state
-        osdPanelHelper.hide()
-        when (state) {
-            PageState.Init -> {
-                binding.apply {
-                    contentLoadingView.setIndeterminate(false)
-                    hideViews(
-                        mazePlayView,
-                        mazeFogView,
-                        joystickRingView,
-                        joystickView,
-                        menuPanel,
-                        osdActionPanel,
-                        contentLoadingView,
-                        victoryPanel,
-                        errorPanel
-                    )
-                }
-            }
-
-            PageState.Loading -> {
-                lifecycleHelper.post {
-                    binding.apply {
-                        hideViews(
-                            mazePlayView,
-                            mazeFogView,
-                            joystickRingView,
-                            joystickView,
-                            menuPanel,
-                            osdActionPanel,
-                            victoryPanel,
-                            errorPanel
-                        )
-                        contentLoadingView.show()
-                        contentLoadingView.setIndeterminate(true)
-                    }
-                }
-            }
-
-            is PageState.Complete -> {
-                lifecycleHelper.post {
-                    binding.apply {
-                        // 加载动画要停止
-                        contentLoadingView.setIndeterminate(false)
-                        hideViews(
-                            mazePlayView,
-                            mazeFogView,
-                            joystickRingView,
-                            joystickView,
-                            menuPanel,
-                            osdActionPanel,
-                            contentLoadingView,
-                            victoryPanel,
-                            errorPanel
-                        )
-                        showViews(
-                            victoryPanel
-                        )
-                        if (state.isNewPath) {
-                            victoryHintView.setText(R.string.hint_victory_retry)
-                            victoryContinueButton.setText(R.string.button_coverage)
-                        } else {
-                            victoryHintView.setText(R.string.hint_victory)
-                            victoryContinueButton.setText(R.string.button_continue)
-                        }
-                        settlementMapView.updatePath()
-                    }
-                }
-            }
-
-            is PageState.Error -> {
-                lifecycleHelper.post {
-                    binding.apply {
-                        // 加载动画要停止
-                        contentLoadingView.setIndeterminate(false)
-                        hideViews(
-                            mazePlayView,
-                            mazeFogView,
-                            joystickRingView,
-                            joystickView,
-                            menuPanel,
-                            osdActionPanel,
-                            contentLoadingView,
-                            victoryPanel
-                        )
-                        showViews(errorPanel)
-                        errorMessageView.setText(state.message)
-                    }
-                }
-            }
-
-            is PageState.Playing -> {
-                lifecycleHelper.post {
-                    binding.apply {
-                        // 加载动画要停止
-                        contentLoadingView.setIndeterminate(false)
-                        hideViews(
-                            menuPanel,
-                            osdActionPanel,
-                            contentLoadingView,
-                            victoryPanel,
-                            errorPanel
-                        )
-                        showViews(
-                            mazePlayView,
-                            mazeFogView,
-                            joystickRingView,
-                            joystickView,
-                            osdActionPanel,
-                        )
-
-                        val maze = state.maze
-                        val path = state.path
-                        val focus = state.focus
-                        mazePlayView.update { action ->
-                            action.setSource(maze.map, path)
-                            action.setFocus(focus.x, focus.y)
-                            action.setFrom(focus.x, focus.y)
-                            action.updateProgress(0F)
-                            action.setExtremePoint(null, maze.end)
-                        }
-                        overviewView.setMap(maze, path)
-                        settlementMapView.setMap(maze, path)
-
-                    }
-                }
-            }
-        }
-    }
-
-    private fun hideViews(vararg views: View) {
-        views.forEach {
-            it.isInvisible = true
-        }
-    }
-
-    private fun showViews(vararg views: View) {
-        views.forEach {
-            it.isVisible = true
-        }
-    }
-
-    private fun setMapViewStyle(
-        lineWidthMin: Float,
-        extremeRadiusMin: Float,
-        lineColor: Int,
-        extremeStartColor: Int,
-        extremeEndColor: Int,
-        mapColor: Int
-    ) {
-        binding.overviewView.setMin(lineWidthMin, extremeRadiusMin)
-        binding.overviewView.setColor(
-            lineColor = lineColor,
-            extremeStartColor = extremeStartColor,
-            extremeEndColor = extremeEndColor,
-            mapColor = mapColor
-        )
-        binding.settlementMapView.setMin(lineWidthMin, extremeRadiusMin)
-        binding.settlementMapView.setColor(
-            lineColor = lineColor,
-            extremeStartColor = extremeStartColor,
-            extremeEndColor = extremeEndColor,
-            mapColor = mapColor
-        )
-    }
-
     override fun onLoadingStart() {
-        updatePageState(PageState.Loading)
+        postState(PlayPageState.Loading)
     }
 
     override fun onLoadingEnd() {
@@ -354,7 +117,7 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
     }
 
     override fun onMazeCacheNotFound() {
-        updatePageState(PageState.Error(R.string.msg_maze_not_found))
+        postState(PlayPageState.Error(R.string.msg_maze_not_found))
     }
 
     override fun onPointChange(
@@ -366,44 +129,46 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         }
     }
 
-    override fun onComplete() {
-        updatePageState(PageState.Complete(mazeController.isRetry))
+    override fun onComplete(maze: MazeMap, path: MPath) {
+        postState(
+            PlayPageState.Complete(
+                isNewPath = mazeController.isRetry,
+                maze = maze,
+                path = path
+            )
+        )
     }
 
-    private fun onJoystickTouch(direction: JoystickDirection) {
+    override fun onJoystickTouch(direction: JoystickDirection) {
         mazeController.manipulate(direction)
     }
 
     private fun onNewMaze(maze: MazeMap, path: MPath, focus: MBlock) {
-        updatePageState(PageState.Playing(maze, path, focus))
+        postState(PlayPageState.Playing(maze, path, focus))
         log("start = [${maze.start.x}, ${maze.start.y}] ")
         log("map \n" + MazeTest.print(maze).build())
+    }
+
+    override fun onContinue() {
+        // 继续就重新发一遍游玩的事件
+        val maze = mazeController.currentMaze ?: return
+        val path = mazeController.currentPath
+        val focus = MBlock(mazeController.focus)
+        postState(PlayPageState.Playing(maze, path, focus))
     }
 
     private fun onMove(
         fromPoint: MPoint,
         toPoint: MPoint
     ) {
-        mazeMoveAnimator.onPointChange(fromPoint, toPoint)
-    }
-
-    private fun updateMoveAnimation(
-        fromPoint: MPoint,
-        toPoint: MPoint,
-        progress: Float
-    ) {
-        binding.mazePlayView.update { action ->
-            action.setFocus(toPoint.x, toPoint.y)
-            action.setFrom(fromPoint.x, fromPoint.y)
-            action.updateProgress(progress)
-        }
+        postState(PlayPageState.PointChange(fromPoint, toPoint))
     }
 
     override fun onStop() {
         super.onStop()
         val currentMaze = mazeController.currentMaze
         val currentPath = mazeController.currentPath
-        if (currentMaze != null && currentPath != null) {
+        if (currentMaze != null) {
             // 保存路径，下一次更新的时候，可以再次更新
             mazeCachePath = DataManager.update(
                 context = this,
@@ -424,12 +189,78 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback {
         mazeController.destroy()
     }
 
-    private sealed class PageState {
-        object Init : PageState()
-        object Loading : PageState()
-        class Playing(val maze: MazeMap, val path: MPath, val focus: MBlock) : PageState()
-        class Complete(val isNewPath: Boolean) : PageState()
-        class Error(val message: Int) : PageState()
+    private class StateController(private val layerContainer: ViewGroup) {
+
+        private var isResumed = false
+        private var pendingState: PlayPageState? = null
+
+        var pageState: PlayPageState = PlayPageState.Init
+            private set
+
+        val layerList = mutableListOf<PlayLayer>()
+
+        fun postState(state: PlayPageState) {
+            if (isResumed) {
+                pendingState = null
+                updateState(state)
+            } else {
+                pendingState = state
+            }
+        }
+
+        fun onResume() {
+            isResumed = true
+            releaseState()
+        }
+
+        private fun releaseState() {
+            val state = pendingState
+            if (state != null) {
+                pendingState = null
+                updateState(state)
+            }
+        }
+
+        private fun updateState(state: PlayPageState) {
+            val oldState = pageState
+            pageState = state
+            val oldLayer = findLayer(oldState)
+            val newLayer = findLayer(state)
+            if (oldLayer != newLayer) {
+                oldLayer.onHide()
+                newLayer.onShow()
+            }
+            newLayer.setState(state)
+        }
+
+        fun onPause() {
+            isResumed = false
+        }
+
+
+        private fun findLayer(state: PlayPageState): PlayLayer {
+            return findLayer(state.layerClass)
+        }
+
+        private fun findLayer(layerClass: Class<out PlayLayer>): PlayLayer {
+            for (layer in layerList) {
+                if (layer.javaClass == layerClass) {
+                    return layer
+                }
+            }
+            val constructor = layerClass.getDeclaredConstructor(AppCompatActivity::class.java)
+            val newInstance = constructor.newInstance(this)
+            layerList.add(newInstance)
+            val view = newInstance.getView(layerContainer)
+            layerContainer.addView(
+                view,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+            newInstance.onAttach()
+            return newInstance
+        }
+
     }
 
 }
