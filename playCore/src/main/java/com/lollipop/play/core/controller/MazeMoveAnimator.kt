@@ -3,6 +3,7 @@ package com.lollipop.play.core.controller
 import android.animation.ValueAnimator
 import com.lollipop.maze.data.MPoint
 import com.lollipop.play.core.MazePlayConfig
+import com.lollipop.play.core.helper.registerLog
 
 class MazeMoveAnimator(
     lifecycleHelper: LifecycleHelper,
@@ -23,7 +24,10 @@ class MazeMoveAnimator(
         addUpdateListener(AnimatorUpdateListener(::onAnimationUpdate))
     }
 
+    private val log = registerLog()
+
     fun onPointChange(fromPoint: MPoint, toPoint: MPoint) {
+        log("onPointChange: ${fromPoint} -> ${toPoint}")
         var isChanged = false
         val oldFrom = this.fromPoint
         val oldTo = this.toPoint

@@ -211,15 +211,17 @@ class MazePlayView @JvmOverloads constructor(
             val offsetY = (fromBlock.y - focusBlock.y) * p
             canvas.withSave {
                 canvas.translate(offsetX * -1, offsetY * -1)
+                val xTileOffset = MAP_BUFFER_OFFSET * blockSize * -1
+                val yTileOffset = MAP_BUFFER_OFFSET * blockSize * -1
                 for (x in 0 until drawMap.width) {
                     for (y in 0 until drawMap.height) {
-                        val tileX = x + MAP_BUFFER_OFFSET
-                        val tileY = y + MAP_BUFFER_OFFSET
+                        val tileX = x
+                        val tileY = y
                         val tile = drawMap[tileX, tileY]
                         drawTile(
                             canvas,
-                            (drawLeftEdge + (x * blockSize)),
-                            (drawTopEdge + (y * blockSize)),
+                            (drawLeftEdge + (x * blockSize) + xTileOffset),
+                            (drawTopEdge + (y * blockSize) + yTileOffset),
                             tile
                         )
                     }

@@ -39,6 +39,10 @@ fun Float.dp2px(resources: Resources): Float {
     )
 }
 
+fun Any.tagName(): String {
+    return "${javaClass.simpleName}@${System.identityHashCode(this).toString(16).uppercase()}"
+}
+
 object DeviceHelper {
     fun arcDimenToAngle(radius: Float, arcDimen: Float): Float {
         // 角度计算长度：2 * PI * radius * (angle / 360)

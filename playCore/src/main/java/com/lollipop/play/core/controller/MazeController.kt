@@ -11,6 +11,7 @@ import com.lollipop.play.core.data.DataManager
 import com.lollipop.play.core.data.MazeHistory
 import com.lollipop.play.core.helper.JoystickDirection
 import com.lollipop.play.core.helper.registerLog
+import com.lollipop.play.core.helper.tagName
 
 class MazeController(
     lifecycleHelper: LifecycleHelper,
@@ -56,12 +57,14 @@ class MazeController(
     }
 
     fun create(width: Int) {
+        log("create: $width")
         doAsyncLoad {
             val mazeSize = if (width % 2 == 0) {
                 width + 1
             } else {
                 width
             }
+            log("create: generate.mazeSize $mazeSize")
             val mazeMap = Maze.generate(mazeSize)
             val path = MPath()
             onMazeChanged(mazeMap, path)
@@ -69,18 +72,21 @@ class MazeController(
     }
 
     fun load(id: Int) {
+        log("load: $id")
         loadHistory {
             DataManager.findById(id)
         }
     }
 
     fun load(path: String) {
+        log("load: $path")
         loadHistory {
             DataManager.findByFile(path)
         }
     }
 
     private fun loadHistory(block: () -> MazeHistory?) {
+        log("loadHistory")
         doAsyncLoad {
             val cache = block()
             if (cache != null) {
@@ -105,6 +111,8 @@ class MazeController(
     }
 
     private fun onMazeChanged(newMaze: MazeMap, newPath: MPath) {
+        log("onMazeChanged: ${newMaze.tagName()}")
+
         currentMaze = newMaze
         currentPath = newPath
 
@@ -112,6 +120,7 @@ class MazeController(
         val lastPoint = newPath.last() ?: newMaze.start
         focusBlock.set(lastPoint)
         if (!isDestroy) {
+            log("onMazeChanged.post.onMazeResult")
             postUI {
                 callback.onMazeResult(newMaze, newPath, focusBlock)
             }
@@ -119,6 +128,7 @@ class MazeController(
     }
 
     fun manipulate(direction: JoystickDirection) {
+        log("manipulate: $direction")
         val maze = currentMaze ?: return
         val path = currentPath ?: return
         signpost.fetch(maze, focusBlock)
@@ -142,6 +152,7 @@ class MazeController(
                 log("manipulate: move to $next")
             }
             postUI {
+                log("post.callback.onPointChange: $previous -> $focus")
                 callback.onPointChange(previous, focus)
             }
             checkComplete()
@@ -150,7 +161,7 @@ class MazeController(
 
     fun onResume() {
         val maze = currentMaze ?: return
-        val path = currentPath ?: return
+        val path = currentPath
         fixPath()
         focusBlock.set(path.last() ?: maze.start)
         previousBlock.set(focus)
@@ -161,11 +172,14 @@ class MazeController(
 
     private fun checkComplete() {
         if (isComplete) {
+            log("checkComplete: complete break")
             return
         }
+        log("checkComplete: check")
         val mazeMap = currentMaze ?: return
         val end = mazeMap.end
         if (focusBlock.isSame(end)) {
+            log("checkComplete: complete now, post event")
             isComplete = true
             postUI {
                 callback.onComplete(mazeMap, currentPath)
@@ -179,14 +193,6 @@ class MazeController(
 
     private fun fixPath() {
         val path = currentPath
-        if (path == null) {
-            val newPath = MPath()
-            currentPath = newPath
-            currentMaze?.start?.let {
-                newPath.put(it)
-            }
-            return
-        }
         if (path.isEmpty()) {
             currentMaze?.start?.let {
                 path.put(it)

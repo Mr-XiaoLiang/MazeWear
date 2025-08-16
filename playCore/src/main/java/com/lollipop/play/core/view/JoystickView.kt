@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.PointF
 import android.util.AttributeSet
-import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.ViewConfiguration
 import androidx.appcompat.widget.AppCompatImageView
@@ -36,6 +35,9 @@ open class JoystickView @JvmOverloads constructor(
     private var joystickDisplay: JoystickDisplay? = null
 
     private var touchSlop = 0
+
+    var needSlop = false
+
     private val touchDownPoint = PointF()
     private var touchMode = TouchMode.NONE
 
@@ -68,12 +70,11 @@ open class JoystickView @JvmOverloads constructor(
     }
 
     private fun cancelTouch() {
-//        log("cancelTouch, requestDisallowInterceptTouchEvent = false")
         if (touchMode == TouchMode.HOLD || touchMode == TouchMode.PENDING) {
             onTouchUp()
         }
         touchMode = TouchMode.CANCELED
-        parent?.requestDisallowInterceptTouchEvent(false)
+//        parent?.requestDisallowInterceptTouchEvent(false)
     }
 
     private fun requestTouch() {
@@ -87,7 +88,9 @@ open class JoystickView @JvmOverloads constructor(
                 onTouchDown(event)
                 val x1 = event.x
                 val y1 = event.y
-                needIntercept(x1, y1)
+                if (needIntercept(x1, y1)) {
+                    onTouchMove(x1, y1)
+                }
             }
 
             MotionEvent.ACTION_MOVE -> {
@@ -183,8 +186,11 @@ open class JoystickView @JvmOverloads constructor(
                         return false
                     }
                 }
-//                log("needIntercept.PENDING")
-                touchMode = TouchMode.PENDING
+                if (needSlop) {
+                    touchMode = TouchMode.PENDING
+                } else {
+                    onTouchHold()
+                }
                 return true
             }
 

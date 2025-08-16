@@ -15,6 +15,7 @@ import com.lollipop.play.core.controller.MazeController
 import com.lollipop.play.core.data.DataManager
 import com.lollipop.play.core.helper.JoystickDirection
 import com.lollipop.play.core.helper.registerLog
+import com.lollipop.play.core.helper.tagName
 import com.lollipop.wear.maze.databinding.ActivityPlayBinding
 import com.lollipop.wear.maze.play.PlayLayer
 import com.lollipop.wear.maze.play.layer.PlayingLayer
@@ -69,7 +70,7 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback,
     private var mazeCachePath: String = ""
 
     private val stateController by lazy {
-        StateController(binding.layerContainer)
+        StateController(this, binding.layerContainer)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -111,9 +112,7 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback,
     }
 
     override fun onMazeResult(maze: MazeMap, path: MPath, focus: MBlock) {
-        lifecycleHelper.post {
-            onNewMaze(maze, path, focus)
-        }
+        onNewMaze(maze, path, focus)
     }
 
     override fun onMazeCacheNotFound() {
@@ -124,9 +123,7 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback,
         fromPoint: MPoint,
         toPoint: MPoint
     ) {
-        lifecycleHelper.post {
-            onMove(fromPoint, toPoint)
-        }
+        onMove(fromPoint, toPoint)
     }
 
     override fun onComplete(maze: MazeMap, path: MPath) {
@@ -189,7 +186,10 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback,
         mazeController.destroy()
     }
 
-    private class StateController(private val layerContainer: ViewGroup) {
+    private class StateController(
+        private val activity: AppCompatActivity,
+        private val layerContainer: ViewGroup
+    ) {
 
         private var isResumed = false
         private var pendingState: PlayPageState? = null
@@ -199,11 +199,17 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback,
 
         val layerList = mutableListOf<PlayLayer>()
 
+        private val log = registerLog()
+
         fun postState(state: PlayPageState) {
             if (isResumed) {
                 pendingState = null
-                updateState(state)
+                log("postState： updateState = ${state.tagName()}")
+                activity.runOnUiThread {
+                    updateState(state)
+                }
             } else {
+                log("postState： pendingState = ${state.tagName()}")
                 pendingState = state
             }
         }
@@ -224,9 +230,12 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback,
         private fun updateState(state: PlayPageState) {
             val oldState = pageState
             pageState = state
+            log("updateState： oldState = ${oldState.tagName()}, newState = ${state.tagName()}")
             val oldLayer = findLayer(oldState)
             val newLayer = findLayer(state)
+            log("updateState： oldLayer = ${oldLayer.tagName()}, newLayer = ${newLayer.tagName()}")
             if (oldLayer != newLayer) {
+                log("updateState： oldLayer.onHide(), newLayer.onShow()")
                 oldLayer.onHide()
                 newLayer.onShow()
             }
@@ -249,7 +258,7 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback,
                 }
             }
             val constructor = layerClass.getDeclaredConstructor(AppCompatActivity::class.java)
-            val newInstance = constructor.newInstance(this)
+            val newInstance = constructor.newInstance(activity)
             layerList.add(newInstance)
             val view = newInstance.getView(layerContainer)
             layerContainer.addView(

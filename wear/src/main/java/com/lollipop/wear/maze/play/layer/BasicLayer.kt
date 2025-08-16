@@ -79,12 +79,14 @@ abstract class BasicLayer(activity: AppCompatActivity) : PlayLayer(activity) {
     protected abstract fun createView(container: ViewGroup): View
 
     override fun onShow() {
+        super.onShow()
         contentView?.let {
             showByPost(it)
         }
     }
 
     override fun onHide() {
+        super.onHide()
         contentView?.let {
             hideByPost(it)
         }
