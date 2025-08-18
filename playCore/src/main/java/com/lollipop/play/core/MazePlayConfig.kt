@@ -3,6 +3,7 @@ package com.lollipop.play.core
 import android.content.Context
 import com.lollipop.maze.helper.doAsync
 import com.lollipop.play.core.helper.registerLog
+import com.lollipop.wear.name.NameGenerator
 import org.json.JSONObject
 import java.io.File
 import kotlin.math.min
@@ -33,6 +34,7 @@ object MazePlayConfig {
 
     fun init(context: Context, async: Boolean) {
         ConfigJson.load(context, async)
+        NameGenerator.init(context)
     }
 
     private object ConfigJson {

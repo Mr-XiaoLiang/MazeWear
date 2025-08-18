@@ -94,7 +94,6 @@ class PlayingLayer(activity: AppCompatActivity) : BasicLayer(activity) {
                     setEndColor(Color.GREEN)
                 })
             }
-            overviewView.setMin(1F.dp2px(activity), 3F.dp2px(activity))
             MazeMapTheme.updateMaze(overviewView)
         }
         osdPanelHelper?.init()

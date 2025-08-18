@@ -15,6 +15,7 @@ import com.lollipop.play.core.helper.registerLog
 import com.lollipop.wear.maze.base.WearListHelper
 import com.lollipop.wear.maze.databinding.FragmentMainSubpageBinding
 import com.lollipop.wear.maze.databinding.ItemMainMazeBinding
+import com.lollipop.wear.maze.theme.MazeMapTheme
 
 abstract class MainBaseFragment : Fragment() {
 
@@ -33,6 +34,11 @@ abstract class MainBaseFragment : Fragment() {
     }
 
     protected var settings: PreferencesHelper? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        timeDelegate
+    }
 
     protected fun createAdapter(vararg contentAdapter: RecyclerView.Adapter<*>): RecyclerView.Adapter<*> {
         return listHelper.createAdapter(*contentAdapter)
@@ -131,7 +137,7 @@ abstract class MainBaseFragment : Fragment() {
 
         init {
             binding.overviewView.setDisplayMap(false)
-            binding.overviewView.setMin(1F, 1F)
+            MazeMapTheme.updateMaze(binding.overviewView)
             binding.cardView.setOnClickListener {
                 onItemClick()
             }
@@ -142,6 +148,7 @@ abstract class MainBaseFragment : Fragment() {
         }
 
         fun bind(history: MazeHistory) {
+            binding.nameView.text = history.name
             binding.stepView.text = history.pathLength.toString()
             binding.overviewView.setMap(history.maze, history.path)
             binding.timeView.text = history.timeDisplay

@@ -46,6 +46,7 @@
             android:id="@+id/sizeView"
             android:layout_width="0px"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/leckerli_one_regular"
             android:textColor="@android:color/white"
             android:textSize="11sp"
             app:layout_constraintEnd_toEndOf="@id/titleView"

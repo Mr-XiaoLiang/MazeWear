@@ -39,4 +39,5 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
     api(project(":maze"))
+    api(project(":nameGenerator"))
 }

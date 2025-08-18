@@ -7,6 +7,7 @@ import com.lollipop.maze.data.MPath
 import com.lollipop.maze.helper.doAsync
 import com.lollipop.maze.helper.onUI
 import com.lollipop.play.core.helper.registerLog
+import com.lollipop.wear.name.NameGenerator
 import org.json.JSONObject
 import java.io.File
 import java.util.concurrent.CopyOnWriteArrayList
@@ -18,6 +19,9 @@ object DataManager {
     private const val KEY_MAZE_CACHE_DIR = "maze"
 
     private const val KEY_MAZE = "maze"
+
+    private const val KEY_NAME = "name"
+
     private const val KEY_TIME = "time"
     private const val KEY_IS_COMPLETE = "is_complete"
 
@@ -129,6 +133,7 @@ object DataManager {
         val mazeHistory = if (oldCache != null) {
             val info = MazeHistory(
                 id = oldCache.id,
+                name = oldCache.name,
                 cacheFile = oldCache.cacheFile,
                 lastTime = System.currentTimeMillis(),
                 isComplete = isComplete,
@@ -140,6 +145,7 @@ object DataManager {
         } else {
             MazeHistory(
                 id = generateId(),
+                name = NameGenerator.randomName(),
                 cacheFile = generateCacheFile(context),
                 lastTime = System.currentTimeMillis(),
                 isComplete = isComplete,
@@ -168,6 +174,7 @@ object DataManager {
             val jsonObj = JSONObject()
             jsonObj.put(KEY_TIME, info.lastTime)
             jsonObj.put(KEY_IS_COMPLETE, info.isComplete)
+            jsonObj.put(KEY_NAME, info.name)
             jsonObj.put(KEY_MAZE, MJson.build(info.maze, info.path))
             val cacheFile = info.cacheFile
             cacheFile.parentFile?.mkdirs()
@@ -184,10 +191,12 @@ object DataManager {
             val jsonObj = JSONObject(file.readText())
             val mazeObj = jsonObj.optJSONObject(KEY_MAZE) ?: return@tryDo null
             val mazeOut = MJson.parse(mazeObj) ?: return@tryDo null
+            val name = jsonObj.optString(KEY_NAME, "???")
             val lastTime = jsonObj.optLong(KEY_TIME, System.currentTimeMillis())
             val isComplete = jsonObj.optBoolean(KEY_IS_COMPLETE, false)
             MazeHistory(
                 id = generateId(),
+                name = name,
                 cacheFile = file,
                 lastTime = lastTime,
                 maze = mazeOut.mazeMap,

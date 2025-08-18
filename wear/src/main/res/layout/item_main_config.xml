@@ -36,24 +36,26 @@
             android:textColor="@android:color/white"
             android:textSize="14sp"
             android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@id/summaryView"
             app:layout_constraintEnd_toStartOf="@id/arrowIcon"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/summaryView"
             tools:text="@string/title_new_game" />
 
         <TextView
             android:id="@+id/summaryView"
             android:layout_width="0px"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/leckerli_one_regular"
             android:textColor="@android:color/white"
             android:textSize="11sp"
             android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@id/titleView"
             app:layout_constraintStart_toStartOf="@id/titleView"
             app:layout_constraintTop_toBottomOf="@id/titleView"
-            app:layout_constraintBottom_toBottomOf="parent"
-            tools:text="51x51" />
+            tools:text="51x51"
+            tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

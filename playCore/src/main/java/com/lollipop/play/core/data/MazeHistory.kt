@@ -9,6 +9,7 @@ import java.util.Locale
 
 class MazeHistory(
     val id: Int,
+    val name: String,
     val cacheFile: File,
     val lastTime: Long,
     val isComplete: Boolean,

@@ -34,7 +34,6 @@ class VictoryLayer(activity: AppCompatActivity) : BasicLayer(activity) {
             }
             victoryPanel.setOnClickListener { }
 
-            settlementMapView.setMin(1F.dp2px(activity), 3F.dp2px(activity))
             MazeMapTheme.updateMaze(settlementMapView)
         }
     }

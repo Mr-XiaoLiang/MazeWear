@@ -1,5 +1,6 @@
 package com.lollipop.wear.maze.main
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.view.ViewGroup
@@ -30,6 +31,12 @@ class ConfigFragment : MainBaseFragment() {
     override fun onViewCreated(binding: FragmentMainSubpageBinding) {
         updateTitle(binding.root.context.getString(R.string.title_config))
         initRecyclerView(binding, configAdapter)
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    override fun onResume() {
+        super.onResume()
+        configAdapter.notifyDataSetChanged()
     }
 
     private fun getSummary(item: ConfigItem): String {
