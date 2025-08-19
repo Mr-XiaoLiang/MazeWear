@@ -7,6 +7,7 @@ import com.lollipop.play.core.data.DataManager
 import com.lollipop.play.core.data.DataObserver
 import com.lollipop.play.core.data.MazeHistory
 import com.lollipop.play.core.data.mazeSettings
+import com.lollipop.wear.maze.MazeDeleteActivity
 import com.lollipop.wear.maze.PlayActivity
 import com.lollipop.wear.maze.R
 import com.lollipop.wear.maze.base.WearListHelper
@@ -66,7 +67,9 @@ class HomeFragment : MainBaseFragment() {
 
     private fun onMazeHistoryClick(position: Int, mazeHistory: MazeHistory) {
         activity?.let {
-            PlayActivity.resumeMaze(it, mazeHistory.cachePath)
+//            PlayActivity.resumeMaze(it, mazeHistory.cachePath)
+            // TODO
+            MazeDeleteActivity.start(it, mazeHistory.cachePath)
         }
     }
 

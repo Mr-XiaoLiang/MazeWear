@@ -16,6 +16,7 @@ import com.lollipop.play.core.data.DataManager
 import com.lollipop.play.core.helper.JoystickDirection
 import com.lollipop.play.core.helper.registerLog
 import com.lollipop.play.core.helper.tagName
+import com.lollipop.wear.maze.base.MazeActivityHelper
 import com.lollipop.wear.maze.databinding.ActivityPlayBinding
 import com.lollipop.wear.maze.play.PlayLayer
 import com.lollipop.wear.maze.play.layer.PlayingLayer
@@ -29,7 +30,6 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback,
     companion object {
 
         private const val KEY_MAZE_WIDTH = "KEY_MAZE_WIDTH"
-        private const val KEY_MAZE_CACHE = "KEY_MAZE_CACHE"
 
         fun newMaze(context: Context, width: Int) {
             val intent = Intent(context, PlayActivity::class.java)
@@ -38,17 +38,11 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback,
         }
 
         fun resumeMaze(context: Context, mazeCache: String) {
-            val intent = Intent(context, PlayActivity::class.java)
-            intent.putExtra(KEY_MAZE_CACHE, mazeCache)
-            context.startActivity(intent)
+            MazeActivityHelper.startWithMaze<PlayActivity>(context, mazeCache)
         }
 
         private fun getMazeWidth(intent: Intent): Int {
             return intent.getIntExtra(KEY_MAZE_WIDTH, 10)
-        }
-
-        private fun getMazeCache(intent: Intent): String {
-            return intent.getStringExtra(KEY_MAZE_CACHE) ?: ""
         }
 
     }
@@ -96,7 +90,7 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback,
     }
 
     private fun loadData() {
-        mazeCachePath = getMazeCache(intent)
+        mazeCachePath = MazeActivityHelper.findFromIntent(intent)
         if (mazeCachePath.isNotEmpty()) {
             mazeController.load(mazeCachePath)
         } else {

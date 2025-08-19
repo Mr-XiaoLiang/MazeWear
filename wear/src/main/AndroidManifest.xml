@@ -40,6 +40,11 @@
             android:name=".PlayActivity"
             android:exported="false"
             android:taskAffinity="" />
+
+        <activity
+            android:name=".MazeDeleteActivity"
+            android:exported="false"
+            android:taskAffinity="" />
     </application>
 
 </manifest>
