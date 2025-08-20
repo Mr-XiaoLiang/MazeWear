@@ -101,13 +101,18 @@ abstract class MainBaseFragment : Fragment() {
 
     protected open class MazeHistoryAdapter(
         private val mazeHistoryList: List<MazeHistory>,
-        private val onItemClick: (Int, MazeHistory) -> Unit
+        private val onItemClick: (Int, MazeHistory) -> Unit,
+        private val onItemLongClick: (Int, MazeHistory) -> Boolean = { _, _ -> false }
     ) : WearListHelper.BasicAdapter<MazeHistoryHolder>() {
         override fun onCreateViewHolder(
             parent: ViewGroup,
             viewType: Int
         ): MazeHistoryHolder {
-            return MazeHistoryHolder(inflate(parent), ::onItemClick)
+            return MazeHistoryHolder(
+                inflate(parent),
+                ::onItemClick,
+                onLongClick = ::onItemLongClick
+            )
         }
 
         private fun onItemClick(position: Int) {
@@ -115,6 +120,13 @@ abstract class MainBaseFragment : Fragment() {
                 return
             }
             onItemClick(position, mazeHistoryList[position])
+        }
+
+        private fun onItemLongClick(position: Int): Boolean {
+            if (position < 0 || position >= mazeHistoryList.size) {
+                return false
+            }
+            return onItemLongClick(position, mazeHistoryList[position])
         }
 
         override fun onBindViewHolder(
@@ -132,7 +144,8 @@ abstract class MainBaseFragment : Fragment() {
 
     protected class MazeHistoryHolder(
         private val binding: ItemMainMazeBinding,
-        private val onClick: (Int) -> Unit
+        private val onClick: (Int) -> Unit,
+        private val onLongClick: (Int) -> Boolean
     ) : RecyclerView.ViewHolder(binding.root) {
 
         init {
@@ -141,10 +154,17 @@ abstract class MainBaseFragment : Fragment() {
             binding.cardView.setOnClickListener {
                 onItemClick()
             }
+            binding.cardView.setOnLongClickListener {
+                onLongClick()
+            }
         }
 
         private fun onItemClick() {
             onClick(bindingAdapterPosition)
+        }
+
+        private fun onLongClick(): Boolean {
+            return onLongClick(bindingAdapterPosition)
         }
 
         fun bind(history: MazeHistory) {

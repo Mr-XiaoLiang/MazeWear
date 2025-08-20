@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import com.lollipop.play.core.data.DataManager
 import com.lollipop.play.core.data.DataObserver
 import com.lollipop.play.core.data.MazeHistory
-import com.lollipop.wear.maze.PlayActivity
+import com.lollipop.wear.maze.MazeInfoActivity
 import com.lollipop.wear.maze.R
 import com.lollipop.wear.maze.databinding.FragmentMainSubpageBinding
 
@@ -48,7 +48,7 @@ class HistoryFragment : MainBaseFragment() {
 
     private fun onMazeHistoryClick(position: Int, mazeHistory: MazeHistory) {
         activity?.let {
-            PlayActivity.resumeMaze(it, mazeHistory.cachePath)
+            MazeInfoActivity.start(it, mazeHistory.cachePath)
         }
     }
 

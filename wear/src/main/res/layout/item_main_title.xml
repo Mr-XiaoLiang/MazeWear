@@ -29,6 +29,7 @@
             android:layout_width="match_parent"
             android:layout_height="0px"
             android:text="@string/app_name"
+            android:textStyle="bold"
             app:clockwise="true"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="@id/titleView"

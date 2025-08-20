@@ -7,7 +7,7 @@ import com.lollipop.play.core.data.DataManager
 import com.lollipop.play.core.data.DataObserver
 import com.lollipop.play.core.data.MazeHistory
 import com.lollipop.play.core.data.mazeSettings
-import com.lollipop.wear.maze.MazeDeleteActivity
+import com.lollipop.wear.maze.MazeInfoActivity
 import com.lollipop.wear.maze.PlayActivity
 import com.lollipop.wear.maze.R
 import com.lollipop.wear.maze.base.WearListHelper
@@ -31,7 +31,7 @@ class HomeFragment : MainBaseFragment() {
     }
 
     private val mazeHistoryAdapter by lazy {
-        MazeHistoryAdapter(mazeList, ::onMazeHistoryClick)
+        MazeHistoryAdapter(mazeList, ::onMazeHistoryClick, ::onMazeHistoryLongClick)
     }
 
     override fun onViewCreated(binding: FragmentMainSubpageBinding) {
@@ -67,10 +67,17 @@ class HomeFragment : MainBaseFragment() {
 
     private fun onMazeHistoryClick(position: Int, mazeHistory: MazeHistory) {
         activity?.let {
-//            PlayActivity.resumeMaze(it, mazeHistory.cachePath)
-            // TODO
-            MazeDeleteActivity.start(it, mazeHistory.cachePath)
+            PlayActivity.resumeMaze(it, mazeHistory.cachePath)
         }
+    }
+
+    private fun onMazeHistoryLongClick(position: Int, mazeHistory: MazeHistory): Boolean {
+        val act = activity
+        if (act != null) {
+            MazeInfoActivity.start(act, mazeHistory.cachePath)
+            return true
+        }
+        return false
     }
 
     override fun onDestroy() {

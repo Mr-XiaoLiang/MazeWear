@@ -22,4 +22,7 @@
     <string name="label_theme">主题</string>
     <string name="label_about">关于</string>
     <string name="hint_delete_maze">确定删除这个地图吗？</string>
+
+    <string name="label_delete">删除</string>
+    <string name="label_open_maze">打开</string>
 </resources>
