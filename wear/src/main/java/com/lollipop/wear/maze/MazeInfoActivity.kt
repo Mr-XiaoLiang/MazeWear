@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.VideogameAsset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,7 +28,9 @@ import androidx.compose.ui.unit.sp
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.Text
+import androidx.wear.compose.material3.CircularProgressIndicator
 import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.ProgressIndicatorDefaults
 import androidx.wear.compose.material3.lazy.TransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
 import com.lollipop.play.core.data.DataManager
@@ -48,9 +52,17 @@ class MazeInfoActivity : WearComponentActivity() {
     private val mazeTimeState = mutableStateOf("")
     private val mazeStepsState = mutableStateOf("")
 
+    private val deleteController = ProgressButtonController(
+        delay = 2000L, onTimeEnd = ::onDeleteTimeEnd
+    ).bind(this)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initData()
+    }
+
+    private fun onDeleteTimeEnd() {
+        // TODO
     }
 
     private fun initData() {
@@ -98,12 +110,14 @@ class MazeInfoActivity : WearComponentActivity() {
                 label = mazeTime,
                 transformationSpec = transformationSpec
             )
+            ListSpacer(transformationSpec = transformationSpec, height = 8.dp)
             ListButton(
                 transformationSpec = transformationSpec,
                 onClick = { onOpenClick() },
                 icon = {
                     Icon(
-                        imageVector = Icons.Filled.VideogameAsset,
+                        modifier = Modifier.size(24.dp),
+                        imageVector = Icons.Default.VideogameAsset,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSecondary
                     )
@@ -116,23 +130,68 @@ class MazeInfoActivity : WearComponentActivity() {
                     )
                 }
             )
-            ListButton(
+            ListSpacer(transformationSpec = transformationSpec, height = 16.dp)
+            ProgressButton(
                 transformationSpec = transformationSpec,
-                onClick = { onDeleteClick() },
-                icon = {
-                    Icon(
-                        imageVector = Icons.Filled.VideogameAsset,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSecondary
-                    )
+                controller = deleteController,
+                icon = { state, progress ->
+                    when (state) {
+                        ProgressButtonState.Idle -> {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                modifier = Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.onSecondary,
+                                contentDescription = null
+                            )
+                        }
+
+                        ProgressButtonState.Progress -> {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                progress = { progress },
+                                colors = ProgressIndicatorDefaults.colors().copy(
+                                    trackColor = MaterialTheme.colorScheme.onSecondary
+                                )
+                            )
+                        }
+
+                        ProgressButtonState.Done -> {
+                            Icon(
+                                imageVector = Icons.Default.Done,
+                                modifier = Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.onSecondary,
+                                contentDescription = null
+                            )
+                        }
+                    }
                 },
-                label = {
-                    Text(
-                        text = stringResource(R.string.label_open_maze),
-                        color = MaterialTheme.colorScheme.onSecondary,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                label = { state ->
+                    when (state) {
+                        ProgressButtonState.Idle -> {
+                            Text(
+                                text = stringResource(R.string.label_delete),
+                                color = MaterialTheme.colorScheme.onSecondary,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        ProgressButtonState.Progress -> {
+                            Text(
+                                text = stringResource(R.string.label_delete_cancel),
+                                color = MaterialTheme.colorScheme.onSecondary,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        ProgressButtonState.Done -> {
+                            Text(
+                                text = stringResource(R.string.label_delete_done),
+                                color = MaterialTheme.colorScheme.onSecondary,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                },
             )
         }
     }

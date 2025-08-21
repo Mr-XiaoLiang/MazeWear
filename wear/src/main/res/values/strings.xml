@@ -25,4 +25,6 @@
 
     <string name="label_delete">删除</string>
     <string name="label_open_maze">打开</string>
+    <string name="label_delete_cancel">放弃删除</string>
+    <string name="label_delete_done">删除完成</string>
 </resources>

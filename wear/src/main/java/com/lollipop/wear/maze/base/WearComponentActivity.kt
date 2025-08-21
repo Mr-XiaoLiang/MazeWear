@@ -1,16 +1,26 @@
 package com.lollipop.wear.maze.base
 
+import android.animation.ValueAnimator
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.wear.compose.foundation.CurvedTextStyle
+import androidx.compose.ui.unit.Dp
+import androidx.core.animation.addListener
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
@@ -20,11 +30,9 @@ import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.SurfaceTransformation
 import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.TimeText
 import androidx.wear.compose.material3.lazy.TransformationSpec
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
-import androidx.wear.compose.material3.timeTextCurvedText
 import com.google.android.horologist.compose.layout.ColumnItemType
 import com.google.android.horologist.compose.layout.rememberResponsiveColumnPadding
 
@@ -102,6 +110,143 @@ abstract class WearComponentActivity : ComponentActivity() {
                 onClick = onClick,
                 icon = icon,
                 label = label
+            )
+        }
+    }
+
+    protected fun TransformingLazyColumnScope.ProgressButton(
+        transformationSpec: TransformationSpec,
+        controller: ProgressButtonController,
+        icon: @Composable BoxScope.(ProgressButtonState, Float) -> Unit,
+        label: @Composable RowScope.(ProgressButtonState) -> Unit,
+    ) {
+        item {
+            val state by remember { controller.runningState }
+            val progress by remember { controller.progressState }
+            Button(
+                modifier = Modifier
+                    .transformedHeight(this, transformationSpec)
+                    .animateContentSize(),
+                transformation = SurfaceTransformation(transformationSpec),
+                onClick = {
+                    controller.toggle()
+                },
+                icon = {
+                    icon(state, progress)
+                },
+                label = {
+                    label(state)
+                }
+            )
+        }
+    }
+
+    protected class ProgressButtonController(
+        delay: Long,
+        val onTimeEnd: () -> Unit
+    ) {
+
+        private val valueAnimator = ValueAnimator.ofFloat(0F, 1F)
+
+        val progressState = mutableFloatStateOf(0.5F)
+        val runningState = mutableStateOf(ProgressButtonState.Idle)
+
+        private val lifecycleObserver = object : LifecycleEventObserver {
+            override fun onStateChanged(
+                source: LifecycleOwner,
+                event: Lifecycle.Event
+            ) {
+                when (event) {
+                    Lifecycle.Event.ON_DESTROY -> {
+                        reset()
+                    }
+
+                    else -> {}
+                }
+            }
+        }
+
+        init {
+            valueAnimator.duration = delay
+            valueAnimator.addUpdateListener {
+                val value = it.animatedValue
+                if (value is Float) {
+                    onProgressChanged(value)
+                }
+            }
+            valueAnimator.addListener(
+                onEnd = {
+                    onProgressEnd()
+                }
+            )
+        }
+
+        fun bind(lifecycleOwner: LifecycleOwner): ProgressButtonController {
+            lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
+            lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
+            return this
+        }
+
+        private fun onProgressChanged(progress: Float) {
+            progressState.floatValue = progress
+        }
+
+        private fun onProgressEnd() {
+            onTimeEnd()
+            runningState.value = ProgressButtonState.Done
+        }
+
+        private fun start() {
+            valueAnimator.cancel()
+            valueAnimator.setFloatValues(0F, 1F)
+            valueAnimator.start()
+            runningState.value = ProgressButtonState.Progress
+        }
+
+        private fun cancel() {
+            valueAnimator.cancel()
+            progressState.floatValue = 0f
+            runningState.value = ProgressButtonState.Idle
+        }
+
+        fun reset() {
+            cancel()
+        }
+
+        fun toggle() {
+            when (runningState.value) {
+                ProgressButtonState.Idle -> {
+                    start()
+                }
+
+                ProgressButtonState.Progress -> {
+                    cancel()
+                }
+
+                ProgressButtonState.Done -> {
+                    reset()
+                }
+            }
+        }
+
+    }
+
+    protected enum class ProgressButtonState {
+        Idle,
+        Progress,
+        Done
+    }
+
+    protected fun TransformingLazyColumnScope.ListSpacer(
+        transformationSpec: TransformationSpec,
+        height: Dp
+    ) {
+        item {
+            Spacer(
+                Modifier
+                    .fillMaxWidth()
+                    .transformedHeight(this, transformationSpec)
+                    .height(height)
             )
         }
     }
