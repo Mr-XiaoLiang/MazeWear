@@ -5,9 +5,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
@@ -62,6 +64,9 @@ abstract class WearComponentActivity : ComponentActivity() {
 
         MaterialTheme {
             ScreenScaffold(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black),
                 scrollState = columnState,
                 contentPadding = contentPadding,
             ) { contentPadding ->
