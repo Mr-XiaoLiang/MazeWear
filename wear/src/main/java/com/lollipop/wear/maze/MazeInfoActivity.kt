@@ -28,9 +28,7 @@ import androidx.compose.ui.unit.sp
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.Text
-import androidx.wear.compose.material3.CircularProgressIndicator
 import androidx.wear.compose.material3.MaterialTheme
-import androidx.wear.compose.material3.ProgressIndicatorDefaults
 import androidx.wear.compose.material3.lazy.TransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
 import com.lollipop.play.core.data.DataManager
@@ -53,16 +51,13 @@ class MazeInfoActivity : WearComponentActivity() {
     private val mazeStepsState = mutableStateOf("")
 
     private val deleteController = ProgressButtonController(
-        delay = 2000L, onTimeEnd = ::onDeleteTimeEnd
+        delay = 2000L,
+        onTimeEnd = ::onDeleteTimeEnd
     ).bind(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initData()
-    }
-
-    private fun onDeleteTimeEnd() {
-        // TODO
     }
 
     private fun initData() {
@@ -79,7 +74,7 @@ class MazeInfoActivity : WearComponentActivity() {
         mazeStepsState.value = mazeInfo.pathLength.toString()
     }
 
-    private fun onDeleteClick() {
+    private fun onDeleteTimeEnd() {
         // TODO
     }
 
@@ -131,69 +126,70 @@ class MazeInfoActivity : WearComponentActivity() {
                 }
             )
             ListSpacer(transformationSpec = transformationSpec, height = 16.dp)
-            ProgressButton(
-                transformationSpec = transformationSpec,
-                controller = deleteController,
-                icon = { state, progress ->
-                    when (state) {
-                        ProgressButtonState.Idle -> {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                modifier = Modifier.size(20.dp),
-                                tint = MaterialTheme.colorScheme.onSecondary,
-                                contentDescription = null
-                            )
-                        }
-
-                        ProgressButtonState.Progress -> {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(20.dp),
-                                progress = { progress },
-                                colors = ProgressIndicatorDefaults.colors().copy(
-                                    trackColor = MaterialTheme.colorScheme.onSecondary
-                                )
-                            )
-                        }
-
-                        ProgressButtonState.Done -> {
-                            Icon(
-                                imageVector = Icons.Default.Done,
-                                modifier = Modifier.size(20.dp),
-                                tint = MaterialTheme.colorScheme.onSecondary,
-                                contentDescription = null
-                            )
-                        }
-                    }
-                },
-                label = { state ->
-                    when (state) {
-                        ProgressButtonState.Idle -> {
-                            Text(
-                                text = stringResource(R.string.label_delete),
-                                color = MaterialTheme.colorScheme.onSecondary,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-
-                        ProgressButtonState.Progress -> {
-                            Text(
-                                text = stringResource(R.string.label_delete_cancel),
-                                color = MaterialTheme.colorScheme.onSecondary,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-
-                        ProgressButtonState.Done -> {
-                            Text(
-                                text = stringResource(R.string.label_delete_done),
-                                color = MaterialTheme.colorScheme.onSecondary,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-                },
-            )
+            DeleteButton(transformationSpec = transformationSpec)
         }
+    }
+
+    private fun TransformingLazyColumnScope.DeleteButton(
+        transformationSpec: TransformationSpec
+    ) {
+        ProgressButton(
+            transformationSpec = transformationSpec,
+            controller = deleteController,
+            icon = { state ->
+                when (state) {
+                    ProgressButtonState.Idle -> {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colorScheme.onSecondary,
+                            contentDescription = null
+                        )
+                    }
+
+                    ProgressButtonState.Pending -> {
+                        val deleteProgress by remember { deleteController.progressState }
+                        ProgressButtonPendingIndicator(progress = { deleteProgress })
+                    }
+
+                    ProgressButtonState.Done -> {
+                        Icon(
+                            imageVector = Icons.Default.Done,
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colorScheme.onSecondary,
+                            contentDescription = null
+                        )
+                    }
+                }
+            },
+            label = { state ->
+                when (state) {
+                    ProgressButtonState.Idle -> {
+                        Text(
+                            text = stringResource(R.string.label_delete),
+                            color = MaterialTheme.colorScheme.onSecondary,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    ProgressButtonState.Pending -> {
+                        Text(
+                            text = stringResource(R.string.label_delete_cancel),
+                            color = MaterialTheme.colorScheme.onSecondary,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    ProgressButtonState.Done -> {
+                        Text(
+                            text = stringResource(R.string.label_delete_done),
+                            color = MaterialTheme.colorScheme.onSecondary,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            },
+        )
     }
 
     private fun TransformingLazyColumnScope.MazeItem(

@@ -10,13 +10,16 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.core.animation.addListener
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -25,8 +28,10 @@ import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.CircularProgressIndicator
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.ProgressIndicatorDefaults
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.SurfaceTransformation
 import androidx.wear.compose.material3.Text
@@ -105,6 +110,7 @@ abstract class WearComponentActivity : ComponentActivity() {
         item {
             Button(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .transformedHeight(this, transformationSpec),
                 transformation = SurfaceTransformation(transformationSpec),
                 onClick = onClick,
@@ -114,17 +120,35 @@ abstract class WearComponentActivity : ComponentActivity() {
         }
     }
 
+    @Composable
+    protected fun ProgressButtonPendingIndicator(
+        progress: () -> Float,
+        size: Dp = 20.dp,
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(size),
+            progress = progress,
+            colors = ProgressIndicatorDefaults.colors().copy(
+                trackColor = Color.Transparent,
+                indicatorColor = MaterialTheme.colorScheme.onSecondary,
+            ),
+            allowProgressOverflow = true,
+            strokeWidth = 2.dp,
+            gapSize = 0.dp
+        )
+    }
+
     protected fun TransformingLazyColumnScope.ProgressButton(
         transformationSpec: TransformationSpec,
         controller: ProgressButtonController,
-        icon: @Composable BoxScope.(ProgressButtonState, Float) -> Unit,
+        icon: @Composable BoxScope.(ProgressButtonState) -> Unit,
         label: @Composable RowScope.(ProgressButtonState) -> Unit,
     ) {
         item {
             val state by remember { controller.runningState }
-            val progress by remember { controller.progressState }
             Button(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .transformedHeight(this, transformationSpec)
                     .animateContentSize(),
                 transformation = SurfaceTransformation(transformationSpec),
@@ -132,7 +156,7 @@ abstract class WearComponentActivity : ComponentActivity() {
                     controller.toggle()
                 },
                 icon = {
-                    icon(state, progress)
+                    icon(state)
                 },
                 label = {
                     label(state)
@@ -146,9 +170,8 @@ abstract class WearComponentActivity : ComponentActivity() {
         val onTimeEnd: () -> Unit
     ) {
 
-        private val valueAnimator = ValueAnimator.ofFloat(0F, 1F)
-
-        val progressState = mutableFloatStateOf(0.5F)
+        private val valueAnimator = ValueAnimator.ofFloat(1F, 0F)
+        val progressState = mutableFloatStateOf(0F)
         val runningState = mutableStateOf(ProgressButtonState.Idle)
 
         private val lifecycleObserver = object : LifecycleEventObserver {
@@ -198,9 +221,8 @@ abstract class WearComponentActivity : ComponentActivity() {
 
         private fun start() {
             valueAnimator.cancel()
-            valueAnimator.setFloatValues(0F, 1F)
             valueAnimator.start()
-            runningState.value = ProgressButtonState.Progress
+            runningState.value = ProgressButtonState.Pending
         }
 
         private fun cancel() {
@@ -219,7 +241,7 @@ abstract class WearComponentActivity : ComponentActivity() {
                     start()
                 }
 
-                ProgressButtonState.Progress -> {
+                ProgressButtonState.Pending -> {
                     cancel()
                 }
 
@@ -233,7 +255,7 @@ abstract class WearComponentActivity : ComponentActivity() {
 
     protected enum class ProgressButtonState {
         Idle,
-        Progress,
+        Pending,
         Done
     }
 
