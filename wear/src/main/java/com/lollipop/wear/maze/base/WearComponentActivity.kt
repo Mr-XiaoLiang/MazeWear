@@ -1,6 +1,5 @@
 package com.lollipop.wear.maze.base
 
-import android.animation.ValueAnimator
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,17 +14,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.core.animation.addListener
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
@@ -42,8 +35,15 @@ import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
 import com.google.android.horologist.compose.layout.ColumnItemType
 import com.google.android.horologist.compose.layout.rememberResponsiveColumnPadding
+import com.lollipop.play.core.helper.DeviceHelper
+import com.lollipop.wear.maze.composable.ProgressButtonController
+import com.lollipop.wear.maze.composable.ProgressButtonState
 
 abstract class WearComponentActivity : ComponentActivity() {
+
+    protected val isScreenRound by lazy {
+        DeviceHelper.isScreenRound(this)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -170,100 +170,6 @@ abstract class WearComponentActivity : ComponentActivity() {
         }
     }
 
-    protected class ProgressButtonController(
-        delay: Long,
-        val onTimeEnd: () -> Unit
-    ) {
-
-        private val valueAnimator = ValueAnimator.ofFloat(1F, 0F)
-        val progressState = mutableFloatStateOf(0F)
-        val runningState = mutableStateOf(ProgressButtonState.Idle)
-
-        private val lifecycleObserver = object : LifecycleEventObserver {
-            override fun onStateChanged(
-                source: LifecycleOwner,
-                event: Lifecycle.Event
-            ) {
-                when (event) {
-                    Lifecycle.Event.ON_DESTROY -> {
-                        reset()
-                    }
-
-                    else -> {}
-                }
-            }
-        }
-
-        init {
-            valueAnimator.duration = delay
-            valueAnimator.addUpdateListener {
-                val value = it.animatedValue
-                if (value is Float) {
-                    onProgressChanged(value)
-                }
-            }
-            valueAnimator.addListener(
-                onEnd = {
-                    onProgressEnd()
-                }
-            )
-        }
-
-        fun bind(lifecycleOwner: LifecycleOwner): ProgressButtonController {
-            lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
-            lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
-            return this
-        }
-
-        private fun onProgressChanged(progress: Float) {
-            progressState.floatValue = progress
-        }
-
-        private fun onProgressEnd() {
-            onTimeEnd()
-            runningState.value = ProgressButtonState.Done
-        }
-
-        private fun start() {
-            valueAnimator.cancel()
-            valueAnimator.start()
-            runningState.value = ProgressButtonState.Pending
-        }
-
-        private fun cancel() {
-            valueAnimator.cancel()
-            progressState.floatValue = 0f
-            runningState.value = ProgressButtonState.Idle
-        }
-
-        fun reset() {
-            cancel()
-        }
-
-        fun toggle() {
-            when (runningState.value) {
-                ProgressButtonState.Idle -> {
-                    start()
-                }
-
-                ProgressButtonState.Pending -> {
-                    cancel()
-                }
-
-                ProgressButtonState.Done -> {
-                    reset()
-                }
-            }
-        }
-
-    }
-
-    protected enum class ProgressButtonState {
-        Idle,
-        Pending,
-        Done
-    }
-
     protected fun TransformingLazyColumnScope.ListSpacer(
         transformationSpec: TransformationSpec,
         height: Dp
@@ -276,70 +182,6 @@ abstract class WearComponentActivity : ComponentActivity() {
                     .height(height)
             )
         }
-    }
-
-    protected fun TransformingLazyColumnScope.ListLongClickButton(
-        keepTime: Long,
-        transformationSpec: TransformationSpec,
-        onClick: () -> Unit,
-        icon: @Composable BoxScope.() -> Unit,
-        label: @Composable RowScope.() -> Unit
-    ) {
-        item {
-            Button(
-                modifier = Modifier
-                    .transformedHeight(this, transformationSpec),
-                transformation = SurfaceTransformation(transformationSpec),
-                onClick = onClick,
-                icon = icon,
-                label = label
-            )
-        }
-    }
-
-    protected fun TransformingLazyColumnScope.SplitButton(
-        transformationSpec: TransformationSpec
-    ) {
-//        item {
-//            SplitButtonLayout(
-//                leadingButton = {
-//                    SplitButtonDefaults.LeadingButton(onClick = { /* Do Nothing */ }) {
-//                        Icon(
-//                            Icons.Filled.Edit,
-//                            modifier = Modifier.size(SplitButtonDefaults.LeadingIconSize),
-//                            contentDescription = "Localized description",
-//                        )
-//                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-//                        Text("My Button")
-//                    }
-//                },
-//                trailingButton = {
-//                    SplitButtonDefaults.TrailingButton(
-//                        checked = checked,
-//                        onCheckedChange = { checked = it },
-//                        modifier =
-//                            Modifier.semantics {
-//                                stateDescription = if (checked) "Expanded" else "Collapsed"
-//                                contentDescription = "Toggle Button"
-//                            },
-//                    ) {
-//                        val rotation: Float by
-//                        animateFloatAsState(
-//                            targetValue = if (checked) 180f else 0f,
-//                            label = "Trailing Icon Rotation",
-//                        )
-//                        Icon(
-//                            Icons.Filled.KeyboardArrowDown,
-//                            modifier =
-//                                Modifier.size(SplitButtonDefaults.TrailingIconSize).graphicsLayer {
-//                                    this.rotationZ = rotation
-//                                },
-//                            contentDescription = "Localized description",
-//                        )
-//                    }
-//                },
-//            )
-//        }
     }
 
     @Composable

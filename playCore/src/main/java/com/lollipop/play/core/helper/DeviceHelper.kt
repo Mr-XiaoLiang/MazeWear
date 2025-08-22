@@ -12,7 +12,7 @@ import kotlin.math.sqrt
 
 val Context.isScreenRound: Boolean
     get() {
-        return resources.configuration.isScreenRound
+        return DeviceHelper.isScreenRound(this)
     }
 
 fun Int.dp2px(context: Context): Int {
@@ -44,6 +44,11 @@ fun Any.tagName(): String {
 }
 
 object DeviceHelper {
+
+    fun isScreenRound(context: Context): Boolean {
+        return context.resources.configuration.isScreenRound
+    }
+
     fun arcDimenToAngle(radius: Float, arcDimen: Float): Float {
         // 角度计算长度：2 * PI * radius * (angle / 360)
         // 反过来，通过长度尺寸换算角度

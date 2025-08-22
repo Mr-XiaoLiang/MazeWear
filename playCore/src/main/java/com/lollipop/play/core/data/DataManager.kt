@@ -58,7 +58,7 @@ object DataManager {
         return File(getCacheDir(context), "${System.currentTimeMillis().toString(16)}.maze")
     }
 
-    fun load(context: Context, onEnd: () -> Unit) {
+    fun load(context: Context? = null, onEnd: () -> Unit) {
         doAsync(onError = {
             onUI {
                 onLoadEnd()
@@ -66,8 +66,19 @@ object DataManager {
             }
         }) {
             val mazeList = mutableListOf<MazeHistory>()
-            val cacheDir = getCacheDir(context)
-            val listFiles = cacheDir.listFiles() ?: return@doAsync
+            val cacheDir = if (context != null) {
+                getCacheDir(context)
+            } else {
+                mazeCacheDir
+            }
+            val listFiles = cacheDir?.listFiles()
+            if (listFiles == null) {
+                onUI {
+                    onLoadEnd()
+                    onEnd()
+                }
+                return@doAsync
+            }
             for (file in listFiles) {
                 if (file.isFile) {
                     val mazeHistory = loadFile(file)
@@ -96,6 +107,34 @@ object DataManager {
 
     fun findByFile(path: String): MazeHistory? {
         return mazeHistoryList.firstOrNull { it.cachePath == path }
+    }
+
+    fun delete(path: String) {
+        if (path.isEmpty() || path.isBlank()) {
+            return
+        }
+        val history = findByFile(path)
+        if (history != null) {
+            mazeHistoryList.remove(history)
+        }
+        doAsync(
+            onError = {
+                onUI {
+                    if (history != null) {
+                        notifyChanged(history.id)
+                    }
+                    load {}
+                }
+            }
+        ) {
+            File(path).delete()
+            onUI {
+                if (history != null) {
+                    notifyChanged(history.id)
+                }
+                load {}
+            }
+        }
     }
 
     fun copyListAll(outList: MutableList<MazeHistory>) {

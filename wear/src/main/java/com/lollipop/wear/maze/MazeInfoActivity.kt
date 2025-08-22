@@ -2,12 +2,17 @@ package com.lollipop.wear.maze
 
 import android.content.Context
 import android.os.Bundle
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
@@ -35,6 +40,10 @@ import com.lollipop.play.core.data.DataManager
 import com.lollipop.play.core.data.MazeHistory
 import com.lollipop.wear.maze.base.MazeActivityHelper
 import com.lollipop.wear.maze.base.WearComponentActivity
+import com.lollipop.wear.maze.composable.MazeOverview
+import com.lollipop.wear.maze.composable.MazeOverviewState
+import com.lollipop.wear.maze.composable.ProgressButtonController
+import com.lollipop.wear.maze.composable.ProgressButtonState
 
 
 class MazeInfoActivity : WearComponentActivity() {
@@ -50,6 +59,10 @@ class MazeInfoActivity : WearComponentActivity() {
     private val mazeTimeState = mutableStateOf("")
     private val mazeStepsState = mutableStateOf("")
 
+    private var mazeCache: String = ""
+
+    private val mazeOverviewState = MazeOverviewState()
+
     private val deleteController = ProgressButtonController(
         delay = 2000L,
         onTimeEnd = ::onDeleteTimeEnd
@@ -62,6 +75,7 @@ class MazeInfoActivity : WearComponentActivity() {
 
     private fun initData() {
         val cache = MazeActivityHelper.findFromIntent(intent)
+        mazeCache = cache
         DataManager.findByFile(cache)?.let {
             onMazeLoaded(it)
         }
@@ -72,14 +86,17 @@ class MazeInfoActivity : WearComponentActivity() {
         mazeSizeState.value = mazeInfo.level
         mazeTimeState.value = mazeInfo.timeDisplay
         mazeStepsState.value = mazeInfo.pathLength.toString()
+        mazeOverviewState.update(mazeInfo.maze)
+        mazeOverviewState.update(mazeInfo.path)
     }
 
     private fun onDeleteTimeEnd() {
-        // TODO
+        DataManager.delete(mazeCache)
+        onBackPressedDispatcher.onBackPressed()
     }
 
     private fun onOpenClick() {
-        // TODO
+        PlayActivity.resumeMaze(this, mazeCache)
     }
 
     @Composable
@@ -105,6 +122,28 @@ class MazeInfoActivity : WearComponentActivity() {
                 label = mazeTime,
                 transformationSpec = transformationSpec
             )
+            item {
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(
+                            if (isScreenRound) {
+                                0.8F
+                            } else {
+                                0.9F
+                            }
+                        )
+                        .aspectRatio(1F)
+                        .border(width = 1.dp, color = Color.Gray, shape = RoundedCornerShape(8.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    MazeOverview(
+                        modifier = Modifier
+                            .fillMaxSize(0.95F),
+                        state = mazeOverviewState
+                    )
+                }
+            }
             ListSpacer(transformationSpec = transformationSpec, height = 8.dp)
             ListButton(
                 transformationSpec = transformationSpec,

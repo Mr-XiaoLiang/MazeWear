@@ -37,11 +37,14 @@ class MazeOverviewView @JvmOverloads constructor(
         LayerDrawable(arrayOf(mapDrawable, pathDrawable))
     }
 
+    private val log = registerLog()
+
     init {
         bindDrawable()
     }
 
     fun setMap(map: MazeMap, path: MPath) {
+        log("setMap: ${map}, $path")
         mapDrawable.setMap(map.map)
         pathDrawable.setPath(map.width, map.height, path, map.start, map.end)
     }
