@@ -19,6 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.wear.compose.foundation.CurvedTextStyle
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
@@ -30,12 +32,16 @@ import androidx.wear.compose.material3.ProgressIndicatorDefaults
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.SurfaceTransformation
 import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.TimeText
+import androidx.wear.compose.material3.TimeTextDefaults
 import androidx.wear.compose.material3.lazy.TransformationSpec
 import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
+import androidx.wear.compose.material3.timeTextCurvedText
 import com.google.android.horologist.compose.layout.ColumnItemType
 import com.google.android.horologist.compose.layout.rememberResponsiveColumnPadding
 import com.lollipop.play.core.helper.DeviceHelper
+import com.lollipop.play.core.helper.registerLog
 import com.lollipop.wear.maze.composable.ProgressButtonController
 import com.lollipop.wear.maze.composable.ProgressButtonState
 
@@ -44,6 +50,8 @@ abstract class WearComponentActivity : ComponentActivity() {
     protected val isScreenRound by lazy {
         DeviceHelper.isScreenRound(this)
     }
+
+    protected val log = registerLog()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,32 +69,48 @@ abstract class WearComponentActivity : ComponentActivity() {
         val columnState = rememberTransformingLazyColumnState()
         val contentPadding = rememberResponsiveColumnPadding(first = first, last = last)
         val transformationSpec = rememberTransformationSpec()
-
+        log("ListScaffold")
         MaterialTheme {
+            log("MaterialTheme.Content")
             ScreenScaffold(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Black),
                 scrollState = columnState,
                 contentPadding = contentPadding,
+//                timeText = {
+//                    log("TimeText")
+//                    TimeText { time ->
+//                        log("TimeText.Content $time")
+//                        timeTextCurvedText(
+//                            time = time,
+//                            style = CurvedTextStyle(
+//                                color = Color.White
+//                            )
+//                        )
+//                    }
+//                }
             ) { contentPadding ->
+                log("ScreenScaffold.Content")
                 TransformingLazyColumn(
                     state = columnState,
                     contentPadding = contentPadding,
                 ) {
                     content(transformationSpec)
                 }
+                TimeText(
+                    timeSource = TimeTextDefaults.rememberTimeSource("HH:mm")
+                ) { time ->
+                    log("TimeText.Content $time")
+                    timeTextCurvedText(
+                        time = time,
+                        style = CurvedTextStyle(
+                            color = Color.White,
+                            fontSize = 12.sp,
+                        )
+                    )
+                }
             }
-//            TimeText(
-//                modifier = Modifier.fillMaxSize(),
-//            ) { time ->
-//                timeTextCurvedText(
-//                    time = time,
-//                    style = CurvedTextStyle(
-//                        color = Color.White
-//                    )
-//                )
-//            }
         }
     }
 

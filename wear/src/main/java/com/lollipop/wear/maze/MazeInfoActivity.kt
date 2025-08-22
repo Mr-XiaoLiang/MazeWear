@@ -2,6 +2,7 @@ package com.lollipop.wear.maze
 
 import android.content.Context
 import android.os.Bundle
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -123,7 +124,6 @@ class MazeInfoActivity : WearComponentActivity() {
                 transformationSpec = transformationSpec
             )
             item {
-
                 Box(
                     modifier = Modifier
                         .fillMaxWidth(
@@ -134,6 +134,7 @@ class MazeInfoActivity : WearComponentActivity() {
                             }
                         )
                         .aspectRatio(1F)
+                        .background(color = Color.Black, shape = RoundedCornerShape(8.dp))
                         .border(width = 1.dp, color = Color.Gray, shape = RoundedCornerShape(8.dp)),
                     contentAlignment = Alignment.Center
                 ) {
