@@ -67,4 +67,5 @@ dependencies {
     implementation(libs.core.splashscreen)
 
     implementation(project(":playCore"))
+    implementation(project(":blocksBuilding"))
 }
