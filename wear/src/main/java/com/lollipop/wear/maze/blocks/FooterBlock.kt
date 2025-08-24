@@ -2,6 +2,7 @@ package com.lollipop.wear.maze.blocks
 
 import android.view.LayoutInflater
 import android.view.View
+import com.lollipop.wear.blocksbuilding.BlocksOwner
 import com.lollipop.wear.blocksbuilding.dsl.layoutParams
 import com.lollipop.wear.blocksbuilding.item.ItemSize
 import com.lollipop.wear.maze.databinding.ItemBlocksFooterBinding

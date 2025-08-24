@@ -4,10 +4,11 @@ import android.view.View
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.lollipop.wear.blocksbuilding.BlockManager
+import com.lollipop.wear.blocksbuilding.BlocksOwner
 import com.lollipop.wear.blocksbuilding.BuilderScope
 import com.lollipop.wear.blocksbuilding.IBlock
 
-class RecyclerBuilderScopeImpl : BuilderScope {
+class RecyclerBuilderScopeImpl(override val blocksOwner: BlocksOwner) : BuilderScope {
 
     private val adapterList = mutableListOf<RecyclerView.Adapter<*>>()
 

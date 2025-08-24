@@ -8,6 +8,7 @@ import com.lollipop.wear.blocksbuilding.dsl.blockStateOf
 import com.lollipop.wear.maze.base.MazeActivityHelper
 import com.lollipop.wear.maze.base.WearBlocksActivity
 import com.lollipop.wear.maze.blocks.MazeOverviewBlockState
+import com.lollipop.wear.maze.blocks.mazeOverview
 import com.lollipop.wear.maze.blocks.titleHeader
 
 
@@ -263,6 +264,9 @@ class MazeInfoActivity : WearBlocksActivity() {
         content {
             item {
                 titleHeader(title = mazeNameState)
+            }
+            item {
+                mazeOverview(state = mazeOverviewState)
             }
         }
     }

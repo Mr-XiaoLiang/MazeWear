@@ -5,18 +5,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.lollipop.wear.blocksbuilding.impl.RecyclerBuilderScopeImpl
 import com.lollipop.wear.blocksbuilding.impl.StaticBuilderScopeImpl
 
-object BlocksBuilder {
+fun BlocksOwner.withBlocks(recyclerView: RecyclerView, content: BuilderScope.() -> Unit) {
+    val scopeImpl = RecyclerBuilderScopeImpl(this)
+    scopeImpl.content()
+    recyclerView.adapter = scopeImpl.build()
+}
 
-    fun with(recyclerView: RecyclerView, content: BuilderScope.() -> Unit) {
-        val scopeImpl = RecyclerBuilderScopeImpl()
-        scopeImpl.content()
-        recyclerView.adapter = scopeImpl.build()
-    }
-
-    fun with(viewGroup: ViewGroup, content: BuilderScope.() -> Unit) {
-        val scopeImpl = StaticBuilderScopeImpl()
-        scopeImpl.content()
-        scopeImpl.build(viewGroup)
-    }
-
+fun BlocksOwner.withBlocks(viewGroup: ViewGroup, content: BuilderScope.() -> Unit) {
+    val scopeImpl = StaticBuilderScopeImpl(this)
+    scopeImpl.content()
+    scopeImpl.build(viewGroup)
 }

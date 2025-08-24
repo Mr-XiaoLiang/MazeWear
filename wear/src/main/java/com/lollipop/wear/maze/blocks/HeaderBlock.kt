@@ -3,6 +3,7 @@ package com.lollipop.wear.maze.blocks
 import android.view.LayoutInflater
 import android.view.View
 import com.lollipop.play.core.controller.TimeDelegate
+import com.lollipop.wear.blocksbuilding.BlocksOwner
 import com.lollipop.wear.blocksbuilding.data.DataObserver
 import com.lollipop.wear.blocksbuilding.dsl.getValue
 import com.lollipop.wear.blocksbuilding.dsl.layoutParams

@@ -2,6 +2,7 @@ package com.lollipop.wear.maze.blocks
 
 import android.view.View
 import android.widget.Space
+import com.lollipop.wear.blocksbuilding.BlocksOwner
 import com.lollipop.wear.blocksbuilding.dsl.layoutParams
 import com.lollipop.wear.blocksbuilding.item.ItemSize
 

@@ -1,4 +1,4 @@
-package com.lollipop.wear.maze.blocks
+package com.lollipop.wear.blocksbuilding
 
 import android.content.Context
 import androidx.lifecycle.LifecycleOwner

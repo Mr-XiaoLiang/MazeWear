@@ -67,7 +67,6 @@ abstract class WearComponentActivity : ComponentActivity() {
         last: ColumnItemType = ColumnItemType.Button,
         content: TransformingLazyColumnScope.(TransformationSpec) -> Unit
     ) {
-        val a by remember { mutableStateOf(0) }
         val columnState = rememberTransformingLazyColumnState()
         val contentPadding = rememberResponsiveColumnPadding(first = first, last = last)
         val transformationSpec = rememberTransformationSpec()

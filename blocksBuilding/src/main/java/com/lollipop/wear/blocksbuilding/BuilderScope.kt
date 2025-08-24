@@ -5,6 +5,8 @@ import android.view.View
 @BBDsl
 interface BuilderScope {
 
+    val blocksOwner: BlocksOwner
+
     fun item(content: IBlock.() -> View)
 
     fun <T : Any> items(

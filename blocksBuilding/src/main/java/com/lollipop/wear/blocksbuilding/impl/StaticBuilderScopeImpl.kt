@@ -3,10 +3,11 @@ package com.lollipop.wear.blocksbuilding.impl
 import android.view.View
 import android.view.ViewGroup
 import com.lollipop.wear.blocksbuilding.BlockManager
+import com.lollipop.wear.blocksbuilding.BlocksOwner
 import com.lollipop.wear.blocksbuilding.BuilderScope
 import com.lollipop.wear.blocksbuilding.IBlock
 
-class StaticBuilderScopeImpl : BuilderScope {
+class StaticBuilderScopeImpl(override val blocksOwner: BlocksOwner) : BuilderScope {
 
     private var viewGroup: ViewGroup? = null
     private val managerList = mutableListOf<BasicManager>()
