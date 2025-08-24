@@ -5,7 +5,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.lollipop.wear.blocksbuilding.BlocksBuilder
 import com.lollipop.wear.blocksbuilding.BuilderScope
+import com.lollipop.wear.blocksbuilding.IBlock
+import com.lollipop.wear.blocksbuilding.data.DataObserver
+import com.lollipop.wear.blocksbuilding.data.DataProvider
 import com.lollipop.wear.blocksbuilding.item.ItemSize
+import kotlin.reflect.KProperty
 
 fun ViewGroup.blocks(content: BuilderScope.() -> Unit) {
     if (this is RecyclerView) {
@@ -28,3 +32,24 @@ fun View.layoutParams(width: ItemSize = ItemSize.None, height: ItemSize = ItemSi
         this.layoutParams = old
     }
 }
+
+fun <T> blockStateOf(value: T): DataObserver<T> {
+    return DataObserver(value)
+}
+
+inline operator fun <reified T> DataProvider<T>.getValue(
+    thisObj: Any?,
+    property: KProperty<*>
+): T {
+    return value
+}
+
+inline operator fun <reified T> DataObserver<T>.setValue(
+    thisObj: Any?,
+    property: KProperty<*>,
+    newValue: T
+) {
+    value = newValue
+}
+
+

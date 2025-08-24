@@ -4,6 +4,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.lollipop.wear.blocksbuilding.BlockManager
 import com.lollipop.wear.blocksbuilding.BuilderScope
+import com.lollipop.wear.blocksbuilding.IBlock
 
 class StaticBuilderScopeImpl : BuilderScope {
 
@@ -118,8 +119,11 @@ class StaticBuilderScopeImpl : BuilderScope {
         rebuild()
     }
 
-    override fun item(content: () -> View) {
-        optStaticManager().viewList.add(content())
+    override fun item(content: IBlock.() -> View) {
+        val staticBlock = StaticBlock()
+        val view = content(staticBlock)
+        staticBlock.bind(view)
+        optStaticManager().viewList.add(view)
     }
 
     override fun <T : Any> items(

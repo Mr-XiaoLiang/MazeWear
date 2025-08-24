@@ -5,7 +5,7 @@ import android.view.View
 @BBDsl
 interface BuilderScope {
 
-    fun item(content: () -> View)
+    fun item(content: IBlock.() -> View)
 
     fun <T : Any> items(
         items: List<T>,

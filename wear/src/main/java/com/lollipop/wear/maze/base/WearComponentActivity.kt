@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -66,6 +67,7 @@ abstract class WearComponentActivity : ComponentActivity() {
         last: ColumnItemType = ColumnItemType.Button,
         content: TransformingLazyColumnScope.(TransformationSpec) -> Unit
     ) {
+        val a by remember { mutableStateOf(0) }
         val columnState = rememberTransformingLazyColumnState()
         val contentPadding = rememberResponsiveColumnPadding(first = first, last = last)
         val transformationSpec = rememberTransformationSpec()

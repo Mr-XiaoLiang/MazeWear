@@ -5,6 +5,7 @@ import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.lollipop.wear.blocksbuilding.BlockManager
 import com.lollipop.wear.blocksbuilding.BuilderScope
+import com.lollipop.wear.blocksbuilding.IBlock
 
 class RecyclerBuilderScopeImpl : BuilderScope {
 
@@ -44,8 +45,10 @@ class RecyclerBuilderScopeImpl : BuilderScope {
         return newAdapter
     }
 
-    override fun item(content: () -> View) {
-        optStaticAdapter().add(content())
+    override fun item(content: IBlock.() -> View) {
+        val recycleBlock = RecycleBlock()
+        val view = content(recycleBlock)
+        optStaticAdapter().add(recycleBlock.createHolder(view))
     }
 
     override fun <T : Any> items(
