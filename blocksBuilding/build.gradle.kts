@@ -36,6 +36,7 @@ dependencies {
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
     implementation(libs.material)
+    implementation("androidx.startup:startup-runtime:1.2.0")
 
     implementation(libs.androidx.recyclerview)
     implementation(libs.wear)

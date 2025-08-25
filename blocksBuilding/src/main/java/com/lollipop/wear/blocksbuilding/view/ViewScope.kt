@@ -6,10 +6,25 @@ import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
 import com.lollipop.wear.blocksbuilding.BBDsl
 import com.lollipop.wear.blocksbuilding.data.DataObserver
+import com.lollipop.wear.blocksbuilding.dsl.convert
+import com.lollipop.wear.blocksbuilding.item.ItemSize
+import com.lollipop.wear.blocksbuilding.item.ViewGravity
 import com.lollipop.wear.blocksbuilding.item.ViewTypedValue
 
 @BBDsl
 interface ItemViewScope<V : View> {
+
+    val viewId: Int
+        get() {
+            val id = content.id
+            if (id == View.NO_ID) {
+                val newId = View.generateViewId()
+                content.id = newId
+                return newId
+            } else {
+                return id
+            }
+        }
 
     val content: V
 
@@ -47,7 +62,23 @@ interface ItemViewScope<V : View> {
 @BBDsl
 interface ItemGroupScope<G : ViewGroup> : ItemViewScope<G> {
 
-    fun <T : View> add(view: T): T
+    fun <T : View> add(view: T, layoutParams: ViewGroup.LayoutParams): T
+
+}
+
+@BBDsl
+interface MarginGroupScope {
+
+    fun ViewGroup.LayoutParams.margin(
+        left: ViewTypedValue.DP,
+        top: ViewTypedValue.DP,
+        right: ViewTypedValue.DP,
+        bottom: ItemSize
+    ): ViewGroup.MarginLayoutParams {
+        return convert { ViewGroup.MarginLayoutParams(it) }.also {
+            it.leftMargin = left.getValue(bounds)
+        }
+    }
 
 }
 
@@ -107,8 +138,17 @@ open class BasicItemGroupScope<G : ViewGroup>(
     view: G,
     lifecycleOwner: LifecycleOwner
 ) : BasicItemViewScope<G>(view, lifecycleOwner), ItemGroupScope<G> {
-    override fun <T: View> add(view: T): T {
-        this.view.addView(view)
+
+    protected fun Array<out ViewGravity>.sum(): Int {
+        var result = 0
+        for (gravity in this) {
+            result = gravity.or(result)
+        }
+        return result
+    }
+
+    override fun <T : View> add(view: T, layoutParams: ViewGroup.LayoutParams): T {
+        this.view.addView(view, layoutParams)
         return view
     }
 }

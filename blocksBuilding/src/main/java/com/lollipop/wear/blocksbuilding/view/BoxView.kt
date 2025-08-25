@@ -1,24 +1,32 @@
 package com.lollipop.wear.blocksbuilding.view
 
 import android.view.View
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.lifecycle.LifecycleOwner
 import com.lollipop.wear.blocksbuilding.BBDsl
+import com.lollipop.wear.blocksbuilding.dsl.ViewLayoutParams
+import com.lollipop.wear.blocksbuilding.dsl.convert
+import com.lollipop.wear.blocksbuilding.item.ViewGravity
 
-fun ItemGroupScope<*>.box(content: BoxScope.() -> Unit): BoxScope {
-    val view = add(FrameLayout(this.content.context))
-    val scope = BoxViewScope(view, lifecycleOwner)
-    content.invoke(scope)
-    FrameLayout.LayoutParams(0, 0).gravity
-    return scope
+fun ItemGroupScope<*>.box(
+    layoutParams: ViewGroup.LayoutParams = ViewLayoutParams(),
+    content: BoxScope.() -> Unit
+): BoxScope {
+    return BoxViewScope(
+        add(
+            FrameLayout(
+                this.content.context
+            ),
+            layoutParams
+        ), lifecycleOwner
+    ).apply(content)
 }
 
 @BBDsl
 interface BoxScope : ItemGroupScope<FrameLayout> {
 
-    var ItemViewScope<*>.layoutGravity: Int
-
-    var contentGravity: Int
+    fun ViewGroup.LayoutParams.gravity(vararg gravity: ViewGravity): FrameLayout.LayoutParams
 
 }
 
@@ -34,34 +42,9 @@ class BoxViewScope(
         }
     }
 
-    override var ItemViewScope<*>.layoutGravity: Int
-        get() {
-            if (this@BoxViewScope.isSelf(this)) {
-                throw IllegalStateException("BoxViewScope.layoutGravity can only be used by child")
-            }
-            val layoutParams = content.layoutParams as FrameLayout.LayoutParams
-            return layoutParams.gravity
-        }
-        set(value) {
-            if (this@BoxViewScope.isSelf(this)) {
-                throw IllegalStateException("BoxViewScope.layoutGravity can only be used by child")
-            }
-            updateChildGravity(content, value)
-        }
-
-    override var contentGravity: Int = 0
-        set(value) {
-            field = value
-            updateChildGravity(value)
-        }
-
-    private fun updateChildGravity(gravity: Int) {
-        val scope = this
-        val frameLayout = scope.content
-        val childCount = frameLayout.childCount
-        for (i in 0 until childCount) {
-            val child = frameLayout.getChildAt(i)
-            updateChildGravity(child, gravity)
+    override fun ViewGroup.LayoutParams.gravity(vararg gravity: ViewGravity): FrameLayout.LayoutParams {
+        return convert { FrameLayout.LayoutParams(it) }.also {
+            it.gravity = gravity.sum()
         }
     }
 

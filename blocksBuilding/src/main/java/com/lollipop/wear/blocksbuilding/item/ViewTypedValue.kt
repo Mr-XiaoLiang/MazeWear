@@ -1,34 +1,14 @@
 package com.lollipop.wear.blocksbuilding.item
 
-import android.content.res.Resources
 import android.graphics.Rect
 import android.util.TypedValue
+import com.lollipop.wear.blocksbuilding.dsl.BBDSL
 import kotlin.math.max
 import kotlin.math.min
 
-val Int.DP: ViewTypedValue.DP
+val MetricsValue.typedValue: ViewTypedValue.Absolute
     get() {
-        return ViewTypedValue.DP(this.toFloat())
-    }
-
-val Float.DP: ViewTypedValue.DP
-    get() {
-        return ViewTypedValue.DP(this)
-    }
-
-val Int.PX: ViewTypedValue.PX
-    get() {
-        return ViewTypedValue.PX(this)
-    }
-
-val Int.SP: ViewTypedValue.SP
-    get() {
-        return ViewTypedValue.SP(this)
-    }
-
-val Float.SP: ViewTypedValue.SP
-    get() {
-        return ViewTypedValue.SP(this.toInt())
+        return ViewTypedValue.Absolute(this)
     }
 
 val Float.PercentWidth: ViewTypedValue.PercentWidth
@@ -59,31 +39,13 @@ sealed class ViewTypedValue {
         return TypedValue.applyDimension(
             unit,
             value,
-            Resources.getSystem().displayMetrics
+            BBDSL.resources.displayMetrics
         ).toInt()
     }
 
-    class DP(val value: Float) : ViewTypedValue() {
+    class Absolute(val value: MetricsValue) : ViewTypedValue() {
         override fun getValue(bounds: Rect): Int {
-            return getTypedValue(
-                TypedValue.COMPLEX_UNIT_DIP,
-                value,
-            )
-        }
-    }
-
-    class PX(val value: Int) : ViewTypedValue() {
-        override fun getValue(bounds: Rect): Int {
-            return value
-        }
-    }
-
-    class SP(val value: Int) : ViewTypedValue() {
-        override fun getValue(bounds: Rect): Int {
-            return getTypedValue(
-                TypedValue.COMPLEX_UNIT_SP,
-                value.toFloat(),
-            )
+            return value.px
         }
     }
 

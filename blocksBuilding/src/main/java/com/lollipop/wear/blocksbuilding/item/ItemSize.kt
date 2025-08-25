@@ -1,44 +1,37 @@
 package com.lollipop.wear.blocksbuilding.item
 
-import android.content.Context
-import android.util.TypedValue
 import android.view.ViewGroup
+
+val MetricsValue.itemSize: ItemSize.Absolute
+    get() {
+        return ItemSize.Absolute(this)
+    }
 
 sealed class ItemSize {
 
-    abstract fun update(src: Int, context: Context): Int
+    abstract fun update(src: Int): Int
 
     object None : ItemSize() {
-        override fun update(src: Int, context: Context): Int {
+        override fun update(src: Int): Int {
             return src
         }
     }
 
     object Match : ItemSize() {
-        override fun update(src: Int, context: Context): Int {
+        override fun update(src: Int): Int {
             return ViewGroup.LayoutParams.MATCH_PARENT
         }
     }
 
     object Wrap : ItemSize() {
-        override fun update(src: Int, context: Context): Int {
+        override fun update(src: Int): Int {
             return ViewGroup.LayoutParams.WRAP_CONTENT
         }
     }
 
-    data class Dp(val size: Int) : ItemSize() {
-        override fun update(src: Int, context: Context): Int {
-            return TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                size.toFloat(),
-                context.resources.displayMetrics
-            ).toInt()
-        }
-    }
-
-    data class Px(val size: Int) : ItemSize() {
-        override fun update(src: Int, context: Context): Int {
-            return size
+    data class Absolute(val size: MetricsValue) : ItemSize() {
+        override fun update(src: Int): Int {
+            return size.px
         }
     }
 
