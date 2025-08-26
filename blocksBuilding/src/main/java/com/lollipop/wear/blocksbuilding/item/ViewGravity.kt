@@ -66,6 +66,14 @@ operator fun Int.plus(other: ViewGravity): Int {
     return other.or(this)
 }
 
+fun Array<out ViewGravity>.sum(): Int {
+    var result = 0
+    for (gravity in this) {
+        result = gravity.or(result)
+    }
+    return result
+}
+
 sealed class ViewGravity {
 
     abstract fun or(src: Int): Int

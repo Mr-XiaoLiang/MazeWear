@@ -1,15 +1,14 @@
 package com.lollipop.wear.blocksbuilding.view
 
-import android.graphics.Rect
+import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
 import com.lollipop.wear.blocksbuilding.BBDsl
 import com.lollipop.wear.blocksbuilding.data.DataObserver
 import com.lollipop.wear.blocksbuilding.dsl.convert
-import com.lollipop.wear.blocksbuilding.item.ItemSize
-import com.lollipop.wear.blocksbuilding.item.ViewGravity
-import com.lollipop.wear.blocksbuilding.item.ViewTypedValue
+import com.lollipop.wear.blocksbuilding.item.MetricsValue
+import com.lollipop.wear.blocksbuilding.item.PX
 
 @BBDsl
 interface ItemViewScope<V : View> {
@@ -28,6 +27,11 @@ interface ItemViewScope<V : View> {
 
     val content: V
 
+    val context: Context
+        get() {
+            return content.context
+        }
+
     val lifecycleOwner: LifecycleOwner
 
     fun notifyUpdate()
@@ -42,19 +46,19 @@ interface ItemViewScope<V : View> {
         return observer
     }
 
-    fun padding(padding: ViewTypedValue) {
+    fun padding(padding: MetricsValue) {
         padding(padding, padding)
     }
 
-    fun padding(horizontal: ViewTypedValue, vertical: ViewTypedValue) {
+    fun padding(horizontal: MetricsValue, vertical: MetricsValue) {
         padding(horizontal, vertical, horizontal, vertical)
     }
 
     fun padding(
-        left: ViewTypedValue,
-        top: ViewTypedValue,
-        right: ViewTypedValue,
-        bottom: ViewTypedValue
+        left: MetricsValue,
+        top: MetricsValue,
+        right: MetricsValue,
+        bottom: MetricsValue
     )
 
 }
@@ -70,13 +74,29 @@ interface ItemGroupScope<G : ViewGroup> : ItemViewScope<G> {
 interface MarginGroupScope {
 
     fun ViewGroup.LayoutParams.margin(
-        left: ViewTypedValue.DP,
-        top: ViewTypedValue.DP,
-        right: ViewTypedValue.DP,
-        bottom: ItemSize
+        margin: MetricsValue,
+    ): ViewGroup.MarginLayoutParams {
+        return margin(margin, margin)
+    }
+
+    fun ViewGroup.LayoutParams.margin(
+        horizontal: MetricsValue,
+        vertical: MetricsValue,
+    ): ViewGroup.MarginLayoutParams {
+        return margin(horizontal, vertical, horizontal, vertical)
+    }
+
+    fun ViewGroup.LayoutParams.margin(
+        left: MetricsValue,
+        top: MetricsValue,
+        right: MetricsValue,
+        bottom: MetricsValue
     ): ViewGroup.MarginLayoutParams {
         return convert { ViewGroup.MarginLayoutParams(it) }.also {
-            it.leftMargin = left.getValue(bounds)
+            it.leftMargin = left.px
+            it.topMargin = top.px
+            it.rightMargin = right.px
+            it.bottomMargin = bottom.px
         }
     }
 
@@ -89,7 +109,7 @@ open class BasicItemViewScope<V : View>(
 
     override val content: V = view
 
-    protected val paddingArray = Array<ViewTypedValue>(4) { ViewTypedValue.PX(0) }
+    protected val paddingArray = Array<MetricsValue>(4) { PX(0) }
 
     protected fun isSelf(scope: ItemViewScope<*>): Boolean {
         return scope.content === view
@@ -103,28 +123,24 @@ open class BasicItemViewScope<V : View>(
     }
 
     override fun padding(
-        left: ViewTypedValue,
-        top: ViewTypedValue,
-        right: ViewTypedValue,
-        bottom: ViewTypedValue
+        left: MetricsValue,
+        top: MetricsValue,
+        right: MetricsValue,
+        bottom: MetricsValue
     ) {
         paddingArray[0] = left
         paddingArray[1] = top
         paddingArray[2] = right
         paddingArray[3] = bottom
-        view.post {
-            updatePadding()
-        }
+        updatePadding()
     }
 
     private fun updatePadding() {
-        val bounds = Rect()
-        bounds.set(0, 0, view.width, view.height)
         view.setPadding(
-            paddingArray[0].getValue(bounds),
-            paddingArray[1].getValue(bounds),
-            paddingArray[2].getValue(bounds),
-            paddingArray[3].getValue(bounds)
+            paddingArray[0].px,
+            paddingArray[1].px,
+            paddingArray[2].px,
+            paddingArray[3].px
         )
     }
 
@@ -138,14 +154,6 @@ open class BasicItemGroupScope<G : ViewGroup>(
     view: G,
     lifecycleOwner: LifecycleOwner
 ) : BasicItemViewScope<G>(view, lifecycleOwner), ItemGroupScope<G> {
-
-    protected fun Array<out ViewGravity>.sum(): Int {
-        var result = 0
-        for (gravity in this) {
-            result = gravity.or(result)
-        }
-        return result
-    }
 
     override fun <T : View> add(view: T, layoutParams: ViewGroup.LayoutParams): T {
         this.view.addView(view, layoutParams)

@@ -1,6 +1,5 @@
 package com.lollipop.wear.blocksbuilding.view
 
-import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.lifecycle.LifecycleOwner
@@ -8,12 +7,13 @@ import com.lollipop.wear.blocksbuilding.BBDsl
 import com.lollipop.wear.blocksbuilding.dsl.ViewLayoutParams
 import com.lollipop.wear.blocksbuilding.dsl.convert
 import com.lollipop.wear.blocksbuilding.item.ViewGravity
+import com.lollipop.wear.blocksbuilding.item.sum
 
-fun ItemGroupScope<*>.box(
+fun ItemGroupScope<*>.Box(
     layoutParams: ViewGroup.LayoutParams = ViewLayoutParams(),
     content: BoxScope.() -> Unit
 ): BoxScope {
-    return BoxViewScope(
+    return BoxBlockScope(
         add(
             FrameLayout(
                 this.content.context
@@ -24,23 +24,15 @@ fun ItemGroupScope<*>.box(
 }
 
 @BBDsl
-interface BoxScope : ItemGroupScope<FrameLayout> {
+interface BoxScope : ItemGroupScope<FrameLayout>, MarginGroupScope {
 
     fun ViewGroup.LayoutParams.gravity(vararg gravity: ViewGravity): FrameLayout.LayoutParams
 
 }
 
-class BoxViewScope(
+class BoxBlockScope(
     frameLayout: FrameLayout, lifecycleOwner: LifecycleOwner
 ) : BasicItemGroupScope<FrameLayout>(frameLayout, lifecycleOwner), BoxScope {
-
-    companion object {
-        private fun updateChildGravity(child: View, gravity: Int) {
-            val layoutParams = child.layoutParams as FrameLayout.LayoutParams
-            layoutParams.gravity = gravity
-            child.requestLayout()
-        }
-    }
 
     override fun ViewGroup.LayoutParams.gravity(vararg gravity: ViewGravity): FrameLayout.LayoutParams {
         return convert { FrameLayout.LayoutParams(it) }.also {

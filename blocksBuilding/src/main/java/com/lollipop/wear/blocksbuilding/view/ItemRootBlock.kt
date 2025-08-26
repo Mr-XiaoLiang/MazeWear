@@ -2,26 +2,28 @@ package com.lollipop.wear.blocksbuilding.view
 
 import android.widget.FrameLayout
 import androidx.lifecycle.LifecycleOwner
+import com.lollipop.wear.blocksbuilding.BBDsl
 import com.lollipop.wear.blocksbuilding.BlocksOwner
 import com.lollipop.wear.blocksbuilding.BuilderScope
 
-fun BlocksOwner.viewBlock(content: ItemRootScope.() -> Unit): FrameLayout {
+fun BlocksOwner.ViewBlock(content: ItemRootScope.() -> Unit): FrameLayout {
     val view = FrameLayout(context)
-    val scope = ItemRootViewScope(view, lifecycleOwner)
+    val scope = ItemRootBlockScope(view, lifecycleOwner)
     content.invoke(scope)
     return view
 }
 
-fun BuilderScope.itemView(content: ItemRootScope.() -> Unit) {
+fun BuilderScope.ItemView(content: ItemRootScope.() -> Unit) {
     item {
-        blocksOwner.viewBlock(content)
+        blocksOwner.ViewBlock(content)
     }
 }
 
 
-interface ItemRootScope : ItemGroupScope<FrameLayout>
+@BBDsl
+interface ItemRootScope : ItemGroupScope<FrameLayout>, MarginGroupScope
 
-class ItemRootViewScope(
+class ItemRootBlockScope(
     frameLayout: FrameLayout, lifecycleOwner: LifecycleOwner
 ) : BasicItemGroupScope<FrameLayout>(frameLayout, lifecycleOwner), ItemRootScope
 

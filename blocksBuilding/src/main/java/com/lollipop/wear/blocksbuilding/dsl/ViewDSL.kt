@@ -2,8 +2,9 @@ package com.lollipop.wear.blocksbuilding.dsl
 
 import android.view.View
 import android.view.ViewGroup
+import com.lollipop.wear.blocksbuilding.item.DP
 import com.lollipop.wear.blocksbuilding.item.ItemSize
-import com.lollipop.wear.blocksbuilding.item.ViewTypedValue
+import com.lollipop.wear.blocksbuilding.item.PX
 
 fun View.layoutParams(width: ItemSize = ItemSize.None, height: ItemSize = ItemSize.None) {
     val old = layoutParams
@@ -31,20 +32,36 @@ inline fun <reified T : ViewGroup.LayoutParams> T.height(size: ItemSize): T {
     }
 }
 
-inline fun <reified T : ViewGroup.LayoutParams> T.width(size: ViewTypedValue.DP): T {
-    return width(ItemSize.Dp(size.value))
+inline fun <reified T : ViewGroup.LayoutParams> T.width(size: DP): T {
+    return width(ItemSize.Absolute(size))
 }
 
-inline fun <reified T : ViewGroup.LayoutParams> T.height(size: ViewTypedValue.DP): T {
-    return height(ItemSize.Dp(size.value))
+inline fun <reified T : ViewGroup.LayoutParams> T.height(size: DP): T {
+    return height(ItemSize.Absolute(size))
 }
 
-inline fun <reified T : ViewGroup.LayoutParams> T.width(size: ViewTypedValue.PX): T {
-    return width(ItemSize.Px(size.value))
+inline fun <reified T : ViewGroup.LayoutParams> T.widthMatch(): T {
+    return width(ItemSize.Match)
 }
 
-inline fun <reified T : ViewGroup.LayoutParams> T.height(size: ViewTypedValue.PX): T {
-    return height(ItemSize.Px(size.value))
+inline fun <reified T : ViewGroup.LayoutParams> T.heightMatch(): T {
+    return height(ItemSize.Match)
+}
+
+inline fun <reified T : ViewGroup.LayoutParams> T.widthWrap(): T {
+    return width(ItemSize.Wrap)
+}
+
+inline fun <reified T : ViewGroup.LayoutParams> T.heightWrap(): T {
+    return height(ItemSize.Wrap)
+}
+
+inline fun <reified T : ViewGroup.LayoutParams> T.widthEmpty(): T {
+    return width(ItemSize.Absolute(0.PX))
+}
+
+inline fun <reified T : ViewGroup.LayoutParams> T.heightEmpty(): T {
+    return height(ItemSize.Absolute(0.PX))
 }
 
 class ViewLayoutParams : ViewGroup.LayoutParams(
