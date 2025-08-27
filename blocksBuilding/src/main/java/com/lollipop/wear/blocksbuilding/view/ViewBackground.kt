@@ -9,26 +9,7 @@ import android.graphics.Rect
 import android.graphics.Shader
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
-import android.view.View
-import androidx.core.content.ContextCompat
 
-fun View.background(color: Int, shape: ViewShape) {
-    background = ViewBackground.ByColor(color, shape)
-}
-
-fun View.background(shape: ViewShape, shader: Shader) {
-    background = ViewBackground.ByShader(shader, shape)
-}
-
-fun View.background(shape: ViewShape, vararg drawable: Drawable) {
-    background = DrawableWrapper(shape, *drawable)
-}
-
-fun View.background(shape: ViewShape, resId: Int) {
-    ContextCompat.getDrawable(context, resId)?.let {
-        background = DrawableWrapper(shape, it)
-    }
-}
 
 sealed class ViewBackground(val shape: ViewShape) : Drawable() {
 

@@ -1,15 +1,24 @@
 package com.lollipop.wear.maze
 
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
+import android.widget.TextView
 import com.lollipop.play.core.data.DataManager
 import com.lollipop.play.core.data.MazeHistory
+import com.lollipop.wear.blocksbuilding.dsl.ViewLayoutParams
 import com.lollipop.wear.blocksbuilding.dsl.blockStateOf
+import com.lollipop.wear.blocksbuilding.dsl.widthMatch
+import com.lollipop.wear.blocksbuilding.item.DP
+import com.lollipop.wear.blocksbuilding.item.ViewTypedValue
+import com.lollipop.wear.blocksbuilding.view.Box
+import com.lollipop.wear.blocksbuilding.view.ItemView
+import com.lollipop.wear.blocksbuilding.view.RoundRectShape
 import com.lollipop.wear.maze.base.MazeActivityHelper
 import com.lollipop.wear.maze.base.WearBlocksActivity
+import com.lollipop.wear.maze.blocks.Footer
 import com.lollipop.wear.maze.blocks.MazeOverviewBlockState
-import com.lollipop.wear.maze.blocks.mazeOverview
-import com.lollipop.wear.maze.blocks.titleHeader
+import com.lollipop.wear.maze.blocks.TitleHeader
 
 
 //class MazeInfoActivity : WearComponentActivity() {
@@ -260,15 +269,21 @@ class MazeInfoActivity : WearBlocksActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        initData()
         content {
-            item {
-                titleHeader(title = mazeNameState)
+            TitleHeader(title = mazeNameState)
+            ItemView {
+                Box(
+                    layoutParams = ViewLayoutParams().widthMatch()
+                ) {
+                    background(Color.RED, RoundRectShape(ViewTypedValue.Absolute(8.DP)))
+                    TextView(context).apply {
+                        text = "test"
+                    }
+                }
             }
-            item {
-                mazeOverview(state = mazeOverviewState)
-            }
+            Footer()
         }
+        initData()
     }
 
     private fun initData() {

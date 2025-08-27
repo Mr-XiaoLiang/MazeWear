@@ -5,15 +5,15 @@
     android:layout_height="wrap_content">
 
     <com.lollipop.play.core.view.MazeOverviewView
+        android:id="@+id/overviewView"
         android:layout_width="0px"
         android:layout_height="0px"
-        android:id="@+id/overviewView"
         android:layout_marginVertical="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_percent="0.8F" />
+        app:layout_constraintWidth_percent="0.8" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

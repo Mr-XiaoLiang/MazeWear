@@ -1,8 +1,11 @@
 package com.lollipop.wear.blocksbuilding.view
 
 import android.content.Context
+import android.graphics.Shader
+import android.graphics.drawable.Drawable
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.lollipop.wear.blocksbuilding.BBDsl
 import com.lollipop.wear.blocksbuilding.data.DataObserver
@@ -60,6 +63,24 @@ interface ItemViewScope<V : View> {
         right: MetricsValue,
         bottom: MetricsValue
     )
+
+    fun background(color: Int, shape: ViewShape) {
+        content.background = ViewBackground.ByColor(color, shape)
+    }
+
+    fun background(shape: ViewShape, shader: Shader) {
+        content.background = ViewBackground.ByShader(shader, shape)
+    }
+
+    fun background(shape: ViewShape, vararg drawable: Drawable) {
+        content.background = DrawableWrapper(shape, *drawable)
+    }
+
+    fun background(shape: ViewShape, resId: Int) {
+        ContextCompat.getDrawable(context, resId)?.let {
+            content.background = DrawableWrapper(shape, it)
+        }
+    }
 
 }
 

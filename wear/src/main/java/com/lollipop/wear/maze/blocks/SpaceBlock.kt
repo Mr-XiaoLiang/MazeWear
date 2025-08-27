@@ -1,27 +1,18 @@
 package com.lollipop.wear.maze.blocks
 
-import android.view.View
-import android.widget.Space
-import com.lollipop.wear.blocksbuilding.BlocksOwner
-import com.lollipop.wear.blocksbuilding.dsl.layoutParams
-import com.lollipop.wear.blocksbuilding.item.ItemSize
+import com.lollipop.wear.blocksbuilding.BuilderScope
+import com.lollipop.wear.blocksbuilding.dsl.ViewLayoutParams
+import com.lollipop.wear.blocksbuilding.dsl.height
+import com.lollipop.wear.blocksbuilding.dsl.widthMatch
+import com.lollipop.wear.blocksbuilding.item.DP
+import com.lollipop.wear.blocksbuilding.view.ItemView
+import com.lollipop.wear.blocksbuilding.view.Space
 
-class FooterBlockHolder(
-    private val blocksOwner: BlocksOwner,
-    private val width: ItemSize,
-    private val height: ItemSize
-) {
 
-    private val spaceView = Space(blocksOwner.context)
-
-    val view: View = spaceView
-
-    init {
-        spaceView.layoutParams(width, height)
+fun BuilderScope.Space(spaceDp: DP) {
+    ItemView {
+        Space(
+            layoutParams = ViewLayoutParams().widthMatch().height(spaceDp)
+        ) { }
     }
-
-}
-
-fun BlocksOwner.space(width: ItemSize = ItemSize.Px(1), height: ItemSize = ItemSize.Px(1)): View {
-    return FooterBlockHolder(this, width, height).view
 }

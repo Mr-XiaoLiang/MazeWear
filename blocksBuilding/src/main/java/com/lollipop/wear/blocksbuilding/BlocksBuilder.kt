@@ -7,14 +7,14 @@ import com.lollipop.wear.blocksbuilding.impl.RecyclerBuilderScopeImpl
 import com.lollipop.wear.blocksbuilding.impl.StaticBuilderScopeImpl
 
 fun BlocksOwner.withBlocks(recyclerView: RecyclerView, content: BuilderScope.() -> Unit) {
-    BBDSL.bind(context.resources)
+    BBDSL.init(context)
     val scopeImpl = RecyclerBuilderScopeImpl(this)
-    scopeImpl.content()
+    content(scopeImpl)
     recyclerView.adapter = scopeImpl.build()
 }
 
 fun BlocksOwner.withBlocks(viewGroup: ViewGroup, content: BuilderScope.() -> Unit) {
-    BBDSL.bind(context.resources)
+    BBDSL.init(context)
     val scopeImpl = StaticBuilderScopeImpl(this)
     scopeImpl.content()
     scopeImpl.build(viewGroup)
