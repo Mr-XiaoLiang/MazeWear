@@ -1,7 +1,7 @@
 package com.lollipop.wear.blocksbuilding
 
 import android.view.View
-import com.lollipop.wear.blocksbuilding.data.DataObserver
+import com.lollipop.wear.blocksbuilding.data.DataProvider
 
 interface IBlock {
 
@@ -9,7 +9,7 @@ interface IBlock {
 
     fun onUpdate(updateCallback: (View) -> Unit)
 
-    fun <T> remember(block: () -> DataObserver<T>): DataObserver<T> {
+    fun <T> remember(block: () -> DataProvider<T>): DataProvider<T> {
         val observer = block()
         observer.register {
             notifyUpdate()

@@ -64,10 +64,11 @@ inline fun <reified T : ViewGroup.LayoutParams> T.heightEmpty(): T {
     return height(ItemSize.Absolute(0.PX))
 }
 
-class ViewLayoutParams : ViewGroup.LayoutParams(
-    WRAP_CONTENT,
-    WRAP_CONTENT
-)
+fun ViewLayoutParams(width: ItemSize = ItemSize.Wrap, height: ItemSize = ItemSize.Wrap) =
+    ViewGroup.LayoutParams(
+        width.update(ViewGroup.LayoutParams.WRAP_CONTENT),
+        height.update(ViewGroup.LayoutParams.WRAP_CONTENT)
+    )
 
 inline fun <reified L : ViewGroup.LayoutParams> ViewGroup.LayoutParams.convert(create: (ViewGroup.LayoutParams) -> L): L {
     if (this is L) {

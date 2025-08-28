@@ -1,6 +1,8 @@
 package com.lollipop.wear.maze.base
 
 import android.content.Context
+import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.NestedScrollView
@@ -13,6 +15,9 @@ import com.lollipop.wear.blocksbuilding.BuilderScope
 import com.lollipop.wear.blocksbuilding.dsl.layoutParams
 import com.lollipop.wear.blocksbuilding.item.ItemSize
 import com.lollipop.wear.blocksbuilding.withBlocks
+import org.json.JSONArray
+import org.json.JSONObject
+import java.util.LinkedList
 
 abstract class WearBlocksActivity() : AppCompatActivity(), BlocksOwner {
 
@@ -90,6 +95,66 @@ abstract class WearBlocksActivity() : AppCompatActivity(), BlocksOwner {
                 )
             }
         )
+    }
+
+    protected fun printViewTree(): JSONArray {
+        val view = findViewById<View>(android.R.id.content)
+        val rootArray = JSONArray()
+        val pendingList = LinkedList<ViewTreeInfo>()
+        pendingList.add(ViewTreeInfo(rootArray, view))
+        while (pendingList.isNotEmpty()) {
+            val info = pendingList.removeFirst()
+            info.print()
+            pendingList.addAll(info.getChildren())
+        }
+        return rootArray
+    }
+
+    private class ViewTreeInfo(private val outArray: JSONArray, private val view: View) {
+
+        private val childrenArray = JSONArray()
+        private val infoObject = JSONObject().apply {
+            put("children", childrenArray)
+        }
+
+        fun print() {
+            outArray.put(getViewInfo())
+        }
+
+        fun getChildren(): List<ViewTreeInfo> {
+            val result = ArrayList<ViewTreeInfo>()
+            if (view is ViewGroup) {
+                for (i in 0 until view.childCount) {
+                    val child = view.getChildAt(i)
+                    result.add(ViewTreeInfo(childrenArray, child))
+                }
+            }
+            return result
+        }
+
+        private fun getViewInfo(): JSONObject {
+            return infoObject.apply {
+                val resId = view.id
+                put(
+                    "id", if (resId == View.NO_ID) {
+                        "NO_ID"
+                    } else {
+                        view.resources.getResourceName(resId)
+                    }
+                )
+                put("class", view.javaClass.name)
+                put("text", view.contentDescription)
+                put("size", JSONObject().apply {
+                    put("width", view.width)
+                    put("height", view.height)
+                })
+                put("location", JSONObject().apply {
+                    put("x", view.left)
+                    put("y", view.top)
+                })
+            }
+        }
+
     }
 
     protected class SwipeRefresh(

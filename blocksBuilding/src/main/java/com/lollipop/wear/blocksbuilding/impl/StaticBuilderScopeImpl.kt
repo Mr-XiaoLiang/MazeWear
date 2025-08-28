@@ -6,7 +6,7 @@ import com.lollipop.wear.blocksbuilding.BlockManager
 import com.lollipop.wear.blocksbuilding.BlocksOwner
 import com.lollipop.wear.blocksbuilding.BuilderScope
 import com.lollipop.wear.blocksbuilding.IBlock
-import com.lollipop.wear.blocksbuilding.dsl.registerLog
+import com.lollipop.wear.blocksbuilding.dsl.bbLog
 
 class StaticBuilderScopeImpl(override val blocksOwner: BlocksOwner) : BuilderScope {
 
@@ -201,7 +201,7 @@ class StaticBuilderScopeImpl(override val blocksOwner: BlocksOwner) : BuilderSco
 
         val viewList = ArrayList<View>()
 
-        private val log = registerLog()
+        private val log = bbLog()
 
         override fun build(viewGroup: ViewGroup) {
             log("build: $itemCount")
@@ -220,7 +220,7 @@ class StaticBuilderScopeImpl(override val blocksOwner: BlocksOwner) : BuilderSco
         private val update: (View, T) -> Unit
     ) : BasicManager() {
 
-        private val log = registerLog()
+        private val log = bbLog()
 
         override val itemCount: Int
             get() {

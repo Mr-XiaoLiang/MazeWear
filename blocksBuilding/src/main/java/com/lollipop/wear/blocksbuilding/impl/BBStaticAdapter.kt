@@ -2,11 +2,11 @@ package com.lollipop.wear.blocksbuilding.impl
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.lollipop.wear.blocksbuilding.dsl.registerLog
+import com.lollipop.wear.blocksbuilding.dsl.bbLog
 
 class BBStaticAdapter() : RecyclerView.Adapter<BBStaticHolder>() {
 
-    private val log = registerLog()
+    private val log = bbLog()
 
     private val contentList = ArrayList<RecycleBlock.Holder>()
 

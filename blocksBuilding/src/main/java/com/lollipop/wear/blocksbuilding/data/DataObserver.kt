@@ -1,9 +1,29 @@
 package com.lollipop.wear.blocksbuilding.data
 
-class DataObserver<T>(v: T) : DataProvider<T> {
+import kotlin.reflect.KProperty
 
-    private val updateCallbacks = ArrayList<UpdateCallback<T>>()
-    private val dataCallbacks = ArrayList<DataCallback<T>>()
+fun <T> staticData(v: T) = StaticDataObserver(v)
+
+fun <T> mutableData(v: T) = MutableDataObserver(v)
+
+inline operator fun <reified T> DataProvider<T>.getValue(
+    thisObj: Any?,
+    property: KProperty<*>
+): T {
+    return value
+}
+
+inline operator fun <reified T> MutableDataObserver<T>.setValue(
+    thisObj: Any?,
+    property: KProperty<*>,
+    newValue: T
+) {
+    value = newValue
+}
+
+class StaticDataObserver<T>(override val value: T) : BasicDataProvider<T>()
+
+class MutableDataObserver<T>(v: T) : BasicDataProvider<T>() {
 
     var modeCount = 0
         private set
@@ -14,39 +34,5 @@ class DataObserver<T>(v: T) : DataProvider<T> {
             field = value
             notifyUpdate()
         }
-
-    private fun notifyUpdate() {
-        updateCallbacks.forEach {
-            it.onUpdate(this)
-        }
-        val v = value
-        dataCallbacks.forEach {
-            it.onUpdate(v)
-        }
-    }
-
-    fun register(callback: UpdateCallback<T>) {
-        updateCallbacks.add(callback)
-    }
-
-    fun remember(callback: DataCallback<T>) {
-        dataCallbacks.add(callback)
-    }
-
-    fun unregister(callback: UpdateCallback<T>) {
-        updateCallbacks.remove(callback)
-    }
-
-    fun unregister(callback: DataCallback<T>) {
-        dataCallbacks.remove(callback)
-    }
-
-    fun interface UpdateCallback<T> {
-        fun onUpdate(value: DataObserver<T>)
-    }
-
-    fun interface DataCallback<T> {
-        fun onUpdate(value: T)
-    }
 
 }

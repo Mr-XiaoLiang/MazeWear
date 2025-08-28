@@ -5,7 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.lollipop.wear.blocksbuilding.BlockManager
-import com.lollipop.wear.blocksbuilding.dsl.registerLog
+import com.lollipop.wear.blocksbuilding.dsl.bbLog
 
 class BBRecyclerAdapter<T>(
     private val items: List<T>,
@@ -14,7 +14,7 @@ class BBRecyclerAdapter<T>(
     private val update: (View, T) -> Unit
 ) : RecyclerView.Adapter<BBRecyclerViewHolder>(), BlockManager {
 
-    private val log = registerLog()
+    private val log = bbLog()
 
     override fun onCreateViewHolder(
         parent: ViewGroup,

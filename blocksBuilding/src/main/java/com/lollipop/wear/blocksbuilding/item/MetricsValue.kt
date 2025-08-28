@@ -32,6 +32,10 @@ interface MetricsValue {
 
     val px: Int
 
+    fun toTypedValue(): ViewTypedValue {
+        return ViewTypedValue.Absolute(this)
+    }
+
 }
 
 class DP(val value: Float) : MetricsValue {

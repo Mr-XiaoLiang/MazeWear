@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.lollipop.wear.blocksbuilding.BBDsl
-import com.lollipop.wear.blocksbuilding.data.DataObserver
+import com.lollipop.wear.blocksbuilding.data.DataProvider
 import com.lollipop.wear.blocksbuilding.dsl.convert
 import com.lollipop.wear.blocksbuilding.item.MetricsValue
 import com.lollipop.wear.blocksbuilding.item.PX
@@ -41,7 +41,7 @@ interface ItemViewScope<V : View> {
 
     fun onUpdate(updateCallback: (V) -> Unit)
 
-    fun <T> remember(block: () -> DataObserver<T>): DataObserver<T> {
+    fun <T> remember(block: () -> DataProvider<T>): DataProvider<T> {
         val observer = block()
         observer.register {
             notifyUpdate()
@@ -81,6 +81,12 @@ interface ItemViewScope<V : View> {
             content.background = DrawableWrapper(shape, it)
         }
     }
+
+    fun background(drawable: Drawable) {
+        content.background = drawable
+    }
+
+
 
 }
 
