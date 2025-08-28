@@ -2,8 +2,11 @@ package com.lollipop.wear.blocksbuilding.impl
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.lollipop.wear.blocksbuilding.dsl.registerLog
 
 class BBStaticAdapter() : RecyclerView.Adapter<BBStaticHolder>() {
+
+    private val log = registerLog()
 
     private val contentList = ArrayList<RecycleBlock.Holder>()
 
@@ -24,10 +27,12 @@ class BBStaticAdapter() : RecyclerView.Adapter<BBStaticHolder>() {
         parent: ViewGroup,
         viewType: Int
     ): BBStaticHolder {
+        log("onCreateViewHolder: ${viewType + 1} / ${contentList.size}")
         return BBStaticHolder(contentList[viewType])
     }
 
     override fun onBindViewHolder(holder: BBStaticHolder, position: Int) {
+        log("onBindViewHolder: ${position + 1} / ${contentList.size}")
         holder.bind(this, position)
     }
 

@@ -7,8 +7,10 @@ import com.lollipop.wear.blocksbuilding.data.DataObserver
 import com.lollipop.wear.blocksbuilding.dsl.ViewLayoutParams
 import com.lollipop.wear.blocksbuilding.dsl.heightEmpty
 import com.lollipop.wear.blocksbuilding.dsl.heightMatch
+import com.lollipop.wear.blocksbuilding.dsl.layoutParams
 import com.lollipop.wear.blocksbuilding.dsl.widthMatch
 import com.lollipop.wear.blocksbuilding.item.DP
+import com.lollipop.wear.blocksbuilding.item.ItemSize
 import com.lollipop.wear.blocksbuilding.item.SP
 import com.lollipop.wear.blocksbuilding.item.ViewGravity
 import com.lollipop.wear.blocksbuilding.view.Constraint
@@ -18,6 +20,7 @@ import com.lollipop.wear.blocksbuilding.view.TextStyle
 
 fun BuilderScope.TitleHeader(title: DataObserver<String>) {
     ItemView {
+        content.layoutParams(ItemSize.Match, ItemSize.Wrap)
         Constraint(
             layoutParams = ViewLayoutParams().widthMatch().heightMatch()
         ) {

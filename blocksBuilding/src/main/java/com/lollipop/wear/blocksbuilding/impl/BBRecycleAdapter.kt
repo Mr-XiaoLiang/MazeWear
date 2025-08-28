@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.lollipop.wear.blocksbuilding.BlockManager
+import com.lollipop.wear.blocksbuilding.dsl.registerLog
 
 class BBRecyclerAdapter<T>(
     private val items: List<T>,
@@ -12,10 +13,14 @@ class BBRecyclerAdapter<T>(
     private val createItem: (Int) -> View,
     private val update: (View, T) -> Unit
 ) : RecyclerView.Adapter<BBRecyclerViewHolder>(), BlockManager {
+
+    private val log = registerLog()
+
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
     ): BBRecyclerViewHolder {
+        log("onCreateViewHolder: $viewType")
         return BBRecyclerViewHolder(createItem(viewType))
     }
 
@@ -23,6 +28,7 @@ class BBRecyclerAdapter<T>(
         holder: BBRecyclerViewHolder,
         position: Int
     ) {
+        log("onBindViewHolder: $position")
         val item = items[position]
         update(holder.itemView, item)
     }
@@ -67,7 +73,6 @@ class BBRecyclerAdapter<T>(
     override fun notifyAllChanged() {
         notifyDataSetChanged()
     }
-
 
 }
 

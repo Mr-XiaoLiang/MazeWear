@@ -65,7 +65,7 @@ class MLog(
     }
 
     private fun logPrint(level: Level, message: String) {
-        printer.log(level, "LollipopMaze", message)
+        printer.log(level, "Lollipop", message)
     }
 
     enum class Level {

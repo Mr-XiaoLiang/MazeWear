@@ -1,7 +1,6 @@
 package com.lollipop.wear.maze.base
 
 import android.content.Context
-import android.graphics.Color
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.NestedScrollView
@@ -26,7 +25,7 @@ abstract class WearBlocksActivity() : AppCompatActivity(), BlocksOwner {
             RecyclerView(this).also { recyclerView ->
                 recyclerView.layoutParams(ItemSize.Match, ItemSize.Match)
                 recyclerView.layoutManager = LinearLayoutManager(
-                    this, LinearLayoutManager.VERTICAL, false
+                    this, RecyclerView.VERTICAL, false
                 )
                 withBlocks(recyclerView = recyclerView, content = content)
             }
