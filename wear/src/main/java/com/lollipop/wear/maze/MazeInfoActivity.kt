@@ -15,6 +15,7 @@ import com.lollipop.wear.maze.blocks.MazeOverview
 import com.lollipop.wear.maze.blocks.MazeOverviewData
 import com.lollipop.wear.maze.blocks.ParameterItem
 import com.lollipop.wear.maze.blocks.ScaffoldBlock
+import com.lollipop.wear.maze.blocks.wearContent
 
 
 class MazeInfoActivity : AppCompatActivity() {
@@ -37,11 +38,7 @@ class MazeInfoActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        content(
-            rooView = {
-                it.setBackgroundColor(Color.BLACK)
-            }
-        ) {
+        wearContent{
             ScaffoldBlock(title = mazeNameState) {
                 ParameterItem(staticData(R.drawable.baseline_resize_24), mazeSizeState)
                 ParameterItem(staticData(R.drawable.baseline_footprint_24), mazeStepsState)

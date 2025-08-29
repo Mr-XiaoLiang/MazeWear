@@ -13,7 +13,7 @@ import com.lollipop.wear.blocksbuilding.BuilderScope
 import com.lollipop.wear.blocksbuilding.item.ItemSize
 import com.lollipop.wear.blocksbuilding.withBlocks
 
-private class ActivityBlocksOwner(
+class ActivityBlocksOwner(
     val activity: ComponentActivity
 ) : BlocksOwner {
     override val context: Context = activity
