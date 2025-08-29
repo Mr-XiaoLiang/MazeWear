@@ -55,14 +55,14 @@ class MazeInfoActivity : AppCompatActivity() {
         initData()
     }
 
-//    private fun onDeleteTimeEnd() {
-//        DataManager.delete(mazeCache)
-//        onBackPressedDispatcher.onBackPressed()
-//    }
-//
-//    private fun onOpenClick() {
-//        PlayActivity.resumeMaze(this, mazeCache)
-//    }
+    private fun onDeleteTimeEnd() {
+        DataManager.delete(mazeCache)
+        onBackPressedDispatcher.onBackPressed()
+    }
+
+    private fun onOpenClick() {
+        PlayActivity.resumeMaze(this, mazeCache)
+    }
 
     private fun initData() {
         val cache = MazeActivityHelper.findFromIntent(intent)
