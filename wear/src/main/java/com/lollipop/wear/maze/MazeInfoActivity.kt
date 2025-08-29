@@ -3,28 +3,21 @@ package com.lollipop.wear.maze
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.lollipop.play.core.data.DataManager
 import com.lollipop.play.core.data.MazeHistory
 import com.lollipop.play.core.helper.registerLog
 import com.lollipop.wear.blocksbuilding.data.mutableData
-import com.lollipop.wear.blocksbuilding.dsl.ViewLayoutParams
-import com.lollipop.wear.blocksbuilding.dsl.heightWrap
-import com.lollipop.wear.blocksbuilding.dsl.layoutParams
-import com.lollipop.wear.blocksbuilding.dsl.widthMatch
-import com.lollipop.wear.blocksbuilding.item.DP
-import com.lollipop.wear.blocksbuilding.item.ItemSize
-import com.lollipop.wear.blocksbuilding.view.Box
-import com.lollipop.wear.blocksbuilding.view.ItemView
-import com.lollipop.wear.blocksbuilding.view.RoundRectShape
-import com.lollipop.wear.blocksbuilding.view.Text
+import com.lollipop.wear.blocksbuilding.data.staticData
+import com.lollipop.wear.blocksbuilding.dsl.content
 import com.lollipop.wear.maze.base.MazeActivityHelper
-import com.lollipop.wear.maze.base.WearBlocksActivity
-import com.lollipop.wear.maze.blocks.Footer
-import com.lollipop.wear.maze.blocks.MazeOverviewBlockState
-import com.lollipop.wear.maze.blocks.TitleHeader
+import com.lollipop.wear.maze.blocks.MazeOverview
+import com.lollipop.wear.maze.blocks.MazeOverviewData
+import com.lollipop.wear.maze.blocks.ParameterItem
+import com.lollipop.wear.maze.blocks.ScaffoldBlock
 
 
-class MazeInfoActivity : WearBlocksActivity() {
+class MazeInfoActivity : AppCompatActivity() {
 
     companion object {
         fun start(context: Context, mazeCache: String) {
@@ -38,31 +31,26 @@ class MazeInfoActivity : WearBlocksActivity() {
     private val mazeSizeState = mutableData("")
     private val mazeTimeState = mutableData("")
     private val mazeStepsState = mutableData("")
-    private val mazeOverviewState = MazeOverviewBlockState()
+    private val mazeOverviewState = mutableData(MazeOverviewData.EMPTY)
 
     private var mazeCache: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        content {
-            TitleHeader(title = mazeNameState)
-            ItemView {
-                content.layoutParams(ItemSize.Match, ItemSize.Wrap)
-                Box(
-                    layoutParams = ViewLayoutParams().widthMatch()
-                ) {
-                    padding(horizontal = 12.DP, vertical = 8.DP)
-                    Text(
-                        layoutParams = ViewLayoutParams().widthMatch().heightWrap()
-                    ) {
-                        text = "Maze Overview"
-                        color(Color.WHITE)
-                        background(Color.RED, RoundRectShape(8.DP.toTypedValue()))
-                        padding(horizontal = 8.DP, vertical = 4.DP)
-                    }
-                }
+        content(
+            rooView = {
+                it.setBackgroundColor(Color.BLACK)
             }
-            Footer()
+        ) {
+            ScaffoldBlock(title = mazeNameState) {
+                ParameterItem(staticData(R.drawable.baseline_resize_24), mazeSizeState)
+                ParameterItem(staticData(R.drawable.baseline_footprint_24), mazeStepsState)
+                ParameterItem(
+                    staticData(R.drawable.baseline_nest_clock_farsight_analog_24),
+                    mazeTimeState
+                )
+                MazeOverview(mazeOverviewState)
+            }
         }
         initData()
     }
@@ -89,7 +77,7 @@ class MazeInfoActivity : WearBlocksActivity() {
         mazeSizeState.value = mazeInfo.level
         mazeTimeState.value = mazeInfo.timeDisplay
         mazeStepsState.value = mazeInfo.pathLength.toString()
-        mazeOverviewState.update(mazeInfo.maze, mazeInfo.path)
+        mazeOverviewState.value = MazeOverviewData(mazeInfo.maze, mazeInfo.path)
     }
 
     override fun onResume() {

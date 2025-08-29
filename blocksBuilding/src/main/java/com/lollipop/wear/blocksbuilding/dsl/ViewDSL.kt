@@ -4,6 +4,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.lollipop.wear.blocksbuilding.item.DP
 import com.lollipop.wear.blocksbuilding.item.ItemSize
+import com.lollipop.wear.blocksbuilding.item.MetricsValue
 import com.lollipop.wear.blocksbuilding.item.PX
 
 fun View.layoutParams(width: ItemSize = ItemSize.None, height: ItemSize = ItemSize.None) {
@@ -69,6 +70,11 @@ fun ViewLayoutParams(width: ItemSize = ItemSize.Wrap, height: ItemSize = ItemSiz
         width.update(ViewGroup.LayoutParams.WRAP_CONTENT),
         height.update(ViewGroup.LayoutParams.WRAP_CONTENT)
     )
+
+fun ViewLayoutParams(width: MetricsValue, height: MetricsValue) =
+    ViewLayoutParams(ItemSize.Absolute(width), ItemSize.Absolute(height))
+
+fun ViewLayoutParams(size: MetricsValue) = ViewLayoutParams(size, size)
 
 inline fun <reified L : ViewGroup.LayoutParams> ViewGroup.LayoutParams.convert(create: (ViewGroup.LayoutParams) -> L): L {
     if (this is L) {

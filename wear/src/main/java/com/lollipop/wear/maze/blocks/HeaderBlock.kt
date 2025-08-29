@@ -45,7 +45,7 @@ fun BuilderScope.TitleHeader(title: DataProvider<String>) {
                 ) {
                     fontStyle(TextStyle.Bold)
                     color(Color.WHITE)
-                    fontSize(11.SP)
+                     fontSize(14.SP)
                     TimeDelegate.auto(lifecycleOwner) { time ->
                         text = time
                     }

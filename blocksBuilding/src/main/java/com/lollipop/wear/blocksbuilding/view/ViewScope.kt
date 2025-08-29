@@ -87,7 +87,6 @@ interface ItemViewScope<V : View> {
     }
 
 
-
 }
 
 @BBDsl
@@ -107,17 +106,17 @@ interface MarginGroupScope {
     }
 
     fun ViewGroup.LayoutParams.margin(
-        horizontal: MetricsValue,
-        vertical: MetricsValue,
+        horizontal: MetricsValue = PX(0),
+        vertical: MetricsValue = PX(0),
     ): ViewGroup.MarginLayoutParams {
         return margin(horizontal, vertical, horizontal, vertical)
     }
 
     fun ViewGroup.LayoutParams.margin(
-        left: MetricsValue,
-        top: MetricsValue,
-        right: MetricsValue,
-        bottom: MetricsValue
+        left: MetricsValue = PX(0),
+        top: MetricsValue = PX(0),
+        right: MetricsValue = PX(0),
+        bottom: MetricsValue = PX(0)
     ): ViewGroup.MarginLayoutParams {
         return convert { ViewGroup.MarginLayoutParams(it) }.also {
             it.leftMargin = left.px

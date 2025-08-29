@@ -1,74 +1,63 @@
 package com.lollipop.wear.maze.blocks
 
-import android.view.LayoutInflater
-import android.view.View
 import com.lollipop.maze.MazeMap
 import com.lollipop.maze.data.MMap
 import com.lollipop.maze.data.MPath
 import com.lollipop.maze.data.MPoint
-import com.lollipop.wear.blocksbuilding.BlocksOwner
-import com.lollipop.wear.blocksbuilding.data.mutableData
+import com.lollipop.play.core.view.MazeOverviewView
+import com.lollipop.wear.blocksbuilding.BuilderScope
+import com.lollipop.wear.blocksbuilding.data.DataProvider
+import com.lollipop.wear.blocksbuilding.dsl.ViewLayoutParams
 import com.lollipop.wear.blocksbuilding.dsl.layoutParams
+import com.lollipop.wear.blocksbuilding.item.DP
 import com.lollipop.wear.blocksbuilding.item.ItemSize
-import com.lollipop.wear.maze.databinding.ItemBlocksMazeOverviewBinding
-import com.lollipop.wear.maze.theme.MazeMapTheme
+import com.lollipop.wear.blocksbuilding.item.PX
+import com.lollipop.wear.blocksbuilding.view.Constraint
+import com.lollipop.wear.blocksbuilding.view.ItemView
+import com.lollipop.wear.blocksbuilding.view.RoundRectShape
+import com.lollipop.wear.blocksbuilding.view.ViewBackground
 
+fun BuilderScope.MazeOverview(state: DataProvider<MazeOverviewData>) {
 
-class MazeOverviewBlock(
-    private val blocksOwner: BlocksOwner,
-    private val state: MazeOverviewBlockState
-) {
+    // background(color = Color.Black, shape = RoundedCornerShape(8.dp))
+    //                        .border(width = 1.dp, color = Color.Gray, shape = RoundedCornerShape(8.dp))
 
-    private val binding = ItemBlocksMazeOverviewBinding.inflate(
-        LayoutInflater.from(blocksOwner.context)
-    )
-
-    val view: View = binding.root
-
-    init {
-        view.layoutParams(ItemSize.Match, ItemSize.Wrap)
-        state.value.register { d ->
-            binding.overviewView.setMap(d.value.map, d.value.path)
+    ItemView {
+        content.layoutParams(ItemSize.Match, ItemSize.Wrap)
+        Constraint(
+            layoutParams = ViewLayoutParams(ItemSize.Match, ItemSize.Wrap)
+        ) {
+            add(
+                MazeOverviewView(context).apply {
+                    background = ViewBackground.ByColor(
+                        shape = RoundRectShape(8.DP.toTypedValue()),
+                        color = 0x30FFFFFF.toInt()
+                    )
+                    state.remember {
+                        setMap(it.map, it.path)
+                    }
+                },
+                layoutParams = ViewLayoutParams(0.PX)
+                    .ratio(1, 1)
+                    .margin(vertical = 4.DP, horizontal = 0.PX)
+                    .width(0.8F)
+                    .control().startToParent().endToParent().topToParent().bottomToParent()
+                    .complete()
+            )
         }
-        binding.overviewView.setMap(state.map, state.path)
-        MazeMapTheme.updateMaze(binding.overviewView)
     }
-
 }
 
-class MazeOverviewBlockState() {
+class MazeOverviewData(
+    val map: MazeMap,
+    val path: MPath
+) {
 
     companion object {
         val EMPTY = MazeOverviewData(
             MazeMap(MPoint(0, 0), MPoint(0, 0), MMap(0, 0)),
             MPath()
         )
-
     }
 
-    val value = mutableData(EMPTY)
-
-    val map: MazeMap
-        get() {
-            return value.value.map
-        }
-
-    val path: MPath
-        get() {
-            return value.value.path
-        }
-
-    fun update(map: MazeMap, path: MPath) {
-        value.value = MazeOverviewData(map, path)
-    }
-
-}
-
-class MazeOverviewData(
-    val map: MazeMap,
-    val path: MPath
-)
-
-fun BlocksOwner.mazeOverview(state: MazeOverviewBlockState): View {
-    return MazeOverviewBlock(this, state).view
 }
