@@ -1,7 +1,6 @@
 package com.lollipop.wear.maze
 
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.lollipop.play.core.data.DataManager
@@ -9,11 +8,13 @@ import com.lollipop.play.core.data.MazeHistory
 import com.lollipop.play.core.helper.registerLog
 import com.lollipop.wear.blocksbuilding.data.mutableData
 import com.lollipop.wear.blocksbuilding.data.staticData
-import com.lollipop.wear.blocksbuilding.dsl.content
 import com.lollipop.wear.maze.base.MazeActivityHelper
+import com.lollipop.wear.maze.blocks.Button
+import com.lollipop.wear.maze.blocks.DelayButton
 import com.lollipop.wear.maze.blocks.MazeOverview
 import com.lollipop.wear.maze.blocks.MazeOverviewData
 import com.lollipop.wear.maze.blocks.ParameterItem
+import com.lollipop.wear.maze.blocks.ProgressButtonStyle
 import com.lollipop.wear.maze.blocks.ScaffoldBlock
 import com.lollipop.wear.maze.blocks.wearContent
 
@@ -28,6 +29,7 @@ class MazeInfoActivity : AppCompatActivity() {
 
     private val log = registerLog()
 
+
     private val mazeNameState = mutableData("")
     private val mazeSizeState = mutableData("")
     private val mazeTimeState = mutableData("")
@@ -38,7 +40,7 @@ class MazeInfoActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        wearContent{
+        wearContent {
             ScaffoldBlock(title = mazeNameState) {
                 ParameterItem(staticData(R.drawable.baseline_resize_24), mazeSizeState)
                 ParameterItem(staticData(R.drawable.baseline_footprint_24), mazeStepsState)
@@ -47,6 +49,21 @@ class MazeInfoActivity : AppCompatActivity() {
                     mazeTimeState
                 )
                 MazeOverview(mazeOverviewState)
+                Button(
+                    iconRes = staticData(R.drawable.baseling_sports_esports_24),
+                    label = staticData(getString(R.string.label_open_maze)),
+                    onClick = ::onOpenClick
+                )
+                DelayButton(
+                    style = ProgressButtonStyle(
+                        defIconRes = R.drawable.baseling_delete_24,
+                        doneIconRes = R.drawable.baseling_done_24,
+                        defLabel = getString(R.string.label_delete),
+                        pendingLabel = getString(R.string.label_delete_cancel),
+                        doneLabel = getString(R.string.label_delete_done)
+                    ),
+                    onClickDone = ::onDeleteTimeEnd
+                )
             }
         }
         initData()

@@ -1,286 +1,285 @@
 package com.lollipop.wear.maze.blocks
 
 import android.animation.ValueAnimator
-import android.view.LayoutInflater
-import android.view.View
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.widget.ProgressBar
 import androidx.core.animation.addListener
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.lollipop.play.core.helper.registerLog
-import com.lollipop.wear.blocksbuilding.BlocksOwner
+import com.lollipop.wear.blocksbuilding.BuilderScope
+import com.lollipop.wear.blocksbuilding.data.DataProvider
+import com.lollipop.wear.blocksbuilding.data.mutableData
+import com.lollipop.wear.blocksbuilding.data.staticData
+import com.lollipop.wear.blocksbuilding.dsl.ViewLayoutParams
 import com.lollipop.wear.blocksbuilding.dsl.layoutParams
+import com.lollipop.wear.blocksbuilding.item.DP
 import com.lollipop.wear.blocksbuilding.item.ItemSize
-import com.lollipop.wear.maze.databinding.ItemBlocksBottomBinding
+import com.lollipop.wear.blocksbuilding.item.SP
+import com.lollipop.wear.blocksbuilding.item.ViewGravity
+import com.lollipop.wear.blocksbuilding.view.Image
+import com.lollipop.wear.blocksbuilding.view.ItemView
+import com.lollipop.wear.blocksbuilding.view.Row
+import com.lollipop.wear.blocksbuilding.view.Text
+import com.lollipop.wear.blocksbuilding.view.TextStyle
+import com.lollipop.wear.maze.R
 
-sealed class BottomBlockHolder(
-    private val blocksOwner: BlocksOwner,
+enum class ProgressButtonState {
+    Idle,
+    Pending,
+    Done
+}
+
+class ProgressButtonController(
+    delay: Long,
+    val onTimeEnd: () -> Unit
 ) {
 
-    protected val binding =
-        ItemBlocksBottomBinding.inflate(LayoutInflater.from(blocksOwner.context))
+    companion object {
+        private const val MAX_VALUE = 1F
+        private const val MIN_VALUE = 0F
 
-    val view: View = binding.root
+        private const val MIN_THRESHOLD = 0.001F
 
-    init {
-        view.layoutParams(ItemSize.Match, ItemSize.Wrap)
-    }
-
-    protected fun setIcon(resId: Int) {
-        if (resId == 0) {
-            binding.iconView.isVisible = false
-        } else {
-            binding.iconView.isVisible = true
-            binding.iconView.setImageResource(resId)
+        private fun isEnd(value: Float): Boolean {
+            if (value <= MIN_THRESHOLD) {
+                return true
+            }
+            return false
         }
     }
 
-    protected fun setText(text: String) {
-        binding.textView.text = text
-    }
+    private val valueAnimator = ValueAnimator.ofFloat(MAX_VALUE, MIN_VALUE)
+    private val progressStateImpl = mutableData(MAX_VALUE)
+    private val runningStateImpl = mutableData(ProgressButtonState.Idle)
 
-    class IconButton(
-        blocksOwner: BlocksOwner,
-        val iconRes: Int,
-        val text: String,
-        val onClick: () -> Unit
-    ) : BottomBlockHolder(blocksOwner) {
-        init {
-            setIcon(iconRes)
-            setText(text)
-            binding.button.setOnClickListener {
-                onClick()
-            }
-            binding.progressView.isVisible = false
-        }
-    }
+    val progressState: DataProvider<Float>
+        get() = progressStateImpl
+    val runningState: DataProvider<ProgressButtonState>
+        get() = runningStateImpl
 
-    class DelayButton(
-        blocksOwner: BlocksOwner,
-        val delay: Long,
-        val defIconRes: Int,
-        val doneIconRes: Int,
-        val defText: String,
-        val pendingText: String,
-        val doneText: String,
-        val onClickDone: () -> Unit,
-    ) : BottomBlockHolder(blocksOwner) {
+    private val log = registerLog()
 
-        companion object {
-            private const val PROGRESS_MAX = 360
-        }
-
-        private val controller = ProgressButtonController(
-            delay = delay,
-            onProgressUpdate = ::onProgressUpdate,
-            onStateUpdate = ::onStateUpdate,
-            onTimeEnd = onClickDone
-        )
-
-        init {
-            binding.progressView.max = PROGRESS_MAX
-            binding.progressView.progress = 0
-            controller.reset()
-        }
-
-        private fun onProgressUpdate(progress: Float) {
-            if (binding.progressView.isVisible) {
-                binding.progressView.progress = (progress * PROGRESS_MAX).toInt()
-            }
-        }
-
-        private fun onStateUpdate(state: ProgressButtonState) {
-            binding.apply {
-                when (state) {
-                    ProgressButtonState.Idle -> {
-                        progressView.isVisible = false
-                        iconView.isVisible = true
-                        textView.text = defText
-                        setIcon(defIconRes)
-                    }
-
-                    ProgressButtonState.Pending -> {
-                        progressView.isVisible = true
-                        iconView.isVisible = false
-                        textView.text = pendingText
-                        onProgressUpdate(controller.progressState)
-                    }
-
-                    ProgressButtonState.Done -> {
-                        progressView.isVisible = false
-                        iconView.isVisible = true
-                        textView.text = doneText
-                        setIcon(doneIconRes)
-                    }
-                }
-            }
-        }
-
-    }
-
-
-    private class ProgressButtonController(
-        delay: Long,
-        val onProgressUpdate: (Float) -> Unit,
-        val onStateUpdate: (ProgressButtonState) -> Unit,
-        val onTimeEnd: () -> Unit
-    ) {
-
-        companion object {
-            private const val MAX_VALUE = 1F
-            private const val MIN_VALUE = 0F
-
-            private const val MIN_THRESHOLD = 0.001F
-
-            private fun isEnd(value: Float): Boolean {
-                if (value <= MIN_THRESHOLD) {
-                    return true
-                }
-                return false
-            }
-        }
-
-        private val valueAnimator = ValueAnimator.ofFloat(MAX_VALUE, MIN_VALUE)
-        var progressState = MAX_VALUE
-            private set
-        var runningState = ProgressButtonState.Idle
-            private set
-
-        private val log = registerLog()
-
-        private val lifecycleObserver = object : LifecycleEventObserver {
-            override fun onStateChanged(
-                source: LifecycleOwner,
-                event: Lifecycle.Event
-            ) {
-                when (event) {
-                    Lifecycle.Event.ON_DESTROY -> {
-                        reset()
-                    }
-
-                    else -> {}
-                }
-            }
-        }
-
-        init {
-            valueAnimator.duration = delay
-            valueAnimator.addUpdateListener {
-                val value = it.animatedValue
-                if (value is Float) {
-                    onProgressChanged(value)
-                }
-            }
-            valueAnimator.addListener(
-                onEnd = {
-                    onProgressEnd()
-                }
-            )
-        }
-
-        fun bind(lifecycleOwner: LifecycleOwner): ProgressButtonController {
-            lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
-            lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
-            return this
-        }
-
-        private fun onProgressChanged(progress: Float) {
-            progressState = progress
-            onProgressUpdate(progress)
-        }
-
-        private fun onStateChanged(state: ProgressButtonState) {
-            runningState = state
-            onStateUpdate(state)
-        }
-
-        private fun onProgressEnd() {
-            val floatValue = progressState
-            val state = runningState
-            log("onProgressEnd: state = $state, progress = $floatValue")
-            if (state == ProgressButtonState.Pending && isEnd(floatValue)) {
-                onTimeEnd()
-            }
-            onStateChanged(ProgressButtonState.Done)
-        }
-
-        private fun start() {
-            log("start: $runningState")
-            valueAnimator.cancel()
-            valueAnimator.start()
-            onStateChanged(ProgressButtonState.Pending)
-        }
-
-        private fun cancel() {
-            log("cancel: $runningState")
-            valueAnimator.cancel()
-            progressState = 0f
-            onStateChanged(ProgressButtonState.Idle)
-        }
-
-        fun reset() {
-            log("reset: $runningState")
-            cancel()
-        }
-
-        fun toggle() {
-            log("toggle: $runningState")
-            when (this.runningState) {
-                ProgressButtonState.Idle -> {
-                    start()
-                }
-
-                ProgressButtonState.Pending -> {
-                    cancel()
-                }
-
-                ProgressButtonState.Done -> {
+    private val lifecycleObserver = object : LifecycleEventObserver {
+        override fun onStateChanged(
+            source: LifecycleOwner,
+            event: Lifecycle.Event
+        ) {
+            when (event) {
+                Lifecycle.Event.ON_DESTROY -> {
                     reset()
                 }
+
+                else -> {}
             }
         }
-
     }
 
-    enum class ProgressButtonState {
-        Idle,
-        Pending,
-        Done
+    init {
+        valueAnimator.duration = delay
+        valueAnimator.addUpdateListener {
+            val value = it.animatedValue
+            if (value is Float) {
+                onProgressChanged(value)
+            }
+        }
+        valueAnimator.addListener(
+            onEnd = {
+                onProgressEnd()
+            }
+        )
     }
+
+    fun bind(lifecycleOwner: LifecycleOwner): ProgressButtonController {
+        lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
+        lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
+        return this
+    }
+
+    private fun onProgressChanged(progress: Float) {
+        progressStateImpl.value = progress
+    }
+
+    private fun onStateChanged(state: ProgressButtonState) {
+        runningStateImpl.value = state
+    }
+
+    private fun onProgressEnd() {
+        val floatValue = progressState.value
+        val state = runningState.value
+        log("onProgressEnd: state = $state, progress = $floatValue")
+        if (state == ProgressButtonState.Pending && isEnd(floatValue)) {
+            onTimeEnd()
+        }
+        onStateChanged(ProgressButtonState.Done)
+    }
+
+    private fun start() {
+        log("start: $runningState")
+        valueAnimator.cancel()
+        valueAnimator.start()
+        onStateChanged(ProgressButtonState.Pending)
+    }
+
+    private fun cancel() {
+        log("cancel: $runningState")
+        valueAnimator.cancel()
+        progressStateImpl.value = 0f
+        onStateChanged(ProgressButtonState.Idle)
+    }
+
+    fun reset() {
+        log("reset: $runningState")
+        cancel()
+    }
+
+    fun toggle() {
+        val state = runningState.value
+        log("toggle: $state")
+        when (state) {
+            ProgressButtonState.Idle -> {
+                start()
+            }
+
+            ProgressButtonState.Pending -> {
+                cancel()
+            }
+
+            ProgressButtonState.Done -> {
+                reset()
+            }
+        }
+    }
+}
+
+class ProgressButtonStyle(
+    val defIconRes: Int = 0,
+    val doneIconRes: Int = 0,
+    val defLabel: String,
+    val pendingLabel: String = defLabel,
+    val doneLabel: String = defLabel,
+) {
+
+    fun bindState(state: DataProvider<ProgressButtonState>) {
+        state.remember {
+            iconState.value = when (it) {
+                ProgressButtonState.Idle -> defIconRes
+                ProgressButtonState.Pending -> 0
+                ProgressButtonState.Done -> doneIconRes
+            }
+            labelState.value = when (it) {
+                ProgressButtonState.Idle -> defLabel
+                ProgressButtonState.Pending -> pendingLabel
+                ProgressButtonState.Done -> doneLabel
+            }
+        }
+    }
+
+    val iconState = mutableData(defIconRes)
+    val labelState = mutableData(defLabel)
 
 }
 
-fun BlocksOwner.bottom(
-    iconRes: Int = 0,
-    text: String,
+private fun BuilderScope.BasicButton(
+    iconRes: DataProvider<Int> = staticData(0),
+    label: DataProvider<String>,
+    buttonState: DataProvider<ProgressButtonState>,
+    pendingProgress: DataProvider<Float>,
+    onClick: () -> Unit,
+) {
+    val log = registerLog()
+    ItemView {
+        content.layoutParams(ItemSize.Match, ItemSize.Wrap)
+        Row(
+            layoutParams = ViewLayoutParams(ItemSize.Match, ItemSize.Wrap)
+                .margin(horizontal = 12.DP, vertical = 8.DP)
+        ) {
+            onClick(onClick)
+            background(R.drawable.block_bg_buttom)
+            padding(horizontal = 16.DP, vertical = 12.DP)
+            add(
+                ProgressBar(context).apply {
+                    buttonState.remember {
+                        val show = it == ProgressButtonState.Pending
+                        isVisible = show
+                    }
+                    isIndeterminate = false
+                    max = 100
+                    min = 0
+                    pendingProgress.remember {
+                        val value = (it * 100).toInt()
+                        progress = value
+                        log("Button.ProgressBar.progress = $value, isIndeterminate = $isIndeterminate")
+                    }
+                    indeterminateTintList = ColorStateList.valueOf(Color.WHITE)
+                },
+                layoutParams = ViewLayoutParams(16.DP)
+                    .margin(end = 10.DP)
+                    .gravity(ViewGravity.CenterVertical, ViewGravity.Start)
+            )
+            Image(
+                layoutParams = ViewLayoutParams(16.DP)
+                    .margin(end = 10.DP)
+                    .gravity(ViewGravity.CenterVertical, ViewGravity.Start)
+            ) {
+                iconRes.remember {
+                    src(it)
+                    isVisible = it != 0
+                }
+                tint(Color.WHITE)
+            }
+            Text(
+                layoutParams = ViewLayoutParams(ItemSize.Match, ItemSize.Wrap)
+                    .gravity(ViewGravity.CenterVertical)
+            ) {
+                label.remember {
+                    text = it
+                }
+                color(Color.WHITE)
+                fontSize(14.SP)
+                fontStyle(TextStyle.Bold)
+            }
+        }
+    }
+}
+
+fun BuilderScope.Button(
+    iconRes: DataProvider<Int> = staticData(0),
+    label: DataProvider<String>,
     onClick: () -> Unit
-): View {
-    return BottomBlockHolder.IconButton(
-        blocksOwner = this,
+) {
+    BasicButton(
         iconRes = iconRes,
-        text = text,
-        onClick = onClick
-    ).view
+        label = label,
+        onClick = onClick,
+        buttonState = staticData(ProgressButtonState.Idle),
+        pendingProgress = staticData(0F),
+    )
 }
 
-fun BlocksOwner.delayBottom(
+fun BuilderScope.DelayButton(
     delay: Long = 2000L,
-    defIconRes: Int = 0,
-    doneIconRes: Int = 0,
-    defText: String,
-    pendingText: String,
-    doneText: String,
+    style: ProgressButtonStyle,
+    stateUpdate: (ProgressButtonState) -> Unit = {},
     onClickDone: () -> Unit,
-): View {
-    return BottomBlockHolder.DelayButton(
-        blocksOwner = this,
+) {
+    val controller = ProgressButtonController(
         delay = delay,
-        defIconRes = defIconRes,
-        doneIconRes = doneIconRes,
-        defText = defText,
-        pendingText = pendingText,
-        doneText = doneText,
-        onClickDone = onClickDone
-    ).view
+        onTimeEnd = onClickDone
+    )
+    controller.bind(lifecycleOwner = blocksOwner.lifecycleOwner)
+    controller.runningState.remember(stateUpdate)
+    style.bindState(controller.runningState)
+    BasicButton(
+        iconRes = style.iconState,
+        label = style.labelState,
+        onClick = {
+            controller.toggle()
+        },
+        buttonState = controller.runningState,
+        pendingProgress = controller.progressState,
+    )
 }

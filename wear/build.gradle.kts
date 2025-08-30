@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
+//    alias(libs.plugins.kotlin.compose)
 }
 
 android {
@@ -38,9 +38,9 @@ android {
         jvmTarget = "11"
     }
     useLibrary("wear-sdk")
-    buildFeatures {
-        compose = true
-    }
+//    buildFeatures {
+//        compose = true
+//    }
 }
 
 dependencies {
@@ -53,17 +53,17 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.recyclerview)
 
-    implementation(platform(libs.compose.bom))
-    implementation(libs.ui)
-    implementation(libs.ui.graphics)
-    implementation(libs.material.icons.extended)
-    implementation(libs.ui.tooling.preview)
+//    implementation(platform(libs.compose.bom))
+//    implementation(libs.ui)
+//    implementation(libs.ui.graphics)
+//    implementation(libs.material.icons.extended)
+//    implementation(libs.ui.tooling.preview)
 //    implementation(libs.compose.material)
-    implementation(libs.compose.material3)
-    implementation(libs.horologist.compose.layout)
-    implementation(libs.compose.foundation)
-    implementation(libs.wear.tooling.preview)
-    implementation(libs.activity.compose)
+//    implementation(libs.compose.material3)
+//    implementation(libs.horologist.compose.layout)
+//    implementation(libs.compose.foundation)
+//    implementation(libs.wear.tooling.preview)
+//    implementation(libs.activity.compose)
     implementation(libs.core.splashscreen)
 
     implementation(project(":playCore"))

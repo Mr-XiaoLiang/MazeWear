@@ -34,7 +34,7 @@ fun BuilderScope.ParameterItem(icon: DataProvider<Int>, label: DataProvider<Stri
                 layoutParams = ViewLayoutParams(width = ItemSize.Match, height = ItemSize.Wrap)
                     .weight(1F)
                     .gravity(ViewGravity.CenterVertical)
-                    .margin(left = 8.DP)
+                    .margin(start = 8.DP)
             ) {
                 gravity(ViewGravity.CenterVertical)
                 fontSize(14.SP)

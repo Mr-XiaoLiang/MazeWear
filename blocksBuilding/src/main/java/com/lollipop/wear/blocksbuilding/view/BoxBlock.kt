@@ -35,7 +35,13 @@ class BoxBlockScope(
 ) : BasicItemGroupScope<FrameLayout>(frameLayout, lifecycleOwner), BoxScope {
 
     override fun ViewGroup.LayoutParams.gravity(vararg gravity: ViewGravity): FrameLayout.LayoutParams {
-        return convert { FrameLayout.LayoutParams(it) }.also {
+        return convert {
+            if (it is ViewGroup.MarginLayoutParams) {
+                FrameLayout.LayoutParams(it)
+            } else {
+                FrameLayout.LayoutParams(it)
+            }
+        }.also {
             it.gravity = gravity.sum()
         }
     }

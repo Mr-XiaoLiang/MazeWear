@@ -20,7 +20,7 @@ class BBRecyclerAdapter<T>(
         parent: ViewGroup,
         viewType: Int
     ): BBRecyclerViewHolder {
-        log("onCreateViewHolder: $viewType")
+//        log("onCreateViewHolder: $viewType")
         return BBRecyclerViewHolder(createItem(viewType))
     }
 
@@ -28,7 +28,7 @@ class BBRecyclerAdapter<T>(
         holder: BBRecyclerViewHolder,
         position: Int
     ) {
-        log("onBindViewHolder: $position")
+//        log("onBindViewHolder: $position")
         val item = items[position]
         update(holder.itemView, item)
     }

@@ -46,7 +46,13 @@ class LinearBlockScope(
     }
 
     override fun ViewGroup.LayoutParams.gravity(vararg gravity: ViewGravity): LinearLayout.LayoutParams {
-        return convert { LinearLayout.LayoutParams(it) }.also {
+        return convert {
+            if (it is ViewGroup.MarginLayoutParams) {
+                LinearLayout.LayoutParams(it)
+            } else {
+                LinearLayout.LayoutParams(it)
+            }
+        }.also {
             it.gravity = gravity.sum()
         }
     }

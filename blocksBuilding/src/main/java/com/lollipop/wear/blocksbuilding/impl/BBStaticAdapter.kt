@@ -27,12 +27,12 @@ class BBStaticAdapter() : RecyclerView.Adapter<BBStaticHolder>() {
         parent: ViewGroup,
         viewType: Int
     ): BBStaticHolder {
-        log("onCreateViewHolder: ${viewType + 1} / ${contentList.size}")
+//        log("onCreateViewHolder: ${viewType + 1} / ${contentList.size}")
         return BBStaticHolder(contentList[viewType])
     }
 
     override fun onBindViewHolder(holder: BBStaticHolder, position: Int) {
-        log("onBindViewHolder: ${position + 1} / ${contentList.size}")
+//        log("onBindViewHolder: ${position + 1} / ${contentList.size}")
         holder.bind(this, position)
     }
 

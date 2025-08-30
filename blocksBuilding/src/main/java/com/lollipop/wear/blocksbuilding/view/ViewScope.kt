@@ -5,7 +5,10 @@ import android.graphics.Shader
 import android.graphics.drawable.Drawable
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
+import androidx.core.view.isInvisible
+import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleOwner
 import com.lollipop.wear.blocksbuilding.BBDsl
 import com.lollipop.wear.blocksbuilding.data.DataProvider
@@ -36,6 +39,34 @@ interface ItemViewScope<V : View> {
         }
 
     val lifecycleOwner: LifecycleOwner
+
+    var isVisible: Boolean
+        get() {
+            return content.isVisible
+        }
+        set(value) {
+            content.isVisible = value
+        }
+
+    var isInvisible: Boolean
+        get() {
+            return content.isInvisible
+        }
+        set(value) {
+            content.isInvisible = value
+        }
+
+    fun onClick(block: () -> Unit) {
+        content.setOnClickListener {
+            block()
+        }
+    }
+
+    fun onLongClick(block: () -> Boolean) {
+        content.setOnLongClickListener {
+            block()
+        }
+    }
 
     fun notifyUpdate()
 
@@ -76,10 +107,14 @@ interface ItemViewScope<V : View> {
         content.background = DrawableWrapper(shape, *drawable)
     }
 
-    fun background(shape: ViewShape, resId: Int) {
+    fun background(shape: ViewShape, @DrawableRes resId: Int) {
         ContextCompat.getDrawable(context, resId)?.let {
             content.background = DrawableWrapper(shape, it)
         }
+    }
+
+    fun background(@DrawableRes resId: Int) {
+        content.background = ContextCompat.getDrawable(context, resId)
     }
 
     fun background(drawable: Drawable) {
@@ -113,15 +148,15 @@ interface MarginGroupScope {
     }
 
     fun ViewGroup.LayoutParams.margin(
-        left: MetricsValue = PX(0),
+        start: MetricsValue = PX(0),
         top: MetricsValue = PX(0),
-        right: MetricsValue = PX(0),
+        end: MetricsValue = PX(0),
         bottom: MetricsValue = PX(0)
     ): ViewGroup.MarginLayoutParams {
         return convert { ViewGroup.MarginLayoutParams(it) }.also {
-            it.leftMargin = left.px
+            it.marginStart = start.px
             it.topMargin = top.px
-            it.rightMargin = right.px
+            it.marginEnd = end.px
             it.bottomMargin = bottom.px
         }
     }
