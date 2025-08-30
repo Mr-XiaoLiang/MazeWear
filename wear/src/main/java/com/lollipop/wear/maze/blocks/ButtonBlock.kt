@@ -1,15 +1,14 @@
 package com.lollipop.wear.maze.blocks
 
 import android.animation.ValueAnimator
-import android.content.res.ColorStateList
 import android.graphics.Color
-import android.widget.ProgressBar
 import androidx.core.animation.addListener
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.lollipop.play.core.helper.registerLog
+import com.lollipop.play.core.view.CircularProgressView
 import com.lollipop.wear.blocksbuilding.BuilderScope
 import com.lollipop.wear.blocksbuilding.data.DataProvider
 import com.lollipop.wear.blocksbuilding.data.mutableData
@@ -201,20 +200,16 @@ private fun BuilderScope.BasicButton(
             background(R.drawable.block_bg_buttom)
             padding(horizontal = 16.DP, vertical = 12.DP)
             add(
-                ProgressBar(context).apply {
+                CircularProgressView(context).apply {
                     buttonState.remember {
                         val show = it == ProgressButtonState.Pending
                         isVisible = show
                     }
-                    isIndeterminate = false
-                    max = 100
-                    min = 0
                     pendingProgress.remember {
-                        val value = (it * 100).toInt()
-                        progress = value
-                        log("Button.ProgressBar.progress = $value, isIndeterminate = $isIndeterminate")
+                        progress = it
                     }
-                    indeterminateTintList = ColorStateList.valueOf(Color.WHITE)
+                    color = Color.WHITE
+                    strokeWidth = 2.DP.px.toFloat()
                 },
                 layoutParams = ViewLayoutParams(16.DP)
                     .margin(end = 10.DP)

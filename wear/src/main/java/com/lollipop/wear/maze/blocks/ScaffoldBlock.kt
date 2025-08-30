@@ -3,6 +3,7 @@ package com.lollipop.wear.maze.blocks
 import android.graphics.Color
 import android.view.View
 import androidx.activity.ComponentActivity
+import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.widget.WearableLinearLayoutManager
 import androidx.wear.widget.WearableRecyclerView
@@ -21,6 +22,7 @@ fun ComponentActivity.wearContent(
     val blocksOwner = ActivityBlocksOwner(this)
     setContentView(
         WearableRecyclerView(this).also { recyclerView ->
+            PagerSnapHelper().attachToRecyclerView(recyclerView)
             recyclerView.setBackgroundColor(Color.BLACK)
             recyclerView.layoutParams(ItemSize.Match, ItemSize.Match)
             recyclerView.layoutManager = WearableLinearLayoutManager(
