@@ -18,6 +18,7 @@ import kotlin.math.abs
 import kotlin.math.min
 
 fun ComponentActivity.wearContent(
+    snapEnable: Boolean = false,
     content: BuilderScope.() -> Unit
 ) {
     val blocksOwner = ActivityBlocksOwner(this)
@@ -27,7 +28,9 @@ fun ComponentActivity.wearContent(
             constraint.setBackgroundColor(Color.BLACK)
             constraint.addView(
                 WearableRecyclerView(this).also { recyclerView ->
-                    PagerSnapHelper().attachToRecyclerView(recyclerView)
+                    if (snapEnable) {
+                        PagerSnapHelper().attachToRecyclerView(recyclerView)
+                    }
                     recyclerView.layoutManager = WearableLinearLayoutManager(
                         this, CenterScrollingLayoutCallback()
                     )

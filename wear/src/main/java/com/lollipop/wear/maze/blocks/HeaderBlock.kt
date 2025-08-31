@@ -25,7 +25,7 @@ fun BuilderScope.TitleHeader(title: DataProvider<String>) {
             layoutParams = ViewLayoutParams().widthMatch().heightMatch()
         ) {
             Constraint(
-                layoutParams = ViewLayoutParams().ratio(2, 1).widthMatch().heightEmpty()
+                layoutParams = ViewLayoutParams().ratio(5, 3).widthMatch().heightEmpty()
             ) {
                 Text(
                     layoutParams = ViewLayoutParams().widthMatch().heightMatch()
@@ -45,7 +45,7 @@ fun BuilderScope.TitleHeader(title: DataProvider<String>) {
                 ) {
                     fontStyle(TextStyle.Bold)
                     color(Color.WHITE)
-                     fontSize(14.SP)
+                    fontSize(14.SP)
                     TimeDelegate.auto(lifecycleOwner) { time ->
                         text = time
                     }
