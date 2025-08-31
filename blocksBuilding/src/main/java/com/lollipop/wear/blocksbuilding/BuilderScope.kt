@@ -11,9 +11,17 @@ interface BuilderScope {
 
     fun <T : Any> items(
         items: List<T>,
-        key: (T) -> Int,
-        createItem: (Int) -> View,
-        update: (View, T) -> Unit
+        key: (T) -> Int = { 1 },
+        createItem: (type: Int) -> RecyclerHolder<T>,
     ): BlockManager
 
 }
+
+interface RecyclerHolder<T : Any> {
+
+    val itemView: View
+
+    fun onUpdate(data: T)
+
+}
+

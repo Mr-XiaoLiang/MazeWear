@@ -1,36 +1,35 @@
 package com.lollipop.wear.blocksbuilding.impl
 
 import android.annotation.SuppressLint
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.lollipop.wear.blocksbuilding.BlockManager
+import com.lollipop.wear.blocksbuilding.RecyclerHolder
 import com.lollipop.wear.blocksbuilding.dsl.bbLog
 
-class BBRecyclerAdapter<T>(
+class BBRecyclerAdapter<T : Any>(
     private val items: List<T>,
     private val typeProvider: (T) -> Int,
-    private val createItem: (Int) -> View,
-    private val update: (View, T) -> Unit
-) : RecyclerView.Adapter<BBRecyclerViewHolder>(), BlockManager {
+    private val createItem: (Int) -> RecyclerHolder<T>,
+) : RecyclerView.Adapter<BBRecyclerViewHolder<T>>(), BlockManager {
 
     private val log = bbLog()
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): BBRecyclerViewHolder {
+    ): BBRecyclerViewHolder<T> {
 //        log("onCreateViewHolder: $viewType")
         return BBRecyclerViewHolder(createItem(viewType))
     }
 
     override fun onBindViewHolder(
-        holder: BBRecyclerViewHolder,
+        holder: BBRecyclerViewHolder<T>,
         position: Int
     ) {
 //        log("onBindViewHolder: $position")
         val item = items[position]
-        update(holder.itemView, item)
+        holder.onBind(item)
     }
 
     override fun getItemCount(): Int {
@@ -76,4 +75,12 @@ class BBRecyclerAdapter<T>(
 
 }
 
-class BBRecyclerViewHolder(view: View) : RecyclerView.ViewHolder(view)
+class BBRecyclerViewHolder<T : Any>(
+    val holder: RecyclerHolder<T>
+) : RecyclerView.ViewHolder(holder.itemView) {
+
+    fun onBind(item: T) {
+        holder.onUpdate(item)
+    }
+
+}

@@ -23,7 +23,7 @@ class LApplication : Application() {
             logImpl.i(message)
         }
 
-        override fun log(message: String, throwable: Throwable) {
+        override fun invoke(message: String, throwable: Throwable) {
             logImpl.e(message, throwable)
         }
     }

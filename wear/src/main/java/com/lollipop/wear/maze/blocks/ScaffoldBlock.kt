@@ -3,6 +3,7 @@ package com.lollipop.wear.maze.blocks
 import android.graphics.Color
 import android.view.View
 import androidx.activity.ComponentActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.widget.WearableLinearLayoutManager
@@ -21,16 +22,27 @@ fun ComponentActivity.wearContent(
 ) {
     val blocksOwner = ActivityBlocksOwner(this)
     setContentView(
-        WearableRecyclerView(this).also { recyclerView ->
-            PagerSnapHelper().attachToRecyclerView(recyclerView)
-            recyclerView.setBackgroundColor(Color.BLACK)
-            recyclerView.layoutParams(ItemSize.Match, ItemSize.Match)
-            recyclerView.layoutManager = WearableLinearLayoutManager(
-                this, CenterScrollingLayoutCallback()
+        ConstraintLayout(this).also { constraint ->
+            constraint.layoutParams(ItemSize.Match, ItemSize.Match)
+            constraint.setBackgroundColor(Color.BLACK)
+            constraint.addView(
+                WearableRecyclerView(this).also { recyclerView ->
+                    PagerSnapHelper().attachToRecyclerView(recyclerView)
+                    recyclerView.layoutManager = WearableLinearLayoutManager(
+                        this, CenterScrollingLayoutCallback()
+                    )
+                    recyclerView.isCircularScrollingGestureEnabled = false
+                    recyclerView.isEdgeItemsCenteringEnabled = false
+                    blocksOwner.withBlocks(recyclerView = recyclerView, content = content)
+                },
+                ConstraintLayout.LayoutParams(0, 0).apply {
+                    topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+                    bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
+                    startToStart = ConstraintLayout.LayoutParams.PARENT_ID
+                    endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+                    dimensionRatio = "1:1"
+                }
             )
-            recyclerView.isCircularScrollingGestureEnabled = false
-            recyclerView.isEdgeItemsCenteringEnabled = false
-            blocksOwner.withBlocks(recyclerView = recyclerView, content = content)
         }
     )
 }

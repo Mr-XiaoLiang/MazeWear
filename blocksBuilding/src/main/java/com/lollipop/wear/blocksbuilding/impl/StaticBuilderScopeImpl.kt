@@ -6,13 +6,14 @@ import com.lollipop.wear.blocksbuilding.BlockManager
 import com.lollipop.wear.blocksbuilding.BlocksOwner
 import com.lollipop.wear.blocksbuilding.BuilderScope
 import com.lollipop.wear.blocksbuilding.IBlock
+import com.lollipop.wear.blocksbuilding.RecyclerHolder
 import com.lollipop.wear.blocksbuilding.dsl.bbLog
 
 class StaticBuilderScopeImpl(override val blocksOwner: BlocksOwner) : BuilderScope {
 
     private var viewGroup: ViewGroup? = null
-    private val managerList = mutableListOf<BasicManager>()
-    private var currentManager: BasicManager? = null
+    private val managerList = mutableListOf<BasicManager<*>>()
+    private var currentManager: BasicManager<*>? = null
 
     fun build(viewGroup: ViewGroup) {
         this.viewGroup = viewGroup
@@ -45,20 +46,19 @@ class StaticBuilderScopeImpl(override val blocksOwner: BlocksOwner) : BuilderSco
         return newManager
     }
 
-    private fun <T> optMultiManager(
+    private fun <T : Any> optMultiManager(
         items: List<T>,
         key: (T) -> Int,
-        createItem: (Int) -> View,
-        update: (View, T) -> Unit
+        createItem: (Int) -> RecyclerHolder<T>,
     ): MutableBlockManager<T> {
-        val newManager = MutableBlockManager(items, key, createItem, update)
+        val newManager = MutableBlockManager(items, key, createItem)
         managerList.add(newManager)
         currentManager = null
         bindCallback(newManager)
         return newManager
     }
 
-    private fun bindCallback(manager: BasicManager) {
+    private fun bindCallback(manager: BasicManager<*>) {
         manager.insertCallback = ::onInsert
         manager.removeCallback = ::onRemove
         manager.updateCallback = ::onUpdate
@@ -66,38 +66,38 @@ class StaticBuilderScopeImpl(override val blocksOwner: BlocksOwner) : BuilderSco
         manager.allChangedCallback = ::onAllChanged
     }
 
-    private fun onInsert(manager: BasicManager, position: Int, count: Int) {
+    private fun onInsert(manager: BasicManager<*>, position: Int, count: Int) {
         val group = viewGroup ?: return
         val offset = manager.itemOffset + position
         var managerPosition = position
         var newViewCount = 0
         for (i in 0 until count) {
-            val view = manager.createView(managerPosition)
-            if (view != null) {
-                group.addView(view, offset + newViewCount)
-                manager.updateView(managerPosition, view)
+            val holder = manager.createView(managerPosition)
+            if (holder != null) {
+                group.addView(holder.itemView, offset + newViewCount)
+                manager.updateView(managerPosition)
                 managerPosition++
                 newViewCount++
             }
         }
     }
 
-    private fun onRemove(manager: BasicManager, position: Int, count: Int) {
+    private fun onRemove(manager: BasicManager<*>, position: Int, count: Int) {
         val group = viewGroup ?: return
         val offset = manager.itemOffset + position
         group.removeViews(offset, count)
     }
 
-    private fun onUpdate(manager: BasicManager, position: Int, count: Int) {
+    private fun onUpdate(manager: BasicManager<*>, position: Int, count: Int) {
         val group = viewGroup ?: return
         val offset = manager.itemOffset + position
         for (i in 0 until count) {
             val view = group.getChildAt(offset + i)
-            manager.updateView(position + i, view)
+            manager.updateView(position + i)
         }
     }
 
-    private fun onMove(manager: BasicManager, fromPosition: Int, toPosition: Int) {
+    private fun onMove(manager: BasicManager<*>, fromPosition: Int, toPosition: Int) {
         val group = viewGroup ?: return
         val from = manager.itemOffset + fromPosition
         val to = manager.itemOffset + toPosition
@@ -117,7 +117,7 @@ class StaticBuilderScopeImpl(override val blocksOwner: BlocksOwner) : BuilderSco
         }
     }
 
-    private fun onAllChanged(manager: BasicManager) {
+    private fun onAllChanged(manager: BasicManager<*>) {
         rebuild()
     }
 
@@ -131,23 +131,22 @@ class StaticBuilderScopeImpl(override val blocksOwner: BlocksOwner) : BuilderSco
     override fun <T : Any> items(
         items: List<T>,
         key: (T) -> Int,
-        createItem: (Int) -> View,
-        update: (View, T) -> Unit
+        createItem: (Int) -> RecyclerHolder<T>
     ): BlockManager {
-        return optMultiManager(items, key, createItem, update)
+        return optMultiManager(items, key, createItem)
     }
 
-    private abstract class BasicManager : BlockManager {
+    private abstract class BasicManager<T : Any> : BlockManager {
 
-        var updateCallback: (manager: BasicManager, position: Int, count: Int) -> Unit =
+        var updateCallback: (manager: BasicManager<*>, position: Int, count: Int) -> Unit =
             { _, _, _ -> }
-        var insertCallback: (manager: BasicManager, position: Int, count: Int) -> Unit =
+        var insertCallback: (manager: BasicManager<*>, position: Int, count: Int) -> Unit =
             { _, _, _ -> }
-        var removeCallback: (manager: BasicManager, position: Int, count: Int) -> Unit =
+        var removeCallback: (manager: BasicManager<*>, position: Int, count: Int) -> Unit =
             { _, _, _ -> }
-        var moveCallback: (manager: BasicManager, position: Int, count: Int) -> Unit =
+        var moveCallback: (manager: BasicManager<*>, position: Int, count: Int) -> Unit =
             { _, _, _ -> }
-        var allChangedCallback: (manager: BasicManager) -> Unit = {}
+        var allChangedCallback: (manager: BasicManager<*>) -> Unit = {}
 
         abstract fun build(viewGroup: ViewGroup)
 
@@ -187,17 +186,17 @@ class StaticBuilderScopeImpl(override val blocksOwner: BlocksOwner) : BuilderSco
             allChangedCallback(this)
         }
 
-        open fun createView(position: Int): View? {
+        open fun createView(position: Int): RecyclerHolder<T>? {
             return null
         }
 
-        open fun updateView(position: Int, view: View) {
+        open fun updateView(position: Int) {
 
         }
 
     }
 
-    private class StaticBlockManager : BasicManager() {
+    private class StaticBlockManager : BasicManager<Any>() {
 
         val viewList = ArrayList<View>()
 
@@ -213,14 +212,15 @@ class StaticBuilderScopeImpl(override val blocksOwner: BlocksOwner) : BuilderSco
         override val itemCount: Int = viewList.size
     }
 
-    private class MutableBlockManager<T>(
+    private class MutableBlockManager<T : Any>(
         private val items: List<T>,
         private val typeProvider: (T) -> Int,
-        private val createItem: (Int) -> View,
-        private val update: (View, T) -> Unit
-    ) : BasicManager() {
+        private val createItem: (Int) -> RecyclerHolder<T>,
+    ) : BasicManager<T>() {
 
         private val log = bbLog()
+
+        private val holderList = ArrayList<RecyclerHolder<T>>()
 
         override val itemCount: Int
             get() {
@@ -229,15 +229,18 @@ class StaticBuilderScopeImpl(override val blocksOwner: BlocksOwner) : BuilderSco
 
         override fun build(viewGroup: ViewGroup) {
             log("build: $itemCount")
-            for (item in items) {
+            holderList.clear()
+            for (index in items.indices) {
+                val item = items[index]
                 val type = typeProvider(item)
-                val itemView = createItem(type)
-                update(itemView, item)
-                viewGroup.addView(itemView)
+                val itemHolder = createItem(type)
+                holderList.add(itemHolder)
+                itemHolder.onUpdate(item)
+                viewGroup.addView(itemHolder.itemView)
             }
         }
 
-        override fun createView(position: Int): View? {
+        override fun createView(position: Int): RecyclerHolder<T>? {
             if (position >= items.size || position < 0) {
                 return null
             }
@@ -246,9 +249,9 @@ class StaticBuilderScopeImpl(override val blocksOwner: BlocksOwner) : BuilderSco
             return createItem(type)
         }
 
-        override fun updateView(position: Int, view: View) {
+        override fun updateView(position: Int) {
             val item = items[position]
-            update(view, item)
+            holderList[position].onUpdate(item)
         }
 
     }

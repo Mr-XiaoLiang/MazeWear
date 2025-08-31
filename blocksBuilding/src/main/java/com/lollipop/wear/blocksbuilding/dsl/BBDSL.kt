@@ -2,14 +2,12 @@ package com.lollipop.wear.blocksbuilding.dsl
 
 import android.content.Context
 import android.content.res.Resources
-import com.lollipop.wear.blocksbuilding.data.DataProvider
-import kotlin.reflect.KProperty
 
 interface BBLog {
 
     operator fun invoke(message: String)
 
-    fun log(message: String, throwable: Throwable)
+    operator fun invoke(message: String, throwable: Throwable)
 
 }
 
@@ -18,8 +16,8 @@ private class BBLogWrapper(val logTag: String) : BBLog {
         BBDSL.logImpl?.invoke("${logTag}: $message")
     }
 
-    override fun log(message: String, throwable: Throwable) {
-        BBDSL.logImpl?.log("${logTag}: $message", throwable)
+    override fun invoke(message: String, throwable: Throwable) {
+        BBDSL.logImpl?.invoke("${logTag}: $message", throwable)
     }
 }
 
@@ -34,7 +32,6 @@ object BBDSL {
         BBDSL.resources = context.resources
     }
 }
-
 
 
 inline fun <reified T : Any> T.bbLog(): BBLog {

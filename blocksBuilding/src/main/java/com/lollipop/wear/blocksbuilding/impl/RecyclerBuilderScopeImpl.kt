@@ -7,6 +7,7 @@ import com.lollipop.wear.blocksbuilding.BlockManager
 import com.lollipop.wear.blocksbuilding.BlocksOwner
 import com.lollipop.wear.blocksbuilding.BuilderScope
 import com.lollipop.wear.blocksbuilding.IBlock
+import com.lollipop.wear.blocksbuilding.RecyclerHolder
 
 class RecyclerBuilderScopeImpl(override val blocksOwner: BlocksOwner) : BuilderScope {
 
@@ -29,17 +30,15 @@ class RecyclerBuilderScopeImpl(override val blocksOwner: BlocksOwner) : BuilderS
         return newAdapter
     }
 
-    private fun <T> optRecyclerAdapter(
+    private fun <T : Any> optRecyclerAdapter(
         items: List<T>,
         typeProvider: (T) -> Int,
-        createItem: (Int) -> View,
-        update: (View, T) -> Unit
+        createItem: (Int) -> RecyclerHolder<T>,
     ): BBRecyclerAdapter<T> {
-        val newAdapter = BBRecyclerAdapter<T>(
+        val newAdapter = BBRecyclerAdapter(
             items,
             typeProvider,
             createItem,
-            update
         )
         adapterList.add(newAdapter)
         currentAdapter = null
@@ -55,11 +54,9 @@ class RecyclerBuilderScopeImpl(override val blocksOwner: BlocksOwner) : BuilderS
     override fun <T : Any> items(
         items: List<T>,
         key: (T) -> Int,
-        createItem: (Int) -> View,
-        update: (View, T) -> Unit
+        createItem: (Int) -> RecyclerHolder<T>
     ): BlockManager {
-        return optRecyclerAdapter(items, key, createItem, update)
+        return optRecyclerAdapter(items, key, createItem)
     }
-
 
 }
