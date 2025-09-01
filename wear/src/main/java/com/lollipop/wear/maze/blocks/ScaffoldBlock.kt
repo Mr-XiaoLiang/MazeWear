@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.widget.WearableLinearLayoutManager
 import androidx.wear.widget.WearableRecyclerView
+import com.lollipop.play.core.helper.registerLog
 import com.lollipop.wear.blocksbuilding.BuilderScope
 import com.lollipop.wear.blocksbuilding.data.DataProvider
 import com.lollipop.wear.blocksbuilding.dsl.ActivityBlocksOwner
@@ -15,7 +16,9 @@ import com.lollipop.wear.blocksbuilding.dsl.layoutParams
 import com.lollipop.wear.blocksbuilding.item.ItemSize
 import com.lollipop.wear.blocksbuilding.withBlocks
 import kotlin.math.abs
+import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.sqrt
 
 fun ComponentActivity.wearContent(
     snapEnable: Boolean = false,
@@ -84,10 +87,17 @@ class CenterScrollingLayoutCallback(val fillHeader: Boolean = true) :
     private fun defaultViewScale(child: View, parent: RecyclerView): Float {
         // Figure out % progress from top to bottom
         val centerOffset = child.height.toFloat() / 2.0f / parent.height.toFloat()
-        val yRelativeToCenterOffset = child.y / parent.height + centerOffset
 
-        // Normalize for center
+        // [0, 1]
+        val yRelativeToCenterOffset = max(0F, min(1F, child.y / parent.height + centerOffset))
+        // 范围 [0, 0.5]
         var weight = abs(0.5f - yRelativeToCenterOffset)
+        // 根据勾股定理计算一个曲线，weight就是X，半径为斜边，那么Y就是缩放比例。范围 [0, 0.5]，但是顺序相反
+        val d = (0.5 * 0.5) - (weight * weight)
+        if (d == 0.0) {
+            return MAX_ICON_PROGRESS
+        }
+        weight = 1F - (sqrt(d) * 2).toFloat()
         // Adjust to the maximum scale
         weight = min(weight, MAX_ICON_PROGRESS)
         return weight
