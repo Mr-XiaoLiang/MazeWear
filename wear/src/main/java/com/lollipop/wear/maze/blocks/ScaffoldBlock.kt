@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.widget.WearableLinearLayoutManager
 import androidx.wear.widget.WearableRecyclerView
-import com.lollipop.play.core.helper.registerLog
 import com.lollipop.wear.blocksbuilding.BuilderScope
 import com.lollipop.wear.blocksbuilding.data.DataProvider
 import com.lollipop.wear.blocksbuilding.dsl.ActivityBlocksOwner
