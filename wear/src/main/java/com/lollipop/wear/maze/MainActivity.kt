@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
-        setTheme(R.style.MazeTheme_Play)
+        setTheme(R.style.MazeTheme_Default)
         setContentView(binding.root)
         initView()
         select(Subpage.Home, false)

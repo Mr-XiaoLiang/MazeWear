@@ -19,13 +19,15 @@ import com.lollipop.play.core.helper.tagName
 import com.lollipop.wear.maze.base.MazeActivityHelper
 import com.lollipop.wear.maze.databinding.ActivityPlayBinding
 import com.lollipop.wear.maze.play.PlayLayer
+import com.lollipop.wear.maze.play.layer.MenuLayer
 import com.lollipop.wear.maze.play.layer.PlayingLayer
 import com.lollipop.wear.maze.play.layer.VictoryLayer
 import com.lollipop.wear.maze.play.state.PlayPageState
 
 class PlayActivity : AppCompatActivity(), MazeController.Callback,
     PlayingLayer.Callback,
-    VictoryLayer.Callback {
+    VictoryLayer.Callback,
+    MenuLayer.Callback {
 
     companion object {
 
@@ -134,8 +136,20 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback,
         mazeController.manipulate(direction)
     }
 
-    override fun openMenu() {
-        postState(PlayPageState.Menu)
+    override fun openMenu(state: PlayPageState.Playing) {
+        postState(PlayPageState.Menu(continueState = state, maze = state.maze, path = state.path))
+    }
+
+    override fun onContinue(state: PlayPageState) {
+        postState(state)
+    }
+
+    override fun onNewGame() {
+        // TODO 需要清空路径
+    }
+
+    override fun onExit() {
+        onBackPressedDispatcher.onBackPressed()
     }
 
     private fun onNewMaze(maze: MazeMap, path: MPath, focus: MBlock) {

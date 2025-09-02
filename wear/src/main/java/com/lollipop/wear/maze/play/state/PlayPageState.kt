@@ -25,7 +25,11 @@ sealed class PlayPageState(
 
     object Loading : PlayPageState(LoadingLayer::class.java)
 
-    object Menu : PlayPageState(MenuLayer::class.java)
+    class Menu(
+        val continueState: PlayPageState,
+        val maze: MazeMap,
+        val path: MPath,
+    ) : PlayPageState(MenuLayer::class.java)
 
     class Playing(
         val maze: MazeMap,

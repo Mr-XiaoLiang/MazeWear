@@ -27,4 +27,13 @@
     <string name="label_open_maze">打开</string>
     <string name="label_delete_cancel">放弃删除</string>
     <string name="label_delete_done">删除完成</string>
+    <string name="label_operation_method">操控方式</string>
+    <string name="label_action_left">向左</string>
+    <string name="label_action_up">向上</string>
+    <string name="label_action_right">向右</string>
+    <string name="label_action_down">向下</string>
+    <string name="label_action_menu">菜单</string>
+    <string name="label_edit">退出</string>
+    <string name="label_continue">继续</string>
+    <string name="label_restart">重新开始</string>
 </resources>

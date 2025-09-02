@@ -9,7 +9,10 @@
     </style>
 
     <style name="MazeTheme.Play" parent="Theme.Material3.Dark.NoActionBar">
-        <item name="android:windowSwipeToDismiss">true</item>
+        <item name="android:windowSwipeToDismiss">false</item>
+    </style>
 
+    <style name="MazeTheme.Default" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="android:windowSwipeToDismiss">true</item>
     </style>
 </resources>

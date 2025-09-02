@@ -7,11 +7,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.lollipop.maze.data.MPoint
 import com.lollipop.play.core.controller.LifecycleHelper
 import com.lollipop.play.core.controller.MazeMoveAnimator
-import com.lollipop.play.core.controller.TimeDelegate
 import com.lollipop.play.core.helper.JoystickDelegate
 import com.lollipop.play.core.helper.JoystickDirection
-import com.lollipop.play.core.helper.dp2px
-import com.lollipop.play.core.view.OsdPanelHelper
 import com.lollipop.play.core.view.draw.color.ColorPathDrawable
 import com.lollipop.play.core.view.draw.color.ColorSpiritDrawable
 import com.lollipop.play.core.view.draw.color.ColorTileDrawable
@@ -19,7 +16,6 @@ import com.lollipop.play.core.view.joystick.JoystickRingRestrictedZone
 import com.lollipop.play.core.view.joystick.RotateJoystickDisplay
 import com.lollipop.wear.maze.databinding.LayerPlayGameBinding
 import com.lollipop.wear.maze.play.state.PlayPageState
-import com.lollipop.wear.maze.theme.MazeMapTheme
 
 class PlayingLayer(activity: AppCompatActivity) : BasicLayer(activity) {
 
@@ -37,6 +33,8 @@ class PlayingLayer(activity: AppCompatActivity) : BasicLayer(activity) {
     private val mazeMoveAnimator by lazy {
         MazeMoveAnimator(lifecycleHelper, ::updateMoveAnimation)
     }
+
+    private var playState: PlayPageState.Playing? = null
 
     override fun createView(
         container: ViewGroup
@@ -59,18 +57,8 @@ class PlayingLayer(activity: AppCompatActivity) : BasicLayer(activity) {
     private fun initView() {
         binding.apply {
             osdButton.setOnClickListener {
-                gameControllerCallback?.openMenu()
+                openMenu()
             }
-            menuPanel.setOnClickListener {
-                osdHelper.hide()
-            }
-            TimeDelegate.auto(activity) {
-                timeView.text = it
-            }
-            osdHelper.onShow {
-                overviewView.updatePath()
-            }
-
             joystickView.addRestrictedZone(
                 JoystickRingRestrictedZone(
                     1F,
@@ -90,9 +78,13 @@ class PlayingLayer(activity: AppCompatActivity) : BasicLayer(activity) {
                     setEndColor(Color.GREEN)
                 })
             }
-            MazeMapTheme.updateMaze(overviewView)
         }
-        osdPanelHelper?.init()
+    }
+
+    private fun openMenu() {
+        playState?.let {
+            gameControllerCallback?.openMenu(it)
+        }
     }
 
     override fun setState(state: PlayPageState) {
@@ -104,11 +96,8 @@ class PlayingLayer(activity: AppCompatActivity) : BasicLayer(activity) {
     }
 
     private fun onPlay(state: PlayPageState.Playing) {
+        playState = state
         binding.apply {
-            hideViews(
-                menuPanel,
-                osdActionPanel,
-            )
             showViews(
                 mazePlayView,
                 mazeFogView,
@@ -126,7 +115,6 @@ class PlayingLayer(activity: AppCompatActivity) : BasicLayer(activity) {
                 action.updateProgress(0F)
                 action.setExtremePoint(null, maze.end)
             }
-            overviewView.setMap(maze, path)
         }
     }
 
@@ -148,6 +136,6 @@ class PlayingLayer(activity: AppCompatActivity) : BasicLayer(activity) {
 
     interface Callback {
         fun onJoystickTouch(direction: JoystickDirection)
-        fun openMenu()
+        fun openMenu(state: PlayPageState.Playing)
     }
 }
