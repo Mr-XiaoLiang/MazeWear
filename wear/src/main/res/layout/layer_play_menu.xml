@@ -93,23 +93,19 @@
             android:text="@string/label_action_left"
             android:textColor="@android:color/white"
             app:layout_constraintBottom_toBottomOf="@id/osdBackground"
-            app:layout_constraintEnd_toEndOf="@id/osdBackground"
-            app:layout_constraintHorizontal_bias="0.1"
             app:layout_constraintStart_toStartOf="@id/osdBackground"
             app:layout_constraintTop_toTopOf="@id/osdBackground" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawableTop="@drawable/baseline_keyboard_double_arrow_up_24"
+            android:drawableStart="@drawable/baseline_keyboard_double_arrow_up_24"
             android:gravity="center"
             android:text="@string/label_action_up"
             android:textColor="@android:color/white"
-            app:layout_constraintBottom_toBottomOf="@id/osdBackground"
             app:layout_constraintEnd_toEndOf="@id/osdBackground"
             app:layout_constraintStart_toStartOf="@id/osdBackground"
-            app:layout_constraintTop_toTopOf="@id/osdBackground"
-            app:layout_constraintVertical_bias="0.05" />
+            app:layout_constraintTop_toTopOf="@id/osdBackground" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
@@ -120,23 +116,18 @@
             android:textColor="@android:color/white"
             app:layout_constraintBottom_toBottomOf="@id/osdBackground"
             app:layout_constraintEnd_toEndOf="@id/osdBackground"
-            app:layout_constraintHorizontal_bias="0.9"
-            app:layout_constraintStart_toStartOf="@id/osdBackground"
             app:layout_constraintTop_toTopOf="@id/osdBackground" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawableTop="@drawable/baseline_keyboard_double_arrow_down_24"
+            android:drawableStart="@drawable/baseline_keyboard_double_arrow_down_24"
             android:gravity="center"
             android:text="@string/label_action_down"
             android:textColor="@android:color/white"
             app:layout_constraintBottom_toBottomOf="@id/osdBackground"
-            app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="@id/osdBackground"
-            app:layout_constraintStart_toStartOf="@id/osdBackground"
-            app:layout_constraintTop_toTopOf="@id/osdBackground"
-            app:layout_constraintVertical_bias="0.95" />
+            app:layout_constraintStart_toStartOf="@id/osdBackground" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
