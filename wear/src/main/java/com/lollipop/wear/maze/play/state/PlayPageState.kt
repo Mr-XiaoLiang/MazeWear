@@ -9,6 +9,7 @@ import com.lollipop.wear.maze.play.PlayLayerState
 import com.lollipop.wear.maze.play.layer.EmptyLayer
 import com.lollipop.wear.maze.play.layer.ErrorLayer
 import com.lollipop.wear.maze.play.layer.LoadingLayer
+import com.lollipop.wear.maze.play.layer.MenuLayer
 import com.lollipop.wear.maze.play.layer.PlayingLayer
 import com.lollipop.wear.maze.play.layer.VictoryLayer
 
@@ -23,6 +24,8 @@ sealed class PlayPageState(
     object Init : PlayPageState(EmptyLayer::class.java)
 
     object Loading : PlayPageState(LoadingLayer::class.java)
+
+    object Menu : PlayPageState(MenuLayer::class.java)
 
     class Playing(
         val maze: MazeMap,

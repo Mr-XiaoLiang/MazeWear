@@ -26,8 +26,6 @@ class PlayingLayer(activity: AppCompatActivity) : BasicLayer(activity) {
     private val binding by lazy {
         LayerPlayGameBinding.inflate(activity.layoutInflater)
     }
-    private var osdPanelHelper: OsdPanelHelper? = null
-
     private var gameControllerCallback: Callback? = null
 
     private val joystickDelegate = JoystickDelegate(::onJoystickTouch)
@@ -60,10 +58,8 @@ class PlayingLayer(activity: AppCompatActivity) : BasicLayer(activity) {
 
     private fun initView() {
         binding.apply {
-            val osdHelper = OsdPanelHelper(menuPanel)
-            osdPanelHelper = osdHelper
             osdButton.setOnClickListener {
-                osdHelper.toggle()
+                gameControllerCallback?.openMenu()
             }
             menuPanel.setOnClickListener {
                 osdHelper.hide()
@@ -152,5 +148,6 @@ class PlayingLayer(activity: AppCompatActivity) : BasicLayer(activity) {
 
     interface Callback {
         fun onJoystickTouch(direction: JoystickDirection)
+        fun openMenu()
     }
 }

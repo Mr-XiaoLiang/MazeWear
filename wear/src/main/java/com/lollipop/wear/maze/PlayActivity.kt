@@ -134,6 +134,10 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback,
         mazeController.manipulate(direction)
     }
 
+    override fun openMenu() {
+        postState(PlayPageState.Menu)
+    }
+
     private fun onNewMaze(maze: MazeMap, path: MPath, focus: MBlock) {
         postState(PlayPageState.Playing(maze, path, focus))
         log("start = [${maze.start.x}, ${maze.start.y}] ")
