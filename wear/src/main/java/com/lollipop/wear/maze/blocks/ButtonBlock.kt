@@ -233,6 +233,13 @@ private fun BuilderScope.BasicButton(
                 label.remember {
                     text = it
                 }
+                iconRes.remember {
+                    if (it == 0) {
+                        gravity(ViewGravity.CenterHorizontal)
+                    } else {
+                        gravity(ViewGravity.Start)
+                    }
+                }
                 color(Color.WHITE)
                 fontSize(14.SP)
                 fontStyle(TextStyle.Bold)

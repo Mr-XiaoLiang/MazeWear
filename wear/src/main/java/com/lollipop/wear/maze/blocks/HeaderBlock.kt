@@ -43,9 +43,7 @@ fun BuilderScope.TitleHeader(title: DataProvider<String>) {
                     layoutParams = ViewLayoutParams().ratio(1, 1).widthMatch().heightEmpty()
                         .control().startToParent().endToParent().topToParent().complete()
                 ) {
-                    fontStyle(TextStyle.Bold)
-                    color(Color.WHITE)
-                    fontSize(14.SP)
+                    TimeStyle()
                     TimeDelegate.auto(lifecycleOwner) { time ->
                         text = time
                     }

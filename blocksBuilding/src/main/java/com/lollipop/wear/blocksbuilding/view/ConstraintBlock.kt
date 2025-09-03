@@ -55,7 +55,9 @@ class ConstraintBlockScope(
 ) : BasicItemGroupScope<ConstraintLayout>(frameLayout, lifecycleOwner), ConstraintScope {
 
     private fun ViewGroup.LayoutParams.convertLayout(): ConstraintLayout.LayoutParams {
-        return convert { ConstraintLayout.LayoutParams(it) }
+        return convert {
+            ConstraintLayout.LayoutParams(it)
+        }
     }
 
     override fun ViewGroup.LayoutParams.width(percent: Float): ConstraintLayout.LayoutParams {

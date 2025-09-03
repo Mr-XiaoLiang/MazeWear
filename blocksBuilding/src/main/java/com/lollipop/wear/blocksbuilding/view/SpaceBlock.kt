@@ -8,7 +8,7 @@ import com.lollipop.wear.blocksbuilding.dsl.ViewLayoutParams
 
 fun ItemGroupScope<*>.Space(
     layoutParams: ViewGroup.LayoutParams = ViewLayoutParams(),
-    content: SpaceScope.() -> Unit
+    content: SpaceScope.() -> Unit = {}
 ): SpaceScope {
     return SpaceBlockScope(
         add(

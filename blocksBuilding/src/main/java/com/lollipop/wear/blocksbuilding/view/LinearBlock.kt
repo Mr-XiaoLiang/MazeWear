@@ -39,20 +39,25 @@ interface LinearScope : ItemGroupScope<LinearLayout>, MarginGroupScope {
 class LinearBlockScope(
     frameLayout: LinearLayout, lifecycleOwner: LifecycleOwner
 ) : BasicItemGroupScope<LinearLayout>(frameLayout, lifecycleOwner), LinearScope {
-    override fun ViewGroup.LayoutParams.weight(weight: Float): LinearLayout.LayoutParams {
-        return convert { LinearLayout.LayoutParams(it) }.also {
-            it.weight = weight
-        }
-    }
 
-    override fun ViewGroup.LayoutParams.gravity(vararg gravity: ViewGravity): LinearLayout.LayoutParams {
+    private fun ViewGroup.LayoutParams.convertLayout(): LinearLayout.LayoutParams {
         return convert {
             if (it is ViewGroup.MarginLayoutParams) {
                 LinearLayout.LayoutParams(it)
             } else {
                 LinearLayout.LayoutParams(it)
             }
-        }.also {
+        }
+    }
+
+    override fun ViewGroup.LayoutParams.weight(weight: Float): LinearLayout.LayoutParams {
+        return convertLayout().also {
+            it.weight = weight
+        }
+    }
+
+    override fun ViewGroup.LayoutParams.gravity(vararg gravity: ViewGravity): LinearLayout.LayoutParams {
+        return convertLayout().also {
             it.gravity = gravity.sum()
         }
     }

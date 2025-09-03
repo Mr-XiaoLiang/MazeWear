@@ -4,6 +4,7 @@ import android.graphics.Typeface
 import android.view.ViewGroup
 import androidx.annotation.ColorRes
 import androidx.annotation.FontRes
+import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.LifecycleOwner
@@ -38,6 +39,8 @@ interface CurvedTextScope : ItemViewScope<CurvedTextView> {
     var isClockwise: Boolean
 
     var angle: Float
+
+    fun text(@StringRes resId: Int)
 
     fun fontStyle(style: TextStyle)
 
@@ -78,6 +81,10 @@ class CurvedTextBlockScope(
         set(value) {
             view.anchorAngleDegrees = value
         }
+
+    override fun text(resId: Int) {
+        view.text = context.getString(resId)
+    }
 
     override fun fontStyle(style: TextStyle) {
         view.setTypeface(Typeface.defaultFromStyle(style.style))

@@ -23,7 +23,7 @@ fun BuilderScope.Footer() {
             ) {
                 Space(
                     layoutParams = ViewLayoutParams().widthMatch().heightMatch()
-                ) { }
+                )
             }
         }
     }

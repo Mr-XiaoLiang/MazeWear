@@ -48,6 +48,14 @@ interface ItemViewScope<V : View> {
             content.isVisible = value
         }
 
+    var rotation: Float
+        get() {
+            return content.rotation
+        }
+        set(value) {
+            content.rotation = value
+        }
+
     var isInvisible: Boolean
         get() {
             return content.isInvisible

@@ -13,6 +13,8 @@ import com.lollipop.wear.blocksbuilding.data.DataProvider
 import com.lollipop.wear.blocksbuilding.dsl.ActivityBlocksOwner
 import com.lollipop.wear.blocksbuilding.dsl.layoutParams
 import com.lollipop.wear.blocksbuilding.item.ItemSize
+import com.lollipop.wear.blocksbuilding.item.SP
+import com.lollipop.wear.blocksbuilding.view.TextStyle
 import com.lollipop.wear.blocksbuilding.withBlocks
 import kotlin.math.abs
 import kotlin.math.max
@@ -23,33 +25,38 @@ fun ComponentActivity.wearContent(
     snapEnable: Boolean = false,
     content: BuilderScope.() -> Unit
 ) {
+    setContentView(wearBlocksView(snapEnable = snapEnable, content = content))
+}
+
+fun ComponentActivity.wearBlocksView(
+    snapEnable: Boolean = false,
+    content: BuilderScope.() -> Unit
+): View {
     val blocksOwner = ActivityBlocksOwner(this)
-    setContentView(
-        ConstraintLayout(this).also { constraint ->
-            constraint.layoutParams(ItemSize.Match, ItemSize.Match)
-            constraint.setBackgroundColor(Color.BLACK)
-            constraint.addView(
-                WearableRecyclerView(this).also { recyclerView ->
-                    if (snapEnable) {
-                        PagerSnapHelper().attachToRecyclerView(recyclerView)
-                    }
-                    recyclerView.layoutManager = WearableLinearLayoutManager(
-                        this, CenterScrollingLayoutCallback()
-                    )
-                    recyclerView.isCircularScrollingGestureEnabled = false
-                    recyclerView.isEdgeItemsCenteringEnabled = false
-                    blocksOwner.withBlocks(recyclerView = recyclerView, content = content)
-                },
-                ConstraintLayout.LayoutParams(0, 0).apply {
-                    topToTop = ConstraintLayout.LayoutParams.PARENT_ID
-                    bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
-                    startToStart = ConstraintLayout.LayoutParams.PARENT_ID
-                    endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
-                    dimensionRatio = "1:1"
+    return ConstraintLayout(this).also { constraint ->
+        constraint.layoutParams(ItemSize.Match, ItemSize.Match)
+        constraint.setBackgroundColor(Color.BLACK)
+        constraint.addView(
+            WearableRecyclerView(this).also { recyclerView ->
+                if (snapEnable) {
+                    PagerSnapHelper().attachToRecyclerView(recyclerView)
                 }
-            )
-        }
-    )
+                recyclerView.layoutManager = WearableLinearLayoutManager(
+                    this, CenterScrollingLayoutCallback()
+                )
+                recyclerView.isCircularScrollingGestureEnabled = false
+                recyclerView.isEdgeItemsCenteringEnabled = false
+                blocksOwner.withBlocks(recyclerView = recyclerView, content = content)
+            },
+            ConstraintLayout.LayoutParams(0, 0).apply {
+                topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+                bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
+                startToStart = ConstraintLayout.LayoutParams.PARENT_ID
+                endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+                dimensionRatio = "1:1"
+            }
+        )
+    }
 }
 
 class CenterScrollingLayoutCallback(val fillHeader: Boolean = true) :
@@ -111,4 +118,10 @@ fun BuilderScope.ScaffoldBlock(
     TitleHeader(title)
     content()
     Footer()
+}
+
+fun CurvedTextScope.TimeStyle() {
+    fontStyle(TextStyle.Bold)
+    color(Color.WHITE)
+    fontSize(14.SP)
 }
