@@ -4,6 +4,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.lifecycle.LifecycleOwner
+import androidx.recyclerview.widget.RecyclerView
 import com.lollipop.wear.blocksbuilding.BBDsl
 import com.lollipop.wear.blocksbuilding.BuilderScope
 import com.lollipop.wear.blocksbuilding.RecyclerHolder
@@ -43,6 +44,8 @@ class RecyclerHolderBlock<T : Any>(
     override val itemState: MutableDataObserver<T?> = mutableData(null)
 
     private val log = bbLog()
+
+    override var position: Int = RecyclerView.NO_POSITION
 
     override val itemView: View
         get() {

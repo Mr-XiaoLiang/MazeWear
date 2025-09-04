@@ -1,16 +1,19 @@
 package com.lollipop.wear.maze.blocks
 
+import android.content.Context
 import android.graphics.Color
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.widget.WearableLinearLayoutManager
 import androidx.wear.widget.WearableRecyclerView
+import com.lollipop.wear.blocksbuilding.BlocksOwner
 import com.lollipop.wear.blocksbuilding.BuilderScope
 import com.lollipop.wear.blocksbuilding.data.DataProvider
-import com.lollipop.wear.blocksbuilding.dsl.ActivityBlocksOwner
+import com.lollipop.wear.blocksbuilding.dsl.createBlocksOwner
 import com.lollipop.wear.blocksbuilding.dsl.layoutParams
 import com.lollipop.wear.blocksbuilding.item.ItemSize
 import com.lollipop.wear.blocksbuilding.item.SP
@@ -32,21 +35,38 @@ fun ComponentActivity.wearBlocksView(
     snapEnable: Boolean = false,
     content: BuilderScope.() -> Unit
 ): View {
-    val blocksOwner = ActivityBlocksOwner(this)
-    return ConstraintLayout(this).also { constraint ->
+    return createBlocksOwner().wearBlocksView(snapEnable = snapEnable, content = content)
+}
+
+fun Fragment.wearBlocksView(
+    context: Context? = null,
+    snapEnable: Boolean = false,
+    content: BuilderScope.() -> Unit
+): View {
+    return createBlocksOwner(context = context).wearBlocksView(
+        snapEnable = snapEnable,
+        content = content
+    )
+}
+
+fun BlocksOwner.wearBlocksView(
+    snapEnable: Boolean = false,
+    content: BuilderScope.() -> Unit
+): View {
+    return ConstraintLayout(context).also { constraint ->
         constraint.layoutParams(ItemSize.Match, ItemSize.Match)
         constraint.setBackgroundColor(Color.BLACK)
         constraint.addView(
-            WearableRecyclerView(this).also { recyclerView ->
+            WearableRecyclerView(context).also { recyclerView ->
                 if (snapEnable) {
                     PagerSnapHelper().attachToRecyclerView(recyclerView)
                 }
                 recyclerView.layoutManager = WearableLinearLayoutManager(
-                    this, CenterScrollingLayoutCallback()
+                    context, CenterScrollingLayoutCallback()
                 )
                 recyclerView.isCircularScrollingGestureEnabled = false
                 recyclerView.isEdgeItemsCenteringEnabled = false
-                blocksOwner.withBlocks(recyclerView = recyclerView, content = content)
+                withBlocks(recyclerView = recyclerView, content = content)
             },
             ConstraintLayout.LayoutParams(0, 0).apply {
                 topToTop = ConstraintLayout.LayoutParams.PARENT_ID

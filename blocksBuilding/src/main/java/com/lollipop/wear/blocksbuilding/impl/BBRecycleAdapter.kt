@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.lollipop.wear.blocksbuilding.BlockManager
 import com.lollipop.wear.blocksbuilding.RecyclerHolder
 import com.lollipop.wear.blocksbuilding.dsl.bbLog
+import com.lollipop.wear.blocksbuilding.view.RecyclerHolderBlock
 
 class BBRecyclerAdapter<T : Any>(
     private val items: List<T>,
@@ -80,6 +81,9 @@ class BBRecyclerViewHolder<T : Any>(
 ) : RecyclerView.ViewHolder(holder.itemView) {
 
     fun onBind(item: T) {
+        if (holder is RecyclerHolderBlock) {
+            holder.position = bindingAdapterPosition
+        }
         holder.onUpdate(item)
     }
 

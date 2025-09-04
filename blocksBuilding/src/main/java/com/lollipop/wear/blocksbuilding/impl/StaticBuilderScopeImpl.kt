@@ -8,6 +8,7 @@ import com.lollipop.wear.blocksbuilding.BuilderScope
 import com.lollipop.wear.blocksbuilding.IBlock
 import com.lollipop.wear.blocksbuilding.RecyclerHolder
 import com.lollipop.wear.blocksbuilding.dsl.bbLog
+import com.lollipop.wear.blocksbuilding.view.RecyclerHolderBlock
 
 class StaticBuilderScopeImpl(override val blocksOwner: BlocksOwner) : BuilderScope {
 
@@ -235,6 +236,9 @@ class StaticBuilderScopeImpl(override val blocksOwner: BlocksOwner) : BuilderSco
                 val type = typeProvider(item)
                 val itemHolder = createItem(type)
                 holderList.add(itemHolder)
+                if (itemHolder is RecyclerHolderBlock) {
+                    itemHolder.position = index
+                }
                 itemHolder.onUpdate(item)
                 viewGroup.addView(itemHolder.itemView)
             }

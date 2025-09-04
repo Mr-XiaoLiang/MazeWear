@@ -58,11 +58,11 @@ inline fun <reified T : ViewGroup.LayoutParams> T.heightWrap(): T {
 }
 
 inline fun <reified T : ViewGroup.LayoutParams> T.widthEmpty(): T {
-    return width(ItemSize.Absolute(0.PX))
+    return width(ItemSize.Empty)
 }
 
 inline fun <reified T : ViewGroup.LayoutParams> T.heightEmpty(): T {
-    return height(ItemSize.Absolute(0.PX))
+    return height(ItemSize.Empty)
 }
 
 fun ViewLayoutParams(width: ItemSize = ItemSize.Wrap, height: ItemSize = ItemSize.Wrap) =

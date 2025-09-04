@@ -5,6 +5,7 @@ import android.view.View
 import android.widget.LinearLayout
 import androidx.activity.ComponentActivity
 import androidx.core.widget.NestedScrollView
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,6 +20,22 @@ class ActivityBlocksOwner(
 ) : BlocksOwner {
     override val context: Context = activity
     override val lifecycleOwner: LifecycleOwner = activity
+}
+
+class FragmentBlocksOwner(
+    val ownerContext: Context?,
+    val fragment: Fragment
+) : BlocksOwner {
+    override val context: Context = ownerContext ?: fragment.requireContext()
+    override val lifecycleOwner: LifecycleOwner = fragment
+}
+
+fun ComponentActivity.createBlocksOwner(): ActivityBlocksOwner {
+    return ActivityBlocksOwner(this)
+}
+
+fun Fragment.createBlocksOwner(context: Context? = null): FragmentBlocksOwner {
+    return FragmentBlocksOwner(context ?: activity, this)
 }
 
 fun ComponentActivity.content(
@@ -55,15 +72,10 @@ fun ComponentActivity.blocksView(
     rooView: (RecyclerView) -> Unit = {},
     content: BuilderScope.() -> Unit
 ): View {
-    val blocksOwner = ActivityBlocksOwner(this)
-    return RecyclerView(this).also { recyclerView ->
-        recyclerView.layoutParams(ItemSize.Match, ItemSize.Match)
-        recyclerView.layoutManager = LinearLayoutManager(
-            this, RecyclerView.VERTICAL, false
-        )
-        rooView(recyclerView)
-        blocksOwner.withBlocks(recyclerView = recyclerView, content = content)
-    }
+    return createBlocksOwner().blocksView(
+        rooView = rooView,
+        content = content
+    )
 }
 
 fun ComponentActivity.blocksViewBySwipeRefresh(
@@ -71,39 +83,21 @@ fun ComponentActivity.blocksViewBySwipeRefresh(
     onRefresh: (SwipeRefresh) -> Unit,
     content: BuilderScope.() -> Unit
 ): View {
-    val blocksOwner = ActivityBlocksOwner(this)
-    return SwipeRefreshLayout(this).also { refreshLayout ->
-        SwipeRefresh(refreshLayout, onRefresh)
-        refreshLayout.layoutParams(ItemSize.Match, ItemSize.Match)
-        rooView(refreshLayout)
-        refreshLayout.addView(
-            RecyclerView(this).also { recyclerView ->
-                recyclerView.layoutParams(ItemSize.Match, ItemSize.Match)
-                recyclerView.layoutManager = LinearLayoutManager(
-                    this, LinearLayoutManager.VERTICAL, false
-                )
-                blocksOwner.withBlocks(recyclerView, content = content)
-            }
-        )
-    }
+    return createBlocksOwner().blocksViewBySwipeRefresh(
+        rooView = rooView,
+        onRefresh = onRefresh,
+        content = content
+    )
 }
 
 fun ComponentActivity.blocksStaticView(
     rooView: (NestedScrollView) -> Unit = {},
     content: BuilderScope.() -> Unit
 ): View {
-    val blocksOwner = ActivityBlocksOwner(this)
-    return NestedScrollView(this).also { scrollView ->
-        scrollView.layoutParams(ItemSize.Match, ItemSize.Match)
-        rooView(scrollView)
-        scrollView.addView(
-            LinearLayout(this).also { contentView ->
-                contentView.layoutParams(ItemSize.Match, ItemSize.Wrap)
-                contentView.orientation = LinearLayout.VERTICAL
-                blocksOwner.withBlocks(viewGroup = contentView, content = content)
-            }
-        )
-    }
+    return createBlocksOwner().blocksStaticView(
+        rooView = rooView,
+        content = content
+    )
 }
 
 fun ComponentActivity.blocksStaticViewBySwipeRefresh(
@@ -111,19 +105,130 @@ fun ComponentActivity.blocksStaticViewBySwipeRefresh(
     onRefresh: (SwipeRefresh) -> Unit,
     content: BuilderScope.() -> Unit
 ): View {
-    val blocksOwner = ActivityBlocksOwner(this)
-    return SwipeRefreshLayout(this).also { refreshLayout ->
+    return createBlocksOwner().blocksStaticViewBySwipeRefresh(
+        rooView = rooView,
+        onRefresh = onRefresh,
+        content = content
+    )
+}
+
+fun Fragment.blocksView(
+    context: Context? = null,
+    rooView: (RecyclerView) -> Unit = {},
+    content: BuilderScope.() -> Unit
+): View {
+    return createBlocksOwner(context = context).blocksView(
+        rooView = rooView,
+        content = content
+    )
+}
+
+fun Fragment.blocksViewBySwipeRefresh(
+    context: Context? = null,
+    rooView: (SwipeRefreshLayout) -> Unit = {},
+    onRefresh: (SwipeRefresh) -> Unit,
+    content: BuilderScope.() -> Unit
+): View {
+    return createBlocksOwner(context = context).blocksViewBySwipeRefresh(
+        rooView = rooView,
+        onRefresh = onRefresh,
+        content = content
+    )
+}
+
+fun Fragment.blocksStaticView(
+    context: Context? = null,
+    rooView: (NestedScrollView) -> Unit = {},
+    content: BuilderScope.() -> Unit
+): View {
+    return createBlocksOwner(context = context).blocksStaticView(
+        rooView = rooView,
+        content = content
+    )
+}
+
+fun Fragment.blocksStaticViewBySwipeRefresh(
+    context: Context? = null,
+    rooView: (SwipeRefreshLayout) -> Unit = {},
+    onRefresh: (SwipeRefresh) -> Unit,
+    content: BuilderScope.() -> Unit
+): View {
+    return createBlocksOwner(context = context).blocksStaticViewBySwipeRefresh(
+        rooView = rooView,
+        onRefresh = onRefresh,
+        content = content
+    )
+}
+
+fun BlocksOwner.blocksView(
+    rooView: (RecyclerView) -> Unit = {},
+    content: BuilderScope.() -> Unit
+): View {
+    return RecyclerView(context).also { recyclerView ->
+        recyclerView.layoutParams(ItemSize.Match, ItemSize.Match)
+        recyclerView.layoutManager = LinearLayoutManager(
+            context, RecyclerView.VERTICAL, false
+        )
+        rooView(recyclerView)
+        withBlocks(recyclerView = recyclerView, content = content)
+    }
+}
+
+fun BlocksOwner.blocksViewBySwipeRefresh(
+    rooView: (SwipeRefreshLayout) -> Unit = {},
+    onRefresh: (SwipeRefresh) -> Unit,
+    content: BuilderScope.() -> Unit
+): View {
+    return SwipeRefreshLayout(context).also { refreshLayout ->
         SwipeRefresh(refreshLayout, onRefresh)
         refreshLayout.layoutParams(ItemSize.Match, ItemSize.Match)
         rooView(refreshLayout)
         refreshLayout.addView(
-            NestedScrollView(this).also { scrollView ->
+            RecyclerView(context).also { recyclerView ->
+                recyclerView.layoutParams(ItemSize.Match, ItemSize.Match)
+                recyclerView.layoutManager = LinearLayoutManager(
+                    context, LinearLayoutManager.VERTICAL, false
+                )
+                withBlocks(recyclerView, content = content)
+            }
+        )
+    }
+}
+
+fun BlocksOwner.blocksStaticView(
+    rooView: (NestedScrollView) -> Unit = {},
+    content: BuilderScope.() -> Unit
+): View {
+    return NestedScrollView(context).also { scrollView ->
+        scrollView.layoutParams(ItemSize.Match, ItemSize.Match)
+        rooView(scrollView)
+        scrollView.addView(
+            LinearLayout(context).also { contentView ->
+                contentView.layoutParams(ItemSize.Match, ItemSize.Wrap)
+                contentView.orientation = LinearLayout.VERTICAL
+                withBlocks(viewGroup = contentView, content = content)
+            }
+        )
+    }
+}
+
+fun BlocksOwner.blocksStaticViewBySwipeRefresh(
+    rooView: (SwipeRefreshLayout) -> Unit = {},
+    onRefresh: (SwipeRefresh) -> Unit,
+    content: BuilderScope.() -> Unit
+): View {
+    return SwipeRefreshLayout(context).also { refreshLayout ->
+        SwipeRefresh(refreshLayout, onRefresh)
+        refreshLayout.layoutParams(ItemSize.Match, ItemSize.Match)
+        rooView(refreshLayout)
+        refreshLayout.addView(
+            NestedScrollView(context).also { scrollView ->
                 scrollView.layoutParams(ItemSize.Match, ItemSize.Match)
                 scrollView.addView(
-                    LinearLayout(this).also { contentView ->
+                    LinearLayout(context).also { contentView ->
                         contentView.layoutParams(ItemSize.Match, ItemSize.Wrap)
                         contentView.orientation = LinearLayout.VERTICAL
-                        blocksOwner.withBlocks(viewGroup = contentView, content = content)
+                        withBlocks(viewGroup = contentView, content = content)
                     }
                 )
             }

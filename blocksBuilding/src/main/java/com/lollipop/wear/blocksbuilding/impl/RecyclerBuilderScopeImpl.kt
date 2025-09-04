@@ -8,6 +8,7 @@ import com.lollipop.wear.blocksbuilding.BlocksOwner
 import com.lollipop.wear.blocksbuilding.BuilderScope
 import com.lollipop.wear.blocksbuilding.IBlock
 import com.lollipop.wear.blocksbuilding.RecyclerHolder
+import com.lollipop.wear.blocksbuilding.data.ListDataProvider
 
 class RecyclerBuilderScopeImpl(override val blocksOwner: BlocksOwner) : BuilderScope {
 

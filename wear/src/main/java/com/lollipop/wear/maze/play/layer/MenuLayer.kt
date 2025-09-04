@@ -5,7 +5,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import com.lollipop.play.core.controller.TimeDelegate
-import com.lollipop.play.core.view.MazeOverviewView
 import com.lollipop.wear.blocksbuilding.data.mutableData
 import com.lollipop.wear.blocksbuilding.data.staticData
 import com.lollipop.wear.blocksbuilding.dsl.ViewLayoutParams
@@ -13,7 +12,6 @@ import com.lollipop.wear.blocksbuilding.dsl.layoutParams
 import com.lollipop.wear.blocksbuilding.dsl.widthEmpty
 import com.lollipop.wear.blocksbuilding.item.DP
 import com.lollipop.wear.blocksbuilding.item.ItemSize
-import com.lollipop.wear.blocksbuilding.item.PX
 import com.lollipop.wear.blocksbuilding.item.SP
 import com.lollipop.wear.blocksbuilding.item.ViewGravity
 import com.lollipop.wear.blocksbuilding.view.Constraint
@@ -24,11 +22,11 @@ import com.lollipop.wear.blocksbuilding.view.RoundRectShape
 import com.lollipop.wear.blocksbuilding.view.Space
 import com.lollipop.wear.blocksbuilding.view.Text
 import com.lollipop.wear.blocksbuilding.view.TextStyle
-import com.lollipop.wear.blocksbuilding.view.ViewBackground
 import com.lollipop.wear.maze.R
 import com.lollipop.wear.maze.blocks.Button
 import com.lollipop.wear.maze.blocks.CurvedText
 import com.lollipop.wear.maze.blocks.Footer
+import com.lollipop.wear.maze.blocks.MazeOverview
 import com.lollipop.wear.maze.blocks.MazeOverviewData
 import com.lollipop.wear.maze.blocks.TimeStyle
 import com.lollipop.wear.maze.blocks.wearBlocksView
@@ -49,7 +47,7 @@ class MenuLayer(activity: AppCompatActivity) : BasicLayer(activity) {
     }
 
     private fun ConstraintScope.squareWithWidth() =
-        ViewLayoutParams(ItemSize.Match, ItemSize.Absolute(0.PX))
+        ViewLayoutParams(ItemSize.Match, ItemSize.Empty)
             .ratio(1, 1)
 
 
@@ -86,23 +84,21 @@ class MenuLayer(activity: AppCompatActivity) : BasicLayer(activity) {
                         padding(10.DP)
                         text(R.string.hint_parse)
                     }
-
-                    add(
-                        view = MazeOverviewView(context).apply {
-                            background = ViewBackground.ByColor(
-                                shape = RoundRectShape(8.DP.toTypedValue()),
-                                color = 0x30FFFFFF.toInt()
-                            )
-                            mazeState.remember {
-                                setMap(it.map, it.path)
-                            }
-                        },
+                    MazeOverview(
                         layoutParams = squareWithWidth()
                             .widthEmpty()
                             .width(0.7F)
                             .control().topToParent().startToParent().endToParent().bottomToParent()
                             .complete()
-                    )
+                    ) {
+                        background(
+                            shape = RoundRectShape(8.DP.toTypedValue()),
+                            color = 0x30FFFFFF.toInt()
+                        )
+                        mazeState.remember {
+                            setMap(it)
+                        }
+                    }
                 }
             }
             ItemView {

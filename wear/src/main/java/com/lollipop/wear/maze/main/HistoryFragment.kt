@@ -1,11 +1,19 @@
 package com.lollipop.wear.maze.main
 
 import android.annotation.SuppressLint
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import com.lollipop.play.core.data.DataManager
 import com.lollipop.play.core.data.DataObserver
 import com.lollipop.play.core.data.MazeHistory
+import com.lollipop.wear.blocksbuilding.data.ListDataProvider
+import com.lollipop.wear.blocksbuilding.data.staticData
 import com.lollipop.wear.maze.MazeInfoActivity
 import com.lollipop.wear.maze.R
+import com.lollipop.wear.maze.blocks.ScaffoldBlock
+import com.lollipop.wear.maze.blocks.wearBlocksView
 import com.lollipop.wear.maze.databinding.FragmentMainSubpageBinding
 
 class HistoryFragment : MainBaseFragment() {
@@ -14,19 +22,35 @@ class HistoryFragment : MainBaseFragment() {
         DataObserver(::onDataChanged)
     }
 
+    private val mazeHistoryProvider = ListDataProvider<MazeHistory>()
+
     private val dataObserverController by lazy {
         dataObserver.controllerByManual()
     }
 
     private val mazeList = mutableListOf<MazeHistory>()
 
-    private val mazeHistoryAdapter by lazy {
-        MazeHistoryAdapter(mazeList, ::onMazeHistoryClick)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return wearBlocksView(inflater.context) {
+            ScaffoldBlock(
+                title = staticData(blocksOwner.context.getString(R.string.title_history))
+            ) {
+                items(
+                    provider = mazeHistoryProvider
+                ) {
+                    MazeHolder { position, mazeHistory ->
+                        onMazeHistoryClick(position, mazeHistory)
+                    }
+                }
+            }
+        }
     }
 
     override fun onViewCreated(binding: FragmentMainSubpageBinding) {
-        updateTitle(binding.root.context.getString(R.string.title_history))
-        initRecyclerView(binding, mazeHistoryAdapter)
     }
 
     override fun onResume() {
@@ -43,7 +67,7 @@ class HistoryFragment : MainBaseFragment() {
     private fun onDataChanged() {
         dataObserver.releasePending()
         DataManager.copyListComplete(mazeList)
-        mazeHistoryAdapter.notifyDataSetChanged()
+        mazeHistoryProvider.reset(mazeList)
     }
 
     private fun onMazeHistoryClick(position: Int, mazeHistory: MazeHistory) {

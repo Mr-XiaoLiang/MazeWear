@@ -29,6 +29,12 @@ sealed class ItemSize {
         }
     }
 
+    object Empty : ItemSize() {
+        override fun update(src: Int): Int {
+            return 0
+        }
+    }
+
     data class Absolute(val size: MetricsValue) : ItemSize() {
         override fun update(src: Int): Int {
             return size.px
