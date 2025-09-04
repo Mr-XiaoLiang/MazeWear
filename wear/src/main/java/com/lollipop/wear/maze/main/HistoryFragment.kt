@@ -14,7 +14,6 @@ import com.lollipop.wear.maze.MazeInfoActivity
 import com.lollipop.wear.maze.R
 import com.lollipop.wear.maze.blocks.ScaffoldBlock
 import com.lollipop.wear.maze.blocks.wearBlocksView
-import com.lollipop.wear.maze.databinding.FragmentMainSubpageBinding
 
 class HistoryFragment : MainBaseFragment() {
 
@@ -42,15 +41,12 @@ class HistoryFragment : MainBaseFragment() {
                 items(
                     provider = mazeHistoryProvider
                 ) {
-                    MazeHolder { position, mazeHistory ->
-                        onMazeHistoryClick(position, mazeHistory)
-                    }
+                    MazeHolder(
+                        onItemClick = ::onMazeHistoryClick
+                    )
                 }
             }
         }
-    }
-
-    override fun onViewCreated(binding: FragmentMainSubpageBinding) {
     }
 
     override fun onResume() {

@@ -1,10 +1,13 @@
 package com.lollipop.wear.blocksbuilding.view
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Shader
 import android.graphics.drawable.Drawable
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.view.isInvisible
@@ -129,6 +132,17 @@ interface ItemViewScope<V : View> {
         content.background = drawable
     }
 
+    fun backgroundTint(color: ColorStateList) {
+        content.backgroundTintList = color
+    }
+
+    fun backgroundTint(@ColorInt color: Int) {
+        backgroundTint(ColorStateList.valueOf(color))
+    }
+
+    fun backgroundTintRes(@ColorRes resId: Int) {
+        backgroundTint(ContextCompat.getColorStateList(context, resId)!!)
+    }
 
 }
 

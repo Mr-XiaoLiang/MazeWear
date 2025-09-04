@@ -1,18 +1,33 @@
 package com.lollipop.wear.maze.main
 
 import android.annotation.SuppressLint
+import android.graphics.Color
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.RecyclerView
 import com.lollipop.play.core.data.DataManager
 import com.lollipop.play.core.data.DataObserver
 import com.lollipop.play.core.data.MazeHistory
-import com.lollipop.play.core.data.mazeSettings
+import com.lollipop.wear.blocksbuilding.BuilderScope
+import com.lollipop.wear.blocksbuilding.data.ListDataProvider
+import com.lollipop.wear.blocksbuilding.data.mutableData
+import com.lollipop.wear.blocksbuilding.data.staticData
+import com.lollipop.wear.blocksbuilding.dsl.ViewLayoutParams
+import com.lollipop.wear.blocksbuilding.dsl.layoutParams
+import com.lollipop.wear.blocksbuilding.item.DP
+import com.lollipop.wear.blocksbuilding.item.ItemSize
+import com.lollipop.wear.blocksbuilding.item.SP
+import com.lollipop.wear.blocksbuilding.view.Constraint
+import com.lollipop.wear.blocksbuilding.view.Image
+import com.lollipop.wear.blocksbuilding.view.ItemView
+import com.lollipop.wear.blocksbuilding.view.Text
+import com.lollipop.wear.blocksbuilding.view.TextStyle
 import com.lollipop.wear.maze.MazeInfoActivity
 import com.lollipop.wear.maze.PlayActivity
 import com.lollipop.wear.maze.R
-import com.lollipop.wear.maze.base.WearListHelper
-import com.lollipop.wear.maze.databinding.FragmentMainSubpageBinding
-import com.lollipop.wear.maze.databinding.ItemMainHomeNewBinding
+import com.lollipop.wear.maze.blocks.ScaffoldBlock
+import com.lollipop.wear.maze.blocks.wearBlocksView
 
 class HomeFragment : MainBaseFragment() {
 
@@ -20,28 +35,44 @@ class HomeFragment : MainBaseFragment() {
         DataObserver(::onDataChanged)
     }
 
+    private val mazeHistoryProvider = ListDataProvider<MazeHistory>()
+
     private val dataObserverController by lazy {
         dataObserver.controllerByManual()
     }
 
     private val mazeList = mutableListOf<MazeHistory>()
 
-    private val newGameAdapter by lazy {
-        NewGameAdapter(::onNewGameClick)
-    }
+    private val mazeSizeDisplay = mutableData("")
 
-    private val mazeHistoryAdapter by lazy {
-        MazeHistoryAdapter(mazeList, ::onMazeHistoryClick, ::onMazeHistoryLongClick)
-    }
-
-    override fun onViewCreated(binding: FragmentMainSubpageBinding) {
-        updateTitle(binding.root.context.getString(R.string.app_name))
-        initRecyclerView(binding, newGameAdapter, mazeHistoryAdapter)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return wearBlocksView(inflater.context) {
+            ScaffoldBlock(
+                title = staticData(blocksOwner.context.getString(R.string.app_name))
+            ) {
+                NewGameItem()
+                items(
+                    provider = mazeHistoryProvider
+                ) {
+                    MazeHolder(
+                        onItemClick = ::onMazeHistoryClick,
+                        onItemLongClick = ::onMazeHistoryLongClick
+                    )
+                }
+            }
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        newGameAdapter.update()
+        context?.let { c ->
+            val mazeWidth = optSettings(c).mazeWidth
+            mazeSizeDisplay.value = "${mazeWidth}x${mazeWidth}"
+        }
         dataObserverController.resume()
     }
 
@@ -55,7 +86,7 @@ class HomeFragment : MainBaseFragment() {
         dataObserver.releasePending()
         DataManager.copyListUnfinished(mazeList)
         log("onDataChanged: ${mazeList.size}")
-        mazeHistoryAdapter.notifyDataSetChanged()
+        mazeHistoryProvider.reset(mazeList)
     }
 
     private fun onNewGameClick() {
@@ -85,52 +116,52 @@ class HomeFragment : MainBaseFragment() {
         dataObserver.destroy()
     }
 
-    private class NewGameAdapter(
-        private val onNewGameClick: () -> Unit
-    ) : WearListHelper.BasicAdapter<NewGameHolder>() {
+    private fun BuilderScope.NewGameItem() {
+        ItemView {
+            content.layoutParams(ItemSize.Match, ItemSize.Wrap)
+            padding(horizontal = 12.DP, vertical = 6.DP)
+            Constraint(
+                layoutParams = ViewLayoutParams(ItemSize.Match, ItemSize.Wrap)
+            ) {
+                onClick {
+                    onNewGameClick()
+                }
+                background(R.drawable.bg_item_main_maze)
+                backgroundTint(0xFF489E8F.toInt())
+                padding(6.DP)
 
-        fun update() {
-            notifyItemChanged(0)
-        }
-
-        override fun onCreateViewHolder(
-            parent: ViewGroup,
-            viewType: Int
-        ): NewGameHolder {
-            return NewGameHolder(inflate(parent), onNewGameClick)
-        }
-
-        override fun onBindViewHolder(
-            holder: NewGameHolder,
-            position: Int
-        ) {
-            holder.bind()
-        }
-
-        override fun getItemCount(): Int {
-            return 1
-        }
-    }
-
-    private class NewGameHolder(
-        private val binding: ItemMainHomeNewBinding,
-        private val onClick: () -> Unit
-    ) : RecyclerView.ViewHolder(binding.root) {
-
-        private val settings by itemView.context.mazeSettings()
-
-        init {
-            binding.root.setOnClickListener {
-                onClick()
+                val icon = Image(
+                    layoutParams = ViewLayoutParams(36.DP)
+                        .margin(end = 6.DP)
+                        .control().bottomToParent().topToParent().endToParent().complete()
+                ) {
+                    src(R.drawable.baseline_play_circle_24)
+                    tint(Color.WHITE)
+                }
+                val title = Text(
+                    layoutParams = ViewLayoutParams(ItemSize.Empty, ItemSize.Wrap)
+                        .margin(start = 4.DP, end = 6.DP)
+                        .control().startToParent().topToParent().endToStartOf(icon).complete()
+                ) {
+                    fontSize(18.SP)
+                    fontStyle(TextStyle.Bold)
+                    color(Color.WHITE)
+                    text(R.string.title_new_game)
+                }
+                Text(
+                    layoutParams = ViewLayoutParams(ItemSize.Empty, ItemSize.Wrap)
+                        .control().startToStartOf(title).topToBottomOf(title).endToEndOf(title)
+                        .complete()
+                ) {
+                    fontSize(11.SP)
+                    fontByResource(com.lollipop.play.core.R.font.leckerli_one_regular)
+                    color(Color.WHITE)
+                    mazeSizeDisplay.remember {
+                        text = it
+                    }
+                }
             }
         }
-
-        @SuppressLint("SetTextI18n")
-        fun bind() {
-            val mazeWidth = settings.mazeWidth
-            binding.sizeView.text = "${mazeWidth}x${mazeWidth}"
-        }
-
     }
 
 }

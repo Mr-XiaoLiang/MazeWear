@@ -2,15 +2,9 @@ package com.lollipop.wear.maze.main
 
 import android.content.Context
 import android.graphics.Color
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.DrawableRes
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.lollipop.play.core.controller.TimeDelegate
 import com.lollipop.play.core.data.MazeHistory
 import com.lollipop.play.core.data.PreferencesHelper
 import com.lollipop.play.core.helper.registerLog
@@ -32,43 +26,14 @@ import com.lollipop.wear.blocksbuilding.view.Row
 import com.lollipop.wear.blocksbuilding.view.Text
 import com.lollipop.wear.blocksbuilding.view.ViewHolder
 import com.lollipop.wear.maze.R
-import com.lollipop.wear.maze.base.WearListHelper
 import com.lollipop.wear.maze.blocks.MazeOverview
 import com.lollipop.wear.maze.blocks.MazeOverviewData
-import com.lollipop.wear.maze.databinding.FragmentMainSubpageBinding
-import com.lollipop.wear.maze.databinding.ItemMainMazeBinding
-import com.lollipop.wear.maze.theme.MazeMapTheme
 
 abstract class MainBaseFragment : Fragment() {
 
-    private val listHelper = WearListHelper()
-
-    private val timeDelegate = TimeDelegate.auto(this) { time ->
-        updateTime(time)
-    }
-
     protected val log = registerLog()
 
-    private var binding: FragmentMainSubpageBinding? = null
-
-    protected fun updateTitle(title: String) {
-        listHelper.updateTitle(title)
-    }
-
     protected var settings: PreferencesHelper? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        timeDelegate
-    }
-
-    protected fun createAdapter(vararg contentAdapter: RecyclerView.Adapter<*>): RecyclerView.Adapter<*> {
-        return listHelper.createAdapter(*contentAdapter)
-    }
-
-    protected fun updateTime(time: String) {
-        listHelper.updateTime(time)
-    }
 
     protected fun optSettings(context: Context): PreferencesHelper {
         val helper = settings
@@ -85,23 +50,6 @@ abstract class MainBaseFragment : Fragment() {
         optSettings(context)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val newBinding = FragmentMainSubpageBinding.inflate(inflater, container, false)
-        binding = newBinding
-        return newBinding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        binding?.apply { onViewCreated(this) }
-    }
-
-    abstract fun onViewCreated(binding: FragmentMainSubpageBinding)
-
     override fun onResume() {
         super.onResume()
         log("onResume")
@@ -112,58 +60,10 @@ abstract class MainBaseFragment : Fragment() {
         log("onPause")
     }
 
-    protected fun initRecyclerView(
-        binding: FragmentMainSubpageBinding,
-        vararg adapter: RecyclerView.Adapter<*>
-    ) {
-        val recyclerView = binding.recyclerView
-        recyclerView.adapter = createAdapter(*adapter)
-        recyclerView.layoutManager = LinearLayoutManager(recyclerView.context)
-    }
-
-    protected open class MazeHistoryAdapter(
-        private val mazeHistoryList: List<MazeHistory>,
-        private val onItemClick: (Int, MazeHistory) -> Unit,
-        private val onItemLongClick: (Int, MazeHistory) -> Boolean = { _, _ -> false }
-    ) : WearListHelper.BasicAdapter<MazeHistoryHolder>() {
-        override fun onCreateViewHolder(
-            parent: ViewGroup,
-            viewType: Int
-        ): MazeHistoryHolder {
-            return MazeHistoryHolder(
-                inflate(parent),
-                ::onItemClick,
-                onLongClick = ::onItemLongClick
-            )
-        }
-
-        private fun onItemClick(position: Int) {
-            if (position < 0 || position >= mazeHistoryList.size) {
-                return
-            }
-            onItemClick(position, mazeHistoryList[position])
-        }
-
-        private fun onItemLongClick(position: Int): Boolean {
-            if (position < 0 || position >= mazeHistoryList.size) {
-                return false
-            }
-            return onItemLongClick(position, mazeHistoryList[position])
-        }
-
-        override fun onBindViewHolder(
-            holder: MazeHistoryHolder,
-            position: Int
-        ) {
-            holder.bind(mazeHistoryList[position])
-        }
-
-        override fun getItemCount(): Int {
-            return mazeHistoryList.size
-        }
-    }
-
-    protected fun BuilderScope.MazeHolder(onItemClick: (Int, MazeHistory) -> Unit): RecyclerHolder<MazeHistory> {
+    protected fun BuilderScope.MazeHolder(
+        onItemLongClick: (Int, MazeHistory) -> Boolean = { _, _ -> false },
+        onItemClick: (Int, MazeHistory) -> Unit
+    ): RecyclerHolder<MazeHistory> {
         return ViewHolder {
             val state = itemState
             val titleState = mutableData("")
@@ -182,6 +82,12 @@ abstract class MainBaseFragment : Fragment() {
                 state.value?.let {
                     onItemClick(position, it)
                 }
+            }
+            onLongClick {
+                val result = state.value?.let {
+                    onItemLongClick(position, it)
+                }
+                result ?: false
             }
             Constraint(
                 layoutParams = ViewLayoutParams(ItemSize.Match, ItemSize.Wrap)
@@ -265,41 +171,6 @@ abstract class MainBaseFragment : Fragment() {
                 }
             }
         }
-    }
-
-    protected class MazeHistoryHolder(
-        private val binding: ItemMainMazeBinding,
-        private val onClick: (Int) -> Unit,
-        private val onLongClick: (Int) -> Boolean
-    ) : RecyclerView.ViewHolder(binding.root) {
-
-        init {
-            binding.overviewView.setDisplayMap(false)
-            MazeMapTheme.updateMaze(binding.overviewView)
-            binding.cardView.setOnClickListener {
-                onItemClick()
-            }
-            binding.cardView.setOnLongClickListener {
-                onLongClick()
-            }
-        }
-
-        private fun onItemClick() {
-            onClick(bindingAdapterPosition)
-        }
-
-        private fun onLongClick(): Boolean {
-            return onLongClick(bindingAdapterPosition)
-        }
-
-        fun bind(history: MazeHistory) {
-            binding.nameView.text = history.name
-            binding.stepView.text = history.pathLength.toString()
-            binding.overviewView.setMap(history.maze, history.path)
-            binding.timeView.text = history.timeDisplay
-            binding.sizeView.text = history.level
-        }
-
     }
 
 }
