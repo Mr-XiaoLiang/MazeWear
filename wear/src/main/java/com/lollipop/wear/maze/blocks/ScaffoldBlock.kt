@@ -15,10 +15,12 @@ import com.lollipop.wear.blocksbuilding.BuilderScope
 import com.lollipop.wear.blocksbuilding.data.DataProvider
 import com.lollipop.wear.blocksbuilding.dsl.createBlocksOwner
 import com.lollipop.wear.blocksbuilding.dsl.layoutParams
+import com.lollipop.wear.blocksbuilding.item.DP
 import com.lollipop.wear.blocksbuilding.item.ItemSize
 import com.lollipop.wear.blocksbuilding.item.SP
 import com.lollipop.wear.blocksbuilding.view.TextStyle
 import com.lollipop.wear.blocksbuilding.withBlocks
+import com.lollipop.wear.maze.widget.CircularScrollIndicator
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -56,24 +58,46 @@ fun BlocksOwner.wearBlocksView(
     return ConstraintLayout(context).also { constraint ->
         constraint.layoutParams(ItemSize.Match, ItemSize.Match)
         constraint.setBackgroundColor(Color.BLACK)
+        val wearableRecyclerView = WearableRecyclerView(context).also { recyclerView ->
+            if (snapEnable) {
+                PagerSnapHelper().attachToRecyclerView(recyclerView)
+            }
+            recyclerView.id = View.generateViewId()
+            recyclerView.layoutManager = WearableLinearLayoutManager(
+                context, CenterScrollingLayoutCallback()
+            )
+            recyclerView.isCircularScrollingGestureEnabled = false
+            recyclerView.isEdgeItemsCenteringEnabled = false
+            withBlocks(recyclerView = recyclerView, content = content)
+        }
         constraint.addView(
-            WearableRecyclerView(context).also { recyclerView ->
-                if (snapEnable) {
-                    PagerSnapHelper().attachToRecyclerView(recyclerView)
-                }
-                recyclerView.layoutManager = WearableLinearLayoutManager(
-                    context, CenterScrollingLayoutCallback()
-                )
-                recyclerView.isCircularScrollingGestureEnabled = false
-                recyclerView.isEdgeItemsCenteringEnabled = false
-                withBlocks(recyclerView = recyclerView, content = content)
-            },
+            wearableRecyclerView,
             ConstraintLayout.LayoutParams(0, 0).apply {
                 topToTop = ConstraintLayout.LayoutParams.PARENT_ID
                 bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
                 startToStart = ConstraintLayout.LayoutParams.PARENT_ID
                 endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
                 dimensionRatio = "1:1"
+            }
+        )
+        val recyclerViewId = wearableRecyclerView.id
+        constraint.addView(
+            CircularScrollIndicator(context).also { indicator ->
+                indicator.attachTo(wearableRecyclerView)
+                indicator.thumbBackground = 0x33FFFFFF
+                indicator.thumbColor = Color.WHITE
+                indicator.thumbWidth = 3.DP.px.toFloat()
+                indicator.backgroundWidth = 1.DP.px.toFloat()
+                indicator.startAngle = -30f
+                indicator.sweepAngle = 60f
+                val padding = 2.DP.px
+                indicator.setPadding(padding, padding, padding, padding)
+            },
+            ConstraintLayout.LayoutParams(0, 0).apply {
+                topToTop = recyclerViewId
+                bottomToBottom = recyclerViewId
+                startToStart = recyclerViewId
+                endToEnd = recyclerViewId
             }
         )
     }
