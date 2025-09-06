@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.view.ViewGroup
 import androidx.annotation.DrawableRes
 import androidx.fragment.app.Fragment
+import com.lollipop.maze.data.MTreasure
 import com.lollipop.play.core.data.MazeHistory
 import com.lollipop.play.core.data.PreferencesHelper
 import com.lollipop.play.core.helper.registerLog
@@ -27,7 +28,6 @@ import com.lollipop.wear.blocksbuilding.view.Text
 import com.lollipop.wear.blocksbuilding.view.ViewHolder
 import com.lollipop.wear.maze.R
 import com.lollipop.wear.maze.blocks.MazeOverview
-import com.lollipop.wear.maze.blocks.MazeOverviewData
 
 abstract class MainBaseFragment : Fragment() {
 
@@ -101,9 +101,9 @@ abstract class MainBaseFragment : Fragment() {
                     background(R.drawable.bg_item_maze_overview)
                     state.remember {
                         if (it == null) {
-                            setMap(MazeOverviewData.EMPTY)
+                            setMap(MTreasure.EMPTY)
                         } else {
-                            setMap(it.maze, it.path)
+                            setMap(it.treasure)
                         }
                     }
                 }

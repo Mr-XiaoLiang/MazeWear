@@ -12,6 +12,7 @@ import com.lollipop.maze.data.MBlock
 import com.lollipop.maze.data.MMap
 import com.lollipop.maze.data.MPath
 import com.lollipop.maze.data.MPoint
+import com.lollipop.maze.data.MTreasure
 import com.lollipop.play.core.helper.registerLog
 import com.lollipop.play.core.view.draw.PathDrawable
 import com.lollipop.play.core.view.draw.SpiritDrawable
@@ -44,6 +45,11 @@ class MazePlayView @JvmOverloads constructor(
         invalidate()
     }
 
+    private fun setGhostDrawable(ghostDrawable: PathDrawable) {
+        mapDrawable.ghostDrawable = ghostDrawable
+        invalidate()
+    }
+
     private fun setSpiritDrawable(spiritDrawable: SpiritDrawable) {
         mapDrawable.spiritDrawable = spiritDrawable
         invalidate()
@@ -53,8 +59,8 @@ class MazePlayView @JvmOverloads constructor(
         mapDrawable.setViewportSize(width, height)
     }
 
-    private fun setSource(sourceMap: MMap, path: MPath) {
-        mapDrawable.setSource(sourceMap, path)
+    private fun setSource(mTreasure: MTreasure) {
+        mapDrawable.setSource(mTreasure)
     }
 
     private fun setFocus(x: Int, y: Int): Boolean {
@@ -100,6 +106,8 @@ class MazePlayView @JvmOverloads constructor(
         private var sourceMap: MMap? = null
         private var pathList: MPath? = null
 
+        private var ghostList: MPath? = null
+
         private var focusBlock = MBlock(x = -1, y = -1)
         private var fromBlock = MBlock(x = -1, y = -1)
 
@@ -109,6 +117,7 @@ class MazePlayView @JvmOverloads constructor(
 
         private var drawMap = MMap(viewportWidth + 2, viewportHeight + 2)
         private var routePath = Path()
+        private var ghostRoutePath = Path()
 
         private var drawLeftEdge = 0F
         private var drawTopEdge = 0F
@@ -118,6 +127,7 @@ class MazePlayView @JvmOverloads constructor(
 
         var tileDrawable: TileDrawable = ColorTileDrawable()
         var pathDrawable: PathDrawable = ColorPathDrawable()
+        var ghostDrawable: PathDrawable = ColorPathDrawable()
         var spiritDrawable: SpiritDrawable = ColorSpiritDrawable()
 
         private fun getMapBufferSize(size: Int): Int {
@@ -139,12 +149,14 @@ class MazePlayView @JvmOverloads constructor(
             }
         }
 
-        fun setSource(sourceMap: MMap, path: MPath) {
-            this.sourceMap = sourceMap
-            this.pathList = path
-            mapWidth = sourceMap.width
-            mapHeight = sourceMap.height
-            tileMap.setSource(sourceMap)
+        fun setSource(mTreasure: MTreasure) {
+            val mazeMap = mTreasure.mazeMap
+            this.sourceMap = mazeMap.map
+            this.pathList = mTreasure.path
+            this.ghostList = mTreasure.hiPath
+            mapWidth = mazeMap.width
+            mapHeight = mazeMap.height
+            tileMap.setSource(mazeMap.map)
         }
 
         fun setFocus(x: Int, y: Int): Boolean {
@@ -187,9 +199,20 @@ class MazePlayView @JvmOverloads constructor(
             drawTopEdge -= (viewportHeight / 2) * blockSize
 
             routePath.reset()
+            ghostRoutePath.reset()
 
+            pathList?.let {
+                pathToPath(it, routePath, halfBlock)
+            }
+            ghostList?.let {
+                pathToPath(it, ghostRoutePath, halfBlock)
+            }
+            invalidateSelf()
+        }
+
+        private fun pathToPath(path: MPath, outPath: Path, halfBlock: Float) {
             var isFirst = true
-            pathList?.pointList?.forEach { point ->
+            path.pointList.forEach { point ->
                 val pointX = (point.x * blockSize) + halfBlock
                 val pointY = (point.y * blockSize) + halfBlock
                 if (isFirst) {
@@ -199,7 +222,6 @@ class MazePlayView @JvmOverloads constructor(
                     routePath.lineTo(pointX, pointY)
                 }
             }
-            invalidateSelf()
         }
 
         private val log = registerLog()
@@ -238,13 +260,22 @@ class MazePlayView @JvmOverloads constructor(
         }
 
         private fun drawPath(canvas: Canvas) {
+            val ghostRoute = ghostRoutePath
+            if (!ghostRoute.isEmpty) {
+                drawRoutePath(canvas, ghostDrawable, ghostRoute)
+            }
+            drawRoutePath(canvas, pathDrawable, routePath)
+        }
+
+        private fun drawRoutePath(canvas: Canvas, drawable: PathDrawable, path: Path) {
             canvas.withSave {
                 val x = (focusBlock.x - (viewportWidth / 2)) * blockSize
                 val y = (focusBlock.y - (viewportHeight / 2)) * blockSize
                 canvas.translate(x * -1, y * -1)
-                pathDrawable.draw(canvas, routePath, blockSize)
+                drawable.draw(canvas, path, blockSize)
             }
         }
+
 
         private fun drawSpiriter(canvas: Canvas) {
             spiritDrawable.draw(canvas, bounds.exactCenterX(), bounds.exactCenterY(), blockSize)
@@ -286,12 +317,14 @@ class MazePlayView @JvmOverloads constructor(
         override fun setAlpha(alpha: Int) {
             tileDrawable.setAlpha(alpha)
             pathDrawable.setAlpha(alpha)
+            ghostDrawable.setAlpha(alpha)
             spiritDrawable.setAlpha(alpha)
         }
 
         override fun setColorFilter(colorFilter: ColorFilter?) {
             tileDrawable.setColorFilter(colorFilter)
             pathDrawable.setColorFilter(colorFilter)
+            ghostDrawable.setColorFilter(colorFilter)
             spiritDrawable.setColorFilter(colorFilter)
         }
     }
@@ -323,6 +356,11 @@ class MazePlayView @JvmOverloads constructor(
             view?.setPathDrawable(pathDrawable)
         }
 
+        fun setGhostDrawable(ghostDrawable: PathDrawable) {
+            isUpdateDrawable = true
+            view?.setGhostDrawable(ghostDrawable)
+        }
+
         fun setSpiritDrawable(spiritDrawable: SpiritDrawable) {
             isUpdateDrawable = true
             view?.setSpiritDrawable(spiritDrawable)
@@ -333,9 +371,9 @@ class MazePlayView @JvmOverloads constructor(
             view?.setViewportSize(width, height)
         }
 
-        fun setSource(sourceMap: MMap, path: MPath) {
+        fun setSource(mTreasure: MTreasure) {
             isUpdateSource = true
-            view?.setSource(sourceMap, path)
+            view?.setSource(mTreasure)
         }
 
         fun setFocus(x: Int, y: Int) {

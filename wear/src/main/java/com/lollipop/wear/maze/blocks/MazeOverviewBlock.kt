@@ -2,10 +2,7 @@ package com.lollipop.wear.maze.blocks
 
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
-import com.lollipop.maze.MazeMap
-import com.lollipop.maze.data.MMap
-import com.lollipop.maze.data.MPath
-import com.lollipop.maze.data.MPoint
+import com.lollipop.maze.data.MTreasure
 import com.lollipop.play.core.view.MazeOverviewView
 import com.lollipop.wear.blocksbuilding.BBDsl
 import com.lollipop.wear.blocksbuilding.BuilderScope
@@ -39,7 +36,7 @@ fun ItemGroupScope<*>.MazeOverview(
     ).apply(content)
 }
 
-fun BuilderScope.MazeOverview(state: DataProvider<MazeOverviewData>) {
+fun BuilderScope.MazeOverview(state: DataProvider<MTreasure>) {
 
     ItemView {
         content.layoutParams(ItemSize.Match, ItemSize.Wrap)
@@ -56,7 +53,7 @@ fun BuilderScope.MazeOverview(state: DataProvider<MazeOverviewData>) {
             ) {
                 background(0x30FFFFFF.toInt(), RoundRectShape(8.DP.toTypedValue()))
                 state.remember {
-                    setMap(it.map, it.path)
+                    setMap(it)
                 }
             }
         }
@@ -65,11 +62,7 @@ fun BuilderScope.MazeOverview(state: DataProvider<MazeOverviewData>) {
 
 @BBDsl
 interface MazeOverviewScope : ItemViewScope<MazeOverviewView> {
-    fun setMap(map: MazeMap, path: MPath)
-
-    fun setMap(data: MazeOverviewData)
-
-    fun setMap(map: MMap, path: MPath, startPoint: MPoint?, endPoint: MPoint?)
+    fun setMap(treasure: MTreasure)
 
     fun setMin(lineWidthMin: Float, extremeRadiusMin: Float)
 
@@ -86,21 +79,8 @@ class MazeOverviewBlockScope(
     view: MazeOverviewView,
     lifecycleOwner: LifecycleOwner
 ) : BasicItemViewScope<MazeOverviewView>(view, lifecycleOwner), MazeOverviewScope {
-    override fun setMap(map: MazeMap, path: MPath) {
-        content.setMap(map, path)
-    }
-
-    override fun setMap(data: MazeOverviewData) {
-        setMap(data.map, data.path)
-    }
-
-    override fun setMap(
-        map: MMap,
-        path: MPath,
-        startPoint: MPoint?,
-        endPoint: MPoint?
-    ) {
-        content.setMap(map, path, startPoint, endPoint)
+    override fun setMap(treasure: MTreasure) {
+        content.setMap(treasure)
     }
 
     override fun setMin(lineWidthMin: Float, extremeRadiusMin: Float) {
@@ -127,18 +107,4 @@ class MazeOverviewBlockScope(
     override fun updatePath() {
         content.updatePath()
     }
-}
-
-class MazeOverviewData(
-    val map: MazeMap,
-    val path: MPath
-) {
-
-    companion object {
-        val EMPTY = MazeOverviewData(
-            MazeMap(MPoint(0, 0), MPoint(0, 0), MMap(0, 0)),
-            MPath()
-        )
-    }
-
 }

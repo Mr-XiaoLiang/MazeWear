@@ -17,13 +17,15 @@ object MJson {
     const val MAP = "Map"
     const val PATH = "Path"
 
+    const val PATH_HI = "PathHi"
+
     const val X = "X"
     const val Y = "Y"
 
     const val WIDTH = "Width"
     const val HEIGHT = "Height"
 
-    fun parse(json: JSONObject): ParseOut? {
+    fun parse(json: JSONObject): MTreasure? {
         val width = json.optInt(WIDTH)
         val height = json.optInt(HEIGHT)
         val map = MMap(width, height)
@@ -40,9 +42,11 @@ object MJson {
                     WALL -> {
                         map.wall(x, y)
                     }
+
                     ROAD -> {
                         map.road(x, y)
                     }
+
                     START -> {
                         map.road(x, y)
                         startX = x
@@ -57,29 +61,45 @@ object MJson {
                 }
             }
         }
-        val path = MPath()
+
         val pathJson = json.optJSONArray(PATH)
-        if (pathJson != null) {
-            for (i in 0 until pathJson.length()) {
-                val pointJson = pathJson.optJSONObject(i)
-                if (pointJson != null) {
-                    val x = pointJson.optInt(X)
-                    val y = pointJson.optInt(Y)
-                    path.put(MPoint(x, y))
-                }
-            }
+        val path = if (pathJson != null) {
+            parsePath(pathJson)
+        } else {
+            MPath()
         }
-        return ParseOut(
+        val hiPathJson = json.optJSONArray(PATH_HI)
+        val hiPath = if (hiPathJson != null) {
+            parsePath(hiPathJson)
+        } else {
+            null
+        }
+        return MTreasure(
             mazeMap = MazeMap(
                 start = MPoint(x = startX, y = startY),
                 end = MPoint(x = endX, y = endY),
                 map = map
             ),
-            path = path
+            path = path,
+            hiPath = hiPath
         )
     }
 
-    fun build(mazeMap: MazeMap, path: MPath): JSONObject {
+    private fun parsePath(pathJson: JSONArray): MPath {
+        val path = MPath()
+        for (i in 0 until pathJson.length()) {
+            val pointJson = pathJson.optJSONObject(i)
+            if (pointJson != null) {
+                val x = pointJson.optInt(X)
+                val y = pointJson.optInt(Y)
+                path.put(MPoint(x, y))
+            }
+        }
+        return path
+    }
+
+    fun build(treasure: MTreasure): JSONObject {
+        val mazeMap = treasure.mazeMap
         val map = mazeMap.map
         val mapBuilder = JsonBuilder()
         for (y in 0 until mazeMap.height) {
@@ -106,6 +126,26 @@ object MJson {
             }
             mapBuilder.newLine()
         }
+        val pathBuilder = build(treasure.path)
+        val hiPath = treasure.hiPath
+        val hiPathBuilder = if (hiPath != null) {
+            build(hiPath)
+        } else {
+            null
+        }
+
+        val config = JSONObject()
+        config.put(MAP, mapBuilder.json)
+        config.put(PATH, pathBuilder)
+        if (hiPathBuilder != null) {
+            config.put(PATH_HI, hiPathBuilder)
+        }
+        config.put(WIDTH, mazeMap.width)
+        config.put(HEIGHT, mazeMap.height)
+        return config
+    }
+
+    private fun build(path: MPath): JSONArray {
         val pathBuilder = JSONArray()
         for (point in path.pointList) {
             val pointJson = JSONObject()
@@ -113,13 +153,7 @@ object MJson {
             pointJson.put(Y, point.y)
             pathBuilder.put(pointJson)
         }
-
-        val config = JSONObject()
-        config.put(MAP, mapBuilder.json)
-        config.put(PATH, pathBuilder)
-        config.put(WIDTH, mazeMap.width)
-        config.put(HEIGHT, mazeMap.height)
-        return config
+        return pathBuilder
     }
 
     private class JsonBuilder() {
@@ -164,10 +198,5 @@ object MJson {
         }
 
     }
-
-    class ParseOut(
-        val mazeMap: MazeMap,
-        val path: MPath
-    )
 
 }

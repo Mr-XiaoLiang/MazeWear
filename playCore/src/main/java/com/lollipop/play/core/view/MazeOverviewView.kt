@@ -16,6 +16,7 @@ import com.lollipop.maze.MazeMap
 import com.lollipop.maze.data.MMap
 import com.lollipop.maze.data.MPath
 import com.lollipop.maze.data.MPoint
+import com.lollipop.maze.data.MTreasure
 import com.lollipop.play.core.helper.registerLog
 import kotlin.math.max
 
@@ -43,15 +44,30 @@ class MazeOverviewView @JvmOverloads constructor(
         bindDrawable()
     }
 
-    fun setMap(map: MazeMap, path: MPath) {
-        log("setMap: ${map}, $path")
-        mapDrawable.setMap(map.map)
-        pathDrawable.setPath(map.width, map.height, path, map.start, map.end)
+    fun setMap(treasure: MTreasure) {
+        setMap(map = treasure.mazeMap, path = treasure.path, hiPath = treasure.hiPath)
     }
 
-    fun setMap(map: MMap, path: MPath, startPoint: MPoint?, endPoint: MPoint?) {
+    fun setMap(map: MazeMap, path: MPath, hiPath: MPath?) {
+        setMap(
+            map = map.map,
+            path = path,
+            hiPath = hiPath,
+            startPoint = map.start,
+            endPoint = map.end
+        )
+    }
+
+    fun setMap(map: MMap, path: MPath, hiPath: MPath?, startPoint: MPoint?, endPoint: MPoint?) {
         mapDrawable.setMap(map)
-        pathDrawable.setPath(map.width, map.height, path, startPoint, endPoint)
+        pathDrawable.setPath(
+            width = map.width,
+            height = map.height,
+            path = path,
+            hiPath = hiPath,
+            startPoint = startPoint,
+            endPoint = endPoint
+        )
     }
 
     fun setMin(lineWidthMin: Float, extremeRadiusMin: Float) {
@@ -178,6 +194,7 @@ class MazeOverviewView @JvmOverloads constructor(
         private var mapWidth = 0
         private var mapHeight = 0
         private var mPath = MPath()
+        private var hiPath: MPath? = null
         private var startPoint: MPoint? = null
         private var endPoint: MPoint? = null
 
@@ -203,10 +220,18 @@ class MazeOverviewView @JvmOverloads constructor(
             updateSize()
         }
 
-        fun setPath(width: Int, height: Int, path: MPath, startPoint: MPoint?, endPoint: MPoint?) {
+        fun setPath(
+            width: Int,
+            height: Int,
+            path: MPath,
+            hiPath: MPath?,
+            startPoint: MPoint?,
+            endPoint: MPoint?
+        ) {
             this.mapWidth = width
             this.mapHeight = height
             this.mPath = path
+            this.hiPath = hiPath
             this.startPoint = startPoint
             this.endPoint = endPoint
             updateSize()

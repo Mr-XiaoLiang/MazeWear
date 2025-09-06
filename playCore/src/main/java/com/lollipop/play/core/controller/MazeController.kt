@@ -6,6 +6,7 @@ import com.lollipop.maze.data.APoint
 import com.lollipop.maze.data.MBlock
 import com.lollipop.maze.data.MPath
 import com.lollipop.maze.data.MPoint
+import com.lollipop.maze.data.MTreasure
 import com.lollipop.maze.helper.doAsync
 import com.lollipop.play.core.data.DataManager
 import com.lollipop.play.core.data.MazeHistory
@@ -21,6 +22,9 @@ class MazeController(
     private var isDestroy = false
 
     var currentMaze: MazeMap? = null
+        private set
+
+    var hiPath: MPath? = null
         private set
 
     var currentPath: MPath = MPath()
@@ -56,6 +60,15 @@ class MazeController(
         uiQueue.post(task)
     }
 
+    fun snapshot(): MTreasure? {
+        val mazeMap = currentMaze ?: return null
+        return MTreasure(
+            mazeMap = mazeMap,
+            path = currentPath,
+            hiPath = hiPath,
+        )
+    }
+
     fun create(width: Int) {
         log("create: $width")
         doAsyncLoad {
@@ -67,14 +80,7 @@ class MazeController(
             log("create: generate.mazeSize $mazeSize")
             val mazeMap = Maze.generate(mazeSize)
             val path = MPath()
-            onMazeChanged(mazeMap, path)
-        }
-    }
-
-    fun load(id: Int) {
-        log("load: $id")
-        loadHistory {
-            DataManager.findById(id)
+            onMazeChanged(MTreasure(mazeMap = mazeMap, path = path, hiPath = null))
         }
     }
 
@@ -91,7 +97,7 @@ class MazeController(
             val cache = block()
             if (cache != null) {
                 isComplete = cache.isComplete
-                onMazeChanged(cache.maze, cache.path)
+                onMazeChanged(cache.treasure)
             } else {
                 postUI {
                     callback.onMazeCacheNotFound()
@@ -110,19 +116,22 @@ class MazeController(
         }
     }
 
-    private fun onMazeChanged(newMaze: MazeMap, newPath: MPath) {
-        log("onMazeChanged: ${newMaze.tagName()}")
+    private fun onMazeChanged(treasure: MTreasure) {
+        val mazeMap = treasure.mazeMap
+        log("onMazeChanged: ${mazeMap.tagName()}")
 
-        currentMaze = newMaze
-        currentPath = newPath
+        val path = treasure.path
+        currentMaze = mazeMap
+        currentPath = path
+        hiPath = treasure.hiPath
 
         fixPath()
-        val lastPoint = newPath.last() ?: newMaze.start
+        val lastPoint = path.last() ?: mazeMap.start
         focusBlock.set(lastPoint)
         if (!isDestroy) {
             log("onMazeChanged.post.onMazeResult")
             postUI {
-                callback.onMazeResult(newMaze, newPath, focusBlock)
+                callback.onMazeResult(treasure, focusBlock)
             }
         }
     }
@@ -130,7 +139,7 @@ class MazeController(
     fun manipulate(direction: JoystickDirection) {
         log("manipulate: $direction")
         val maze = currentMaze ?: return
-        val path = currentPath ?: return
+        val path = currentPath
         signpost.fetch(maze, focusBlock)
         if (signpost.isDirectionEnable(direction)) {
             val next = signpost.getPoint(direction)
@@ -182,7 +191,13 @@ class MazeController(
             log("checkComplete: complete now, post event")
             isComplete = true
             postUI {
-                callback.onComplete(mazeMap, currentPath)
+                callback.onComplete(
+                    MTreasure(
+                        mazeMap = mazeMap,
+                        path = currentPath,
+                        hiPath = hiPath
+                    )
+                )
             }
         }
     }
@@ -210,13 +225,13 @@ class MazeController(
 
         fun onLoadingEnd()
 
-        fun onMazeResult(maze: MazeMap, path: MPath, focus: MBlock)
+        fun onMazeResult(treasure: MTreasure, focus: MBlock)
 
         fun onMazeCacheNotFound()
 
         fun onPointChange(fromPoint: MPoint, toPoint: MPoint)
 
-        fun onComplete(maze: MazeMap, path: MPath)
+        fun onComplete(treasure: MTreasure)
 
     }
 

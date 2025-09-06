@@ -4,6 +4,7 @@ import com.lollipop.maze.MazeMap
 import com.lollipop.maze.data.MBlock
 import com.lollipop.maze.data.MPath
 import com.lollipop.maze.data.MPoint
+import com.lollipop.maze.data.MTreasure
 import com.lollipop.wear.maze.play.PlayLayer
 import com.lollipop.wear.maze.play.PlayLayerState
 import com.lollipop.wear.maze.play.layer.EmptyLayer
@@ -27,13 +28,11 @@ sealed class PlayPageState(
 
     class Menu(
         val continueState: PlayPageState,
-        val maze: MazeMap,
-        val path: MPath,
+        val treasure: MTreasure,
     ) : PlayPageState(MenuLayer::class.java)
 
     class Playing(
-        val maze: MazeMap,
-        val path: MPath,
+        val treasure: MTreasure,
         val focus: MBlock
     ) : PlayPageState(PlayingLayer::class.java)
 
@@ -44,8 +43,7 @@ sealed class PlayPageState(
 
     class Complete(
         val isNewPath: Boolean,
-        val maze: MazeMap,
-        val path: MPath,
+        val treasure: MTreasure,
     ) : PlayPageState(VictoryLayer::class.java)
 
     class Error(val message: Int) : PlayPageState(ErrorLayer::class.java)

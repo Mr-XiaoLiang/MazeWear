@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import com.lollipop.maze.data.MTreasure
 import com.lollipop.play.core.controller.TimeDelegate
 import com.lollipop.wear.blocksbuilding.data.mutableData
 import com.lollipop.wear.blocksbuilding.data.staticData
@@ -27,7 +28,6 @@ import com.lollipop.wear.maze.blocks.Button
 import com.lollipop.wear.maze.blocks.CurvedText
 import com.lollipop.wear.maze.blocks.Footer
 import com.lollipop.wear.maze.blocks.MazeOverview
-import com.lollipop.wear.maze.blocks.MazeOverviewData
 import com.lollipop.wear.maze.blocks.TimeStyle
 import com.lollipop.wear.maze.blocks.wearBlocksView
 import com.lollipop.wear.maze.play.state.PlayPageState
@@ -37,7 +37,7 @@ class MenuLayer(activity: AppCompatActivity) : BasicLayer(activity) {
     private var continueState: PlayPageState? = null
     private var gameControllerCallback: Callback? = null
 
-    private val mazeState = mutableData(MazeOverviewData.EMPTY)
+    private val mazeState = mutableData(MTreasure.EMPTY)
 
     override fun onAttach() {
         super.onAttach()
@@ -232,7 +232,7 @@ class MenuLayer(activity: AppCompatActivity) : BasicLayer(activity) {
     override fun setState(state: PlayPageState) {
         if (state is PlayPageState.Menu) {
             continueState = state.continueState
-            mazeState.value = MazeOverviewData(state.maze, state.path)
+            mazeState.value = state.treasure
         }
     }
 

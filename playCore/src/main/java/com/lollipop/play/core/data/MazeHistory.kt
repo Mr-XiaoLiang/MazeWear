@@ -2,6 +2,7 @@ package com.lollipop.play.core.data
 
 import com.lollipop.maze.MazeMap
 import com.lollipop.maze.data.MPath
+import com.lollipop.maze.data.MTreasure
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -13,8 +14,7 @@ class MazeHistory(
     val cacheFile: File,
     val lastTime: Long,
     val isComplete: Boolean,
-    val maze: MazeMap,
-    val path: MPath,
+    val treasure: MTreasure,
 ) {
 
     companion object {
@@ -23,6 +23,19 @@ class MazeHistory(
         }
     }
 
+    val maze: MazeMap
+        get() {
+            return treasure.mazeMap
+        }
+    val path: MPath
+        get() {
+            return treasure.path
+        }
+    val hiPath: MPath?
+        get() {
+            return treasure.hiPath
+        }
+
     val level: String by lazy {
         "${maze.width}x${maze.height}"
     }
@@ -30,6 +43,11 @@ class MazeHistory(
     val pathLength: Int
         get() {
             return path.size
+        }
+
+    val hiPathLength: Int
+        get() {
+            return hiPath?.size ?: 0
         }
 
     val cachePath: String by lazy {

@@ -5,11 +5,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import com.lollipop.maze.MazeMap
 import com.lollipop.maze.MazeTest
 import com.lollipop.maze.data.MBlock
-import com.lollipop.maze.data.MPath
 import com.lollipop.maze.data.MPoint
+import com.lollipop.maze.data.MTreasure
 import com.lollipop.play.core.controller.LifecycleHelper
 import com.lollipop.play.core.controller.MazeController
 import com.lollipop.play.core.data.DataManager
@@ -107,8 +106,11 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback,
     override fun onLoadingEnd() {
     }
 
-    override fun onMazeResult(maze: MazeMap, path: MPath, focus: MBlock) {
-        onNewMaze(maze, path, focus)
+    override fun onMazeResult(
+        treasure: MTreasure,
+        focus: MBlock
+    ) {
+        onNewMaze(treasure, focus)
     }
 
     override fun onMazeCacheNotFound() {
@@ -122,12 +124,11 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback,
         onMove(fromPoint, toPoint)
     }
 
-    override fun onComplete(maze: MazeMap, path: MPath) {
+    override fun onComplete(treasure: MTreasure) {
         postState(
             PlayPageState.Complete(
                 isNewPath = mazeController.isRetry,
-                maze = maze,
-                path = path
+                treasure = treasure
             )
         )
     }
@@ -137,7 +138,7 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback,
     }
 
     override fun openMenu(state: PlayPageState.Playing) {
-        postState(PlayPageState.Menu(continueState = state, maze = state.maze, path = state.path))
+        postState(PlayPageState.Menu(continueState = state, treasure = state.treasure))
     }
 
     override fun onContinue(state: PlayPageState) {
@@ -152,18 +153,18 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback,
         onBackPressedDispatcher.onBackPressed()
     }
 
-    private fun onNewMaze(maze: MazeMap, path: MPath, focus: MBlock) {
-        postState(PlayPageState.Playing(maze, path, focus))
+    private fun onNewMaze(treasure: MTreasure, focus: MBlock) {
+        postState(PlayPageState.Playing(treasure, focus))
+        val maze = treasure.mazeMap
         log("start = [${maze.start.x}, ${maze.start.y}] ")
         log("map \n" + MazeTest.print(maze).build())
     }
 
     override fun onContinue() {
         // 继续就重新发一遍游玩的事件
-        val maze = mazeController.currentMaze ?: return
-        val path = mazeController.currentPath
+        val snapshot = mazeController.snapshot() ?: return
         val focus = MBlock(mazeController.focus)
-        postState(PlayPageState.Playing(maze, path, focus))
+        postState(PlayPageState.Playing(treasure = snapshot, focus = focus))
     }
 
     private fun onMove(
@@ -175,15 +176,13 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback,
 
     override fun onStop() {
         super.onStop()
-        val currentMaze = mazeController.currentMaze
-        val currentPath = mazeController.currentPath
-        if (currentMaze != null) {
+        val treasure = mazeController.snapshot()
+        if (treasure != null) {
             // 保存路径，下一次更新的时候，可以再次更新
             mazeCachePath = DataManager.update(
                 context = this,
                 filePath = mazeCachePath,
-                mazeMap = currentMaze,
-                path = currentPath,
+                treasure = treasure,
                 isComplete = mazeController.isComplete,
                 onEnd = ::onSaveEnd
             ).path

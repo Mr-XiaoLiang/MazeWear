@@ -103,8 +103,9 @@ fun BlocksOwner.wearBlocksView(
     }
 }
 
-class CenterScrollingLayoutCallback(val fillHeader: Boolean = true) :
-    WearableLinearLayoutManager.LayoutCallback() {
+class CenterScrollingLayoutCallback(
+    val fillHeader: Boolean = true
+) : WearableLinearLayoutManager.LayoutCallback() {
 
     companion object {
         private const val MAX_ICON_PROGRESS = 0.65f

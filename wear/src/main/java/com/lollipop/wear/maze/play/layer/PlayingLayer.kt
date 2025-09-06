@@ -73,6 +73,7 @@ class PlayingLayer(activity: AppCompatActivity) : BasicLayer(activity) {
             mazePlayView.update { action ->
                 action.setTileDrawable(ColorTileDrawable().apply { color = Color.GRAY })
                 action.setPathDrawable(ColorPathDrawable().apply { color = 0x33FFFFFF })
+                action.setGhostDrawable(ColorPathDrawable().apply { color = 0x11FFFFFF })
                 action.setSpiritDrawable(ColorSpiritDrawable().apply {
                     color = Color.WHITE
                     setEndColor(Color.GREEN)
@@ -105,11 +106,11 @@ class PlayingLayer(activity: AppCompatActivity) : BasicLayer(activity) {
                 joystickView,
                 osdActionPanel,
             )
-            val maze = state.maze
-            val path = state.path
+            val treasure = state.treasure
+            val maze = treasure.mazeMap
             val focus = state.focus
             mazePlayView.update { action ->
-                action.setSource(maze.map, path)
+                action.setSource(treasure)
                 action.setFocus(focus.x, focus.y)
                 action.setFrom(focus.x, focus.y)
                 action.updateProgress(0F)

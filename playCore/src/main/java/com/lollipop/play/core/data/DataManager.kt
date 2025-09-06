@@ -1,9 +1,8 @@
 package com.lollipop.play.core.data
 
 import android.content.Context
-import com.lollipop.maze.MazeMap
 import com.lollipop.maze.data.MJson
-import com.lollipop.maze.data.MPath
+import com.lollipop.maze.data.MTreasure
 import com.lollipop.maze.helper.doAsync
 import com.lollipop.maze.helper.onUI
 import com.lollipop.play.core.helper.registerLog
@@ -163,8 +162,7 @@ object DataManager {
     fun update(
         context: Context,
         filePath: String,
-        mazeMap: MazeMap,
-        path: MPath,
+        treasure: MTreasure,
         isComplete: Boolean,
         onEnd: () -> Unit
     ): File {
@@ -176,8 +174,7 @@ object DataManager {
                 cacheFile = oldCache.cacheFile,
                 lastTime = System.currentTimeMillis(),
                 isComplete = isComplete,
-                maze = mazeMap,
-                path = path
+                treasure = treasure,
             )
             mazeHistoryList.remove(oldCache)
             info
@@ -188,8 +185,7 @@ object DataManager {
                 cacheFile = generateCacheFile(context),
                 lastTime = System.currentTimeMillis(),
                 isComplete = isComplete,
-                maze = mazeMap,
-                path = path
+                treasure = treasure
             )
         }
         writeToFile(mazeHistory) {
@@ -214,7 +210,7 @@ object DataManager {
             jsonObj.put(KEY_TIME, info.lastTime)
             jsonObj.put(KEY_IS_COMPLETE, info.isComplete)
             jsonObj.put(KEY_NAME, info.name)
-            jsonObj.put(KEY_MAZE, MJson.build(info.maze, info.path))
+            jsonObj.put(KEY_MAZE, MJson.build(info.treasure))
             val cacheFile = info.cacheFile
             cacheFile.parentFile?.mkdirs()
             cacheFile.writeText(jsonObj.toString())
@@ -238,8 +234,7 @@ object DataManager {
                 name = name,
                 cacheFile = file,
                 lastTime = lastTime,
-                maze = mazeOut.mazeMap,
-                path = mazeOut.path,
+                treasure = mazeOut,
                 isComplete = isComplete
             )
         }

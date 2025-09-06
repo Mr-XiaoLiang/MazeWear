@@ -3,7 +3,6 @@ package com.lollipop.wear.maze.play.layer
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
-import com.lollipop.play.core.helper.dp2px
 import com.lollipop.wear.maze.R
 import com.lollipop.wear.maze.databinding.LayerPlayVictoryBinding
 import com.lollipop.wear.maze.play.state.PlayPageState
@@ -59,7 +58,7 @@ class VictoryLayer(activity: AppCompatActivity) : BasicLayer(activity) {
                     victoryHintView.setText(R.string.hint_victory)
                     victoryContinueButton.setText(R.string.button_continue)
                 }
-                settlementMapView.setMap(state.maze, state.path)
+                settlementMapView.setMap(state.treasure)
                 settlementMapView.updatePath()
             }
         }

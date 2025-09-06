@@ -3,6 +3,7 @@ package com.lollipop.wear.maze
 import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.lollipop.maze.data.MTreasure
 import com.lollipop.play.core.data.DataManager
 import com.lollipop.play.core.data.MazeHistory
 import com.lollipop.play.core.helper.registerLog
@@ -12,7 +13,6 @@ import com.lollipop.wear.maze.base.MazeActivityHelper
 import com.lollipop.wear.maze.blocks.Button
 import com.lollipop.wear.maze.blocks.DelayButton
 import com.lollipop.wear.maze.blocks.MazeOverview
-import com.lollipop.wear.maze.blocks.MazeOverviewData
 import com.lollipop.wear.maze.blocks.ParameterItem
 import com.lollipop.wear.maze.blocks.ProgressButtonStyle
 import com.lollipop.wear.maze.blocks.ScaffoldBlock
@@ -29,12 +29,11 @@ class MazeInfoActivity : AppCompatActivity() {
 
     private val log = registerLog()
 
-
     private val mazeNameState = mutableData("")
     private val mazeSizeState = mutableData("")
     private val mazeTimeState = mutableData("")
     private val mazeStepsState = mutableData("")
-    private val mazeOverviewState = mutableData(MazeOverviewData.EMPTY)
+    private val mazeOverviewState = mutableData(MTreasure.EMPTY)
 
     private var mazeCache: String = ""
 
@@ -91,7 +90,7 @@ class MazeInfoActivity : AppCompatActivity() {
         mazeSizeState.value = mazeInfo.level
         mazeTimeState.value = mazeInfo.timeDisplay
         mazeStepsState.value = mazeInfo.pathLength.toString()
-        mazeOverviewState.value = MazeOverviewData(mazeInfo.maze, mazeInfo.path)
+        mazeOverviewState.value = mazeInfo.treasure
     }
 
     override fun onResume() {
