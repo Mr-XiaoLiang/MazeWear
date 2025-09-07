@@ -183,15 +183,18 @@ class ProgressButtonStyle(
 }
 
 private fun BuilderScope.BasicButton(
+    visibility: DataProvider<Boolean>,
     iconRes: DataProvider<Int> = staticData(0),
     label: DataProvider<String>,
     buttonState: DataProvider<ProgressButtonState>,
     pendingProgress: DataProvider<Float>,
     onClick: () -> Unit,
 ) {
-    val log = registerLog()
     ItemView {
         content.layoutParams(ItemSize.Match, ItemSize.Wrap)
+        visibility.remember {
+            content.isVisible = it
+        }
         Row(
             layoutParams = ViewLayoutParams(ItemSize.Match, ItemSize.Wrap)
                 .margin(horizontal = 12.DP, vertical = 8.DP)
@@ -249,11 +252,13 @@ private fun BuilderScope.BasicButton(
 }
 
 fun BuilderScope.Button(
+    visibility: DataProvider<Boolean> = staticData(true),
     iconRes: DataProvider<Int> = staticData(0),
     label: DataProvider<String>,
     onClick: () -> Unit
 ) {
     BasicButton(
+        visibility = visibility,
         iconRes = iconRes,
         label = label,
         onClick = onClick,
@@ -263,6 +268,7 @@ fun BuilderScope.Button(
 }
 
 fun BuilderScope.DelayButton(
+    visibility: DataProvider<Boolean> = staticData(true),
     delay: Long = 2000L,
     style: ProgressButtonStyle,
     stateUpdate: (ProgressButtonState) -> Unit = {},
@@ -276,6 +282,7 @@ fun BuilderScope.DelayButton(
     controller.runningState.remember(stateUpdate)
     style.bindState(controller.runningState)
     BasicButton(
+        visibility = visibility,
         iconRes = style.iconState,
         label = style.labelState,
         onClick = {

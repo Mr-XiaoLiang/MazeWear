@@ -6,10 +6,8 @@
     -->
     <string name="hello_world">From the Square world,\nHello, %1$s!</string>
     <string name="button_continue">继续</string>
+    <string name="button_back">返回</string>
     <string name="title_victory">胜利</string>
-    <string name="hint_victory">可以继续或返回</string>
-    <string name="hint_victory_retry">是否更新并覆盖路径记录？</string>
-    <string name="button_coverage">覆盖记录</string>
     <string name="hint_parse">暂停中</string>
     <string name="title_history">历史</string>
     <string name="title_config">配置</string>

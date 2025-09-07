@@ -33,6 +33,7 @@ class MazeInfoActivity : AppCompatActivity() {
     private val mazeSizeState = mutableData("")
     private val mazeTimeState = mutableData("")
     private val mazeStepsState = mutableData("")
+    private val mazeHiStepsState = mutableData("")
     private val mazeOverviewState = mutableData(MTreasure.EMPTY)
 
     private var mazeCache: String = ""
@@ -43,6 +44,7 @@ class MazeInfoActivity : AppCompatActivity() {
             ScaffoldBlock(title = mazeNameState) {
                 ParameterItem(staticData(R.drawable.baseline_resize_24), mazeSizeState)
                 ParameterItem(staticData(R.drawable.baseline_footprint_24), mazeStepsState)
+                ParameterItem(staticData(R.drawable.baseline_crown_24), mazeHiStepsState)
                 ParameterItem(
                     staticData(R.drawable.baseline_nest_clock_farsight_analog_24),
                     mazeTimeState
@@ -90,6 +92,13 @@ class MazeInfoActivity : AppCompatActivity() {
         mazeSizeState.value = mazeInfo.level
         mazeTimeState.value = mazeInfo.timeDisplay
         mazeStepsState.value = mazeInfo.pathLength.toString()
+        mazeHiStepsState.value = mazeInfo.hiPathLength.let {
+            if (it > 0) {
+                it.toString()
+            } else {
+                "-"
+            }
+        }
         mazeOverviewState.value = mazeInfo.treasure
     }
 

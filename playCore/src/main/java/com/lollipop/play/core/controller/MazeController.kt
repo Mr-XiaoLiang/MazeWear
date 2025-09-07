@@ -54,6 +54,9 @@ class MazeController(
             return previousBlock.snapshot()
         }
 
+    var isPathChanged = false
+        private set
+
     private val uiQueue = lifecycleHelper.newQueue(instantOnly = false)
 
     private fun postUI(task: Runnable) {
@@ -67,6 +70,17 @@ class MazeController(
             path = currentPath,
             hiPath = hiPath,
         )
+    }
+
+    fun newGame() {
+        log("newGame")
+        resetComplete()
+        currentPath = MPath()
+        onResume()
+        val treasure = snapshot() ?: return
+        postUI {
+            callback.onMazeResult(treasure, focusBlock)
+        }
     }
 
     fun create(width: Int) {
@@ -84,6 +98,10 @@ class MazeController(
         }
     }
 
+    fun onSaved() {
+        isPathChanged = false
+    }
+
     fun load(path: String) {
         log("load: $path")
         loadHistory {
@@ -96,8 +114,17 @@ class MazeController(
         doAsyncLoad {
             val cache = block()
             if (cache != null) {
-                isComplete = cache.isComplete
-                onMazeChanged(cache.treasure)
+                if (cache.isComplete) {
+                    onMazeChanged(
+                        MTreasure(
+                            mazeMap = cache.maze,
+                            path = MPath(),
+                            hiPath = cache.hiPath
+                        )
+                    )
+                } else {
+                    onMazeChanged(cache.treasure)
+                }
             } else {
                 postUI {
                     callback.onMazeCacheNotFound()
@@ -160,6 +187,7 @@ class MazeController(
                 path.put(next)
                 log("manipulate: move to $next")
             }
+            isPathChanged = true
             postUI {
                 log("post.callback.onPointChange: $previous -> $focus")
                 callback.onPointChange(previous, focus)

@@ -1,6 +1,7 @@
 package com.lollipop.maze
 
 import com.lollipop.maze.data.MMap
+import com.lollipop.maze.data.MPath
 import com.lollipop.maze.generate.DeepGenerator
 import com.lollipop.maze.generate.MazeGenerator
 import com.lollipop.maze.generate.SpreadGenerator
@@ -34,6 +35,27 @@ object Maze {
         generator: MazeGenerator = defaultGenerator
     ): MazeMap {
         return generator.generate(width, height)
+    }
+
+    /**
+     * 路径是否完成了整个迷宫
+     */
+    fun completeStepCount(mazeMap: MazeMap, path: MPath): Int {
+        if (path.size < 2) {
+            return -1
+        }
+        val startPoint = mazeMap.start
+        val endPoint = mazeMap.end
+        if (!path.pointList[0].isSame(startPoint)) {
+            return -1
+        }
+        for (index in 1 until path.size) {
+            val point = path.pointList[index]
+            if (point.isSame(endPoint)) {
+                return (index + 1)
+            }
+        }
+        return -1
     }
 
 }

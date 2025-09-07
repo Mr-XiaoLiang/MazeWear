@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import com.lollipop.maze.Maze
 import com.lollipop.maze.MazeTest
 import com.lollipop.maze.data.MBlock
 import com.lollipop.maze.data.MPoint
@@ -125,6 +126,7 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback,
     }
 
     override fun onComplete(treasure: MTreasure) {
+        saveMaze(treasure)
         postState(
             PlayPageState.Complete(
                 isNewPath = mazeController.isRetry,
@@ -146,7 +148,7 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback,
     }
 
     override fun onNewGame() {
-        // TODO 需要清空路径
+        mazeController.newGame()
     }
 
     override fun onExit() {
@@ -176,17 +178,35 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback,
 
     override fun onStop() {
         super.onStop()
-        val treasure = mazeController.snapshot()
-        if (treasure != null) {
-            // 保存路径，下一次更新的时候，可以再次更新
-            mazeCachePath = DataManager.update(
-                context = this,
-                filePath = mazeCachePath,
-                treasure = treasure,
-                isComplete = mazeController.isComplete,
-                onEnd = ::onSaveEnd
-            ).path
+        if (mazeController.isPathChanged) {
+            val treasure = mazeController.snapshot()
+            if (treasure != null) {
+                // 保存路径，下一次更新的时候，可以再次更新
+                saveMaze(treasure)
+            }
         }
+    }
+
+    private fun saveMaze(treasure: MTreasure) {
+        val current = treasure.path
+        var hiPath = treasure.hiPath
+        val mazeMap = treasure.mazeMap
+        val completeStepCount = Maze.completeStepCount(mazeMap, current)
+        if (completeStepCount > 0) {
+            val hiStepCount = hiPath?.size ?: Int.MAX_VALUE
+            if (hiStepCount > completeStepCount) {
+                hiPath = current.subPath(completeStepCount)
+            }
+        }
+        // 保存路径，下一次更新的时候，可以再次更新
+        mazeCachePath = DataManager.update(
+            context = this,
+            filePath = mazeCachePath,
+            treasure = MTreasure(mazeMap = mazeMap, path = current, hiPath = hiPath),
+            isComplete = completeStepCount > 0,
+            onEnd = ::onSaveEnd
+        ).path
+        mazeController.onSaved()
     }
 
     private fun onSaveEnd() {
