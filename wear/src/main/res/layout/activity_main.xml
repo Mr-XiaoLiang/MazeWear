@@ -5,28 +5,50 @@
     android:layout_height="match_parent"
     android:background="@android:color/black">
 
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/viewPager"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="0px"
         android:layout_height="0px"
+        android:background="#262626"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <com.lollipop.play.core.view.HorizontalPageIndicator
-        android:id="@+id/pageIndicator"
-        android:layout_width="0px"
-        android:layout_height="0px"
-        android:padding="2dp"
-        app:activeColor="@android:color/white"
-        app:inactiveColor="#88FFFFFF"
-        app:indicatorInterval="4dp"
-        app:indicatorRadius="2dp"
-        app:layout_constraintBottom_toBottomOf="@id/viewPager"
-        app:layout_constraintEnd_toEndOf="@id/viewPager"
-        app:layout_constraintStart_toStartOf="@id/viewPager"
-        app:layout_constraintTop_toTopOf="@id/viewPager" />
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/logoImage"
+            android:layout_width="0px"
+            android:layout_height="0px"
+            android:alpha="0.3"
+            android:src="@drawable/ic_logo"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.5" />
+
+        <androidx.wear.widget.CurvedTextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/copyright"
+            android:textColor="@android:color/white"
+            android:textSize="11sp" />
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <com.lollipop.play.core.view.HorizontalPageIndicator
+            android:id="@+id/pageIndicator"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="2dp"
+            app:activeColor="@android:color/white"
+            app:inactiveColor="#88FFFFFF"
+            app:indicatorInterval="4dp"
+            app:indicatorRadius="2dp" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

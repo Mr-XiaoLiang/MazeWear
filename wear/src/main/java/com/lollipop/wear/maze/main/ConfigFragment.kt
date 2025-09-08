@@ -48,7 +48,7 @@ class ConfigFragment : MainBaseFragment() {
     ): View? {
         return wearBlocksView(inflater.context) {
             ScaffoldBlock(
-                title = staticData(blocksOwner.context.getString(R.string.title_history))
+                title = staticData(blocksOwner.context.getString(R.string.title_config))
             ) {
                 Item(
                     labelRes = R.string.label_map_size,
