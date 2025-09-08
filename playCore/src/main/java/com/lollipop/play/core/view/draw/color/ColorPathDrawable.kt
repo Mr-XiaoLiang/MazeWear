@@ -3,6 +3,7 @@ package com.lollipop.play.core.view.draw.color
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
+import com.lollipop.play.core.helper.registerLog
 import com.lollipop.play.core.view.draw.PathDrawable
 
 class ColorPathDrawable : ColorBasicDrawable(), PathDrawable {

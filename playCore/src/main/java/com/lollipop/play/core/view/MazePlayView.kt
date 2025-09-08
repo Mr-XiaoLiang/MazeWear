@@ -205,7 +205,7 @@ class MazePlayView @JvmOverloads constructor(
                 pathToPath(it, routePath, halfBlock)
             }
             ghostList?.let {
-                pathToPath(it, ghostRoutePath, halfBlock)
+                pathToDottedPath(it, ghostRoutePath, halfBlock)
             }
             invalidateSelf()
         }
@@ -216,15 +216,22 @@ class MazePlayView @JvmOverloads constructor(
                 val pointX = (point.x * blockSize) + halfBlock
                 val pointY = (point.y * blockSize) + halfBlock
                 if (isFirst) {
-                    routePath.moveTo(pointX, pointY)
+                    outPath.moveTo(pointX, pointY)
                     isFirst = false
                 } else {
-                    routePath.lineTo(pointX, pointY)
+                    outPath.lineTo(pointX, pointY)
                 }
             }
         }
 
-        private val log = registerLog()
+        private fun pathToDottedPath(path: MPath, outPath: Path, halfBlock: Float) {
+            path.pointList.forEach { point ->
+                val pointX = (point.x * blockSize) + halfBlock
+                val pointY = (point.y * blockSize) + halfBlock
+                outPath.moveTo(pointX, pointY)
+                outPath.lineTo(pointX, pointY)
+            }
+        }
 
         override fun draw(canvas: Canvas) {
             sourceMap ?: return

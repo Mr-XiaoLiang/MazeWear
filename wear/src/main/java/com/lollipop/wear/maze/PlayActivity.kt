@@ -203,7 +203,7 @@ class PlayActivity : AppCompatActivity(), MazeController.Callback,
             context = this,
             filePath = mazeCachePath,
             treasure = MTreasure(mazeMap = mazeMap, path = current, hiPath = hiPath),
-            isComplete = completeStepCount > 0,
+            isComplete = completeStepCount > 0 || hiPath != null,
             onEnd = ::onSaveEnd
         ).path
         mazeController.onSaved()

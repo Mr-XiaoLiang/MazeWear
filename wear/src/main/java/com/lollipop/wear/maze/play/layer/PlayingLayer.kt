@@ -73,7 +73,7 @@ class PlayingLayer(activity: AppCompatActivity) : BasicLayer(activity) {
             mazePlayView.update { action ->
                 action.setTileDrawable(ColorTileDrawable().apply { color = Color.GRAY })
                 action.setPathDrawable(ColorPathDrawable().apply { color = 0x33FFFFFF })
-                action.setGhostDrawable(ColorPathDrawable().apply { color = 0x3356FF56 })
+                action.setGhostDrawable(ColorPathDrawable().apply { color = 0x33FFFFFF })
                 action.setSpiritDrawable(ColorSpiritDrawable().apply {
                     color = Color.WHITE
                     setEndColor(Color.GREEN)
