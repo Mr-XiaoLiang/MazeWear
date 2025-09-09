@@ -59,17 +59,17 @@ class ConfigFragment : MainBaseFragment() {
                         it.startActivity(Intent(it, MazeSizeActivity::class.java))
                     }
                 }
-                Item(
-                    labelRes = R.string.label_theme,
-                    summaryState = themeState,
-                    hasArrow = true
-                ) {
-                    // TODO
-                }
+//                Item(
+//                    labelRes = R.string.label_theme,
+//                    summaryState = themeState,
+//                    hasArrow = true
+//                ) {
+//                    // TODO
+//                }
                 Item(
                     labelRes = R.string.label_about,
                     summaryState = appVersionState,
-                    hasArrow = true
+                    hasArrow = false
                 ) {
                     // TODO
                 }
